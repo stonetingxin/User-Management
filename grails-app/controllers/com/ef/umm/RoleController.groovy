@@ -141,12 +141,12 @@ class RoleController {
     }
 
     @Transactional
-    def update(){
+    def addRevokePermissions(){
         def resultSet = [:]
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.authority ){
+            if(!jsonObject?.id || jsonObject?.addRevoke != 'add' || jsonObject?.addRevoke != 'revoke'){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -154,11 +154,12 @@ class RoleController {
                 return
             }
 
-            Role roleInstance = Role.findByAuthority(jsonObject?.authority)
+            def addRevoke = jsonObject?.addRevoke
+            Role roleInstance = Role.findById(jsonObject?.id as Long)
             if(!roleInstance){
                 resultSet.put("status", NOT_FOUND)
                 resultSet.put("message", "Role not found. Invalid update request. " +
-                              "For creating new role, use create API instead.")
+                        "For creating new role, use create API instead.")
                 response.status = 404
                 render resultSet as JSON
                 return
@@ -175,20 +176,26 @@ class RoleController {
 
             def perm
             perms?.each{
-                if(!it?.expression || !it?.name){
+                if(!it?.id){
                     resultSet.put("status", NOT_ACCEPTABLE)
                     resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                     response.status = 406
                     render resultSet as JSON
                     return
                 }
-                perm = Permission.findByExpressionOrName(it?.expression, it?.name)
+                perm = Permission.findById(it?.id as Long)
                 if(!perm){
-                    roleInstance.addToPermissions(name: it?.name, expression: it?.expression)
+                    resultSet.put("status", NOT_ACCEPTABLE)
+                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                    response.status = 406
+                    render resultSet as JSON
+                    return
                 }
-                else{
+                if(!Role.findByPermissions(perm) && addRevoke == 'add')
                     roleInstance.addToPermissions(perm)
-                }
+
+                if(Role.findByPermissions(perm) && addRevoke == 'revoke')
+                    roleInstance.removeFromPermissions(perm)
             }
 
             roleInstance.validate()
@@ -203,13 +210,66 @@ class RoleController {
             roleInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "${roleInstance.authority} has been updated with permissions:" +
+            resultSet.put("message", "${roleInstance.authority} has following permission(s):" +
                                      " ${roleInstance.permissions}")
             render resultSet as JSON
             return
 
         }catch (Exception ex){
-            log.error("Exception occured while updating user: ", ex)
+            log.error("Exception occured while adding permissions: ", ex)
+
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+            return
+        }
+    }
+
+    @Transactional
+    def update(){
+        def resultSet = [:]
+
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.authority || !jsonObject?.id ){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            Role roleInstance = Role.findById(jsonObject?.id as Long)
+            if(!roleInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "Role not found. Invalid update request. " +
+                              "For creating new role, use create API instead.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+
+            roleInstance.authority = jsonObject?.authority
+            roleInstance.description = jsonObject?.description
+            roleInstance.validate()
+            if (roleInstance.hasErrors()) {
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("error", roleInstance.errors)
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            roleInstance.save(flush: true, failOnError: true)
+
+            resultSet.put("status", OK)
+            resultSet.put("message", "${roleInstance.authority} has been updated successfully.")
+            render resultSet as JSON
+            return
+
+        }catch (Exception ex){
+            log.error("Exception occured while updating role: ", ex)
 
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
@@ -236,7 +296,7 @@ class RoleController {
             if(umr)
             {
                 resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Cannot delete the role. Role is already assigned to following user(s):")
+                resultSet.put("message", "Cannot delete the role. Role is assigned to following user(s):")
                 resultSet.put("Users", umr*.toString())
                 response.status = 406
                 render resultSet as JSON
@@ -251,7 +311,7 @@ class RoleController {
             return
         }
         catch (Exception ex) {
-            log.error("Exception occurred while deleting Instance: ", ex)
+            log.error("Exception occurred while deleting role: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500

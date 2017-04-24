@@ -8,7 +8,8 @@ import static org.springframework.http.HttpStatus.*
 
 class UserController extends RestfulController<User> {
 
-    static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE", show: "GET", updatePassword: "PUT"]
+    static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE", show: "GET",
+                             updatePassword: "PUT", addRevokeMicroserviceRoles: "PUT"]
 
     def springSecurityService
 
@@ -127,13 +128,50 @@ class UserController extends RestfulController<User> {
         }
     }
 
+    def usernameExists(){
+        def resultSet = [:]
+
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.username){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+            User userInstance = User.findByUsername(jsonObject?.username)
+            if(userInstance){
+                resultSet.put("status", OK)
+                resultSet.put("exists", true)
+                resultSet.put("message", "User with username: '${jsonObject?.username}' already exists.")
+                render resultSet as JSON
+                return
+            }
+            else{
+                resultSet.put("status", OK)
+                resultSet.put("exists", false)
+                resultSet.put("message", "username: '${jsonObject?.username}' does not exist.")
+                render resultSet as JSON
+                return
+            }
+
+        }catch(Exception ex){
+            log.error("Exception occured while checking username existence: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
     @Transactional
     def create(){
         def resultSet = [:]
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.username || !jsonObject?.microservice || !jsonObject?.role ){
+            if(!jsonObject?.username || !jsonObject?.password){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -150,7 +188,7 @@ class UserController extends RestfulController<User> {
             }
             newUser = new User(username: jsonObject?.username, firstName: jsonObject?.firstName,
                                password: jsonObject?.password, lastName: jsonObject?.lastName,
-                               authProvider: jsonObject?.authProvider)
+                               email: jsonObject?.email)
 
             newUser.validate()
             if (newUser.hasErrors()){
@@ -162,28 +200,9 @@ class UserController extends RestfulController<User> {
             }
 
             newUser.save(flush: true, failOnError: true)
-            Microservice micro = Microservice.findByName(jsonObject?.microservice?.name)
-            if(!micro){
-                resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "MicroService not found. Provide a valid microservice.")
-                response.status = 404
-                render resultSet as JSON
-                return
-            }
 
-            Role role = Role.findByAuthority(jsonObject?.role?.name)
-            if(!role){
-                resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "Role not found. Provide a valid role.")
-                response.status = 404
-                render resultSet as JSON
-                return
-            }
-
-            UMR.create newUser, role, micro, true
             resultSet.put("status", OK)
-            resultSet.put("message", "New user: '${newUser.username}' has been created as " +
-                          "${role.authority} in ${micro.name}")
+            resultSet.put("message", "New user: '${newUser.username}' has been created successfully.")
             render resultSet as JSON
             return
 
@@ -201,34 +220,83 @@ class UserController extends RestfulController<User> {
         def resultSet = [:]
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.username || !jsonObject?.microservice || !jsonObject?.role ){
+            if(!jsonObject?.id){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
                 render resultSet as JSON
                 return
             }
-            User userInstance = User.findByUsername(jsonObject?.username)
-            println userInstance
+            User userInstance = User.findById(jsonObject?.id as Long)
+
             if(!userInstance){
                 resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "User not found. Invalid update request")
+                resultSet.put("message", "User not found. Invalid update request." +
+                                         " Call create API to create a new user.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+            userInstance.firstName = jsonObject?.firstName
+            userInstance.lastName = jsonObject?.lastName
+            userInstance.email = jsonObject?.email
+
+            userInstance.validate()
+            if (userInstance.hasErrors()){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("error", userInstance.errors)
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+            userInstance.save(flush: true, failOnError: true)
+            resultSet.put("status", OK)
+            resultSet.put("message", "User with username: '${userInstance.username}' has been updated successfully.")
+            render resultSet as JSON
+            return
+
+        }catch (Exception ex){
+            log.error("Exception occured while updating user: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def addRevokeMicroserviceRoles() {
+        def resultSet = [:]
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.id || !jsonObject?.microservice?.id || !jsonObject?.role?.id || !jsonObject?.addRevoke){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+            def addRevoke = jsonObject?.addRevoke
+            User userInstance = User.findById(jsonObject?.id as Long)
+            if(!userInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "User not found. Invalid add/revoke request")
                 response.status = 404
                 render resultSet as JSON
                 return
             }
 
-            Microservice micro = Microservice.findByName(jsonObject?.microservice)
+            Microservice micro = Microservice.findById(jsonObject?.microservice?.id as Long)
 
             if(!micro){
                 resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "MicroService not found. Provide a valid microservice.")
+                resultSet.put("message", "Microservice not found. Provide a valid microservice.")
                 response.status = 404
                 render resultSet as JSON
                 return
             }
 
-            Role role = Role.findByAuthority(jsonObject?.role)
+            Role role = Role.findById(jsonObject?.role?.id as Long)
 
             if(!role){
                 resultSet.put("status", NOT_FOUND)
@@ -240,32 +308,69 @@ class UserController extends RestfulController<User> {
 
             UMR umr = UMR.findByUsersAndMicroservices(userInstance, micro)
 
-            if(!umr){
-                umr = UMR.create userInstance, role, micro
-                umr.save(flush:true)
-                resultSet.put("status", OK)
-                resultSet.put("message", "New role: '${jsonObject?.role}' has been added for " +
-                              "${userInstance.username} in ${micro.name}")
+            if(addRevoke == 'add'){
+                if(umr){
+                    if(umr.roles !=role){
+                        umr.setRoles(role)
+                        umr.save(flush: true, failOnError: true)
+                        resultSet.put("status", OK)
+                        resultSet.put("message", "Role has been changed for ${userInstance.username} in ${micro.name}")
+                        render resultSet as JSON
+                        return
+                    }
+                    else{
+                        resultSet.put("status", OK)
+                        resultSet.put("message", "${userInstance.username} already has ${role.authority} role for ${micro.name}")
+                        render resultSet as JSON
+                        return
+                    }
+                }
+                else{
+                    umr = UMR.create userInstance, role, micro
+                    umr.save(flush:true)
+                    resultSet.put("status", OK)
+                    resultSet.put("message", "New role: '${role.authority}' has been added for " +
+                            "${userInstance.username} in ${micro.name}")
+                    render resultSet as JSON
+                    return
+                }
+            }
+            else if(addRevoke == 'revoke'){
+                if(umr){
+                    if(umr.roles !=role){
+                        resultSet.put("status", OK)
+                        resultSet.put("message", "Role cannot be revoked since it's not been assigned." +
+                                " ${userInstance.username} has ${umr?.roles?.authority} role in ${micro.name}")
+                        render resultSet as JSON
+                        return
+                    }
+                    else{
+                        umr.delete(flush: true, failOnErrors:true)
+                        resultSet.put("status", OK)
+                        resultSet.put("message", "Role: '${role.authority}' has been revoked for " +
+                                "${userInstance.username} in ${micro.name}")
+                        render resultSet as JSON
+                        return
+                    }
+                }
+                else{
+                    resultSet.put("status", OK)
+                    resultSet.put("message", "Role cannot be revoked since it's not been assigned." +
+                            " ${userInstance.username} does not have any role in ${micro.name}")
+                    render resultSet as JSON
+                    return
+                }
+            }
+            else{
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Only add or revoke is allowed in this method.")
+                response.status = 406
                 render resultSet as JSON
                 return
             }
-
-            if(umr.roles != role){
-                umr.setRoles(role)
-                umr.save(flush: true)
-                resultSet.put("status", OK)
-                resultSet.put("message", "Role has been changed for ${userInstance.username} in ${micro.name}")
-                render resultSet as JSON
-                return
-            }
-
-            resultSet.put("status", OK)
-            resultSet.put("message", "${userInstance.username} already has ${jsonObject?.role} role for ${micro.name}")
-            render resultSet as JSON
-            return
 
         }catch (Exception ex){
-            log.error("Exception occured while updating user: ", ex)
+            log.error("Exception occured while adding/revoking microservices and roles to a user: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
@@ -281,6 +386,13 @@ class UserController extends RestfulController<User> {
             resultSet.put("status", NOT_FOUND)
             resultSet.put("message", "User not found. Provide a valid user instance.")
             response.status = 404
+            render resultSet as JSON
+            return
+        }
+        if(userInstance.username == 'Admin'){
+            resultSet.put("status", NOT_ACCEPTABLE)
+            resultSet.put("message", "This user cannot be deleted. Permission denied.")
+            response.status = 406
             render resultSet as JSON
             return
         }

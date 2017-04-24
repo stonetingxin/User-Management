@@ -9,39 +9,39 @@ class BootStrap {
     def init = { servletContext ->
         if (Role.count() == 0) {
             try {
-                def ahmed = new User(username: "ahmed", password: "admin", authProvider: "local")
+                def admin = new User(username: "Admin", password: "admin", authProvider: "local")
                 def hamid = new User(username: "hamid", password: "nothing", authProvider: "external")
-                ahmed?.save(flush: true, failOnError: true)
+                admin?.save(flush: true, failOnError: true)
                 hamid?.save(flush: true, failOnError: true)
 
-                def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator Role")
-                admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
-                admin?.save(flush: true, failOnError: true)
+                def roleAdmin = new Role(authority: "ROLE_ADMIN", description: "Administrator Role")
+                roleAdmin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
+                roleAdmin?.save(flush: true, failOnError: true)
 
                 def role = new Role(authority: "ROLE_USER", description: "User role")
-                role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
-                role.addToPermissions(name: "com.app.ef.update", expression: "update:*")
+                role.addToPermissions(name: "com.app.ef.show", expression: "user:show")
+                role.addToPermissions(name: "com.app.ef.update", expression: "user:update")
                 role?.save(flush: true, failOnError: true)
 
                 def umm = new Microservice(name: 'UMM', description: 'User Management MicroService')
                 def pcs = new Microservice(name: 'PCS', description: 'Post Call Survey')
                 def cbr = new Microservice(name: 'CBR', description: 'Caller Based Routing')
-                pcs.addToRoles(admin)
+                pcs.addToRoles(roleAdmin)
                 pcs.addToRoles(role)
                 pcs?.save(flush: true, failOnError: true)
-                cbr.addToRoles(admin)
+                cbr.addToRoles(roleAdmin)
                 cbr.addToRoles(role)
                 cbr?.save(flush: true, failOnError: true)
-                umm.addToRoles(admin)
+                umm.addToRoles(roleAdmin)
                 umm.addToRoles(role)
                 umm?.save(flush: true, failOnError: true)
 
 
 
-                UMR.create ahmed, admin, pcs
-                UMR.create ahmed, role, cbr
-                UMR.create hamid, admin, cbr
-                UMR.create ahmed, admin, umm
+                UMR.create admin, roleAdmin, pcs
+                UMR.create admin, role, cbr
+                UMR.create hamid, roleAdmin, cbr
+                UMR.create admin, roleAdmin, umm
 
                 UMR.withSession {
                     it.flush()

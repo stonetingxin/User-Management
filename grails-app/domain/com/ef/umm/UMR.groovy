@@ -17,6 +17,7 @@ class UMR implements Serializable{
         return "${users.username} as ${roles.authority} in ${microservices.name}"
     }
 
+
     static UMR create(User user, Role role, Microservice microservice, boolean flush = false) {
         def instance = new UMR(users: user, roles: role, microservices: microservice)
         if(!instance.validate()){

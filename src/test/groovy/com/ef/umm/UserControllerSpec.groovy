@@ -3,7 +3,7 @@ package com.ef.umm
 import grails.converters.JSON
 import grails.test.mixin.TestFor
 import groovy.json.JsonBuilder
-import spock.lang.Specification
+import spock.lang.*
 import grails.test.mixin.Mock
 
 @TestFor(UserController)
@@ -34,8 +34,8 @@ class UserControllerSpec extends Specification {
             cbr?.save()
 
 
-            UMR.create ahmed, admin, pcs
-            UMR.create hamid, admin, cbr
+            UMR.create ahmed, admin, pcs, true
+            UMR.create hamid, admin, cbr, true
 
             UMR.withSession {
                 it.flush()
@@ -105,20 +105,40 @@ class UserControllerSpec extends Specification {
     def cleanup() {
     }
 
+    void "test usernameExists api (false response)"() {
+        when: 'usernameExists is called'
+        request?.json = $/{"username":"asif"}/$
+        controller?.usernameExists()
+
+        then: 'DB lookup should be performed to evaluate existence of user'
+        response?.status == 200
+        response?.json.exists == false
+        response?.json.message == "username: 'asif' does not exist."
+    }
+
+    void "test usernameExists api (true response)"() {
+        when: 'usernameExists is called'
+        request?.json = $/{"username":"hamid"}/$
+        controller?.usernameExists()
+
+        then: 'DB lookup should be performed to evaluate existence of user'
+        response?.status == 200
+        response?.json.exists == true
+        response?.json.message == "User with username: 'hamid' already exists."
+    }
+
+
+
     void "test create api"() {
-        when: 'save method is called with a json containing user, microservice and role details'
+        when: 'save method is called with a json containing user details'
         request?.method = "POST"
-        request?.json = $/{"username":"asif","password":"blahblah","authProvider":"local","microservice":{/$+
-                        $/"id":"1","name":"PCS"},"role":{"id":"2","name":"Supervisor"}}/$
-        User.count() == 2
+        request?.json = $/{"username":"asif","password":"blahblah"}/$
         controller?.create()
 
         then: 'a new user should be created incrementing the total user count by 1'
         response?.status == 200
         User.count() == 3
-        response?.json.message == "New user: 'asif' has been created as Supervisor in PCS"
-        def umr = UMR.findByUsersAndMicroservices(User.findByUsername("asif"), Microservice.findByName("PCS"))
-        umr.toString() == "asif as Supervisor in PCS"
+        response?.json.message == "New user: 'asif' has been created successfully."
     }
 
     void "test list api"() {
@@ -159,7 +179,6 @@ class UserControllerSpec extends Specification {
         when: 'delete is called with a valid user id'
         request?.method = "DELETE"
         request?.setParameter("id", "2")
-        User.count()==2
         controller?.delete()
 
         then: 'user having that id should be deleted decrementing the user count by 1'
@@ -168,33 +187,134 @@ class UserControllerSpec extends Specification {
         response?.json.message == "Successfully deleted user: hamid"
     }
 
-    void "test update role api"() {
-
+    void "test update api"() {
         when: 'update is called with existing user-microservice association'
         request?.method = "PUT"
-        request?.json = $/{"username":"ahmed","microservice":"PCS","role":"Supervisor"}/$
-        UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("PCS")).roles.authority == "Admin"
+        request?.json = $/{"id":"1", "firstName":"Ahmed", "lastName":"Khan", "email":"ahmed_khan@ahmed.com"}/$
+        def ahmed = User.findByUsername("ahmed")
         controller?.update()
 
         then: 'the role of user for corresponding microservice should be updated as provided in the request json'
         response?.status == 200
-        response?.json.message == "Role has been changed for ahmed in PCS"
-        def umr = UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("PCS"))
-        umr.toString() == "ahmed as Supervisor in PCS"
+        ahmed.firstName == "Ahmed"
+        ahmed.lastName == "Khan"
+        ahmed.email == "ahmed_khan@ahmed.com"
+        response?.json.message == "User with username: 'ahmed' has been updated successfully."
+
     }
 
-    void "test update microservice-role api"() {
-        when: 'update is called for a new user-microservice association'
+    @Unroll
+    void "test add Microservice Roles api"() {
+        when: 'addRevokeMicroserviceRoles is called for a new user-microservice association'
         request?.method = "PUT"
-        request?.json = $/{"username":"ahmed","microservice":"CBR","role":"Admin"}/$
-        UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("CBR")) == null
-        controller?.update()
+        request?.json = input
+        controller?.addRevokeMicroserviceRoles()
 
         then: 'the corresponding role microservice should be added for the user'
-        response?.status == 200
-        response?.json.message == "New role: 'Admin' has been added for ahmed in CBR"
-        def umr = UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("CBR"))
-        umr.toString() == "ahmed as Admin in CBR"
+        response?.status == status
+        response?.json.message == output
+        def out = null
+        if(findUMR(u, m)){
+            out = findUMR(u, m).toString()
+        }
+        out == umrOutput
+
+        where:
+        input << [$/{"id":"1","microservice":{"id":"1"}, "role":{"id":"1"}, "addRevoke":"add"}/$,
+                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"1"}, "addRevoke":"add"}/$,
+                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"add"}/$,
+                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"2"}, "addRevoke":"add"}/$,
+                  $/{"id":"1","microservice":{"id":"3"}, "role":{"id":"3"}, "addRevoke":"add"}/$]
+
+        output << ["ahmed already has Admin role for PCS",
+                   "New role: 'Admin' has been added for ahmed in CBR",
+                   "Role has been changed for ahmed in PCS",
+                   "New role: 'Supervisor' has been added for ahmed in CBR",
+                   "Microservice not found. Provide a valid microservice."]
+        status << [200,
+                   200,
+                   200,
+                   200,
+                   404]
+        u <<["ahmed",
+             "ahmed",
+             "ahmed",
+             "ahmed",
+             "ahmed"]
+
+        m <<  ["CBR",
+               "CBR",
+               "CBR",
+               "CBR",
+               "CBR"]
+
+        umrOutput <<[null,
+                     "ahmed as Admin in CBR",
+                     null,
+                     "ahmed as Supervisor in CBR",
+                     null]
+    }
+
+    @Unroll
+    void "test revoke Microservice Roles api"() {
+        when: 'addRevokeMicroserviceRoles is called'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.addRevokeMicroserviceRoles()
+
+        then: 'the corresponding role-microservice should be revoked for the user'
+        response?.status == status
+        response?.json.message == output
+        findUMR(u, m) == umrOutput
+
+
+        where:
+        input << [$/{"id":"1","microservice":{"id":"1"}, "role":{"id":"1"}, "addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"1"}, "addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":""}, "addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"3"}, "addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"revok"}/$]
+
+        output << ["Role: 'Admin' has been revoked for ahmed in PCS",
+                   "Role cannot be revoked since it's not been assigned. ahmed does not have any role in CBR",
+                   "Role cannot be revoked since it's not been assigned. ahmed has Admin role in PCS",
+                   "Invalid JSON provided. Please read the API specifications.",
+                   "Role not found. Provide a valid role.",
+                   "Only add or revoke is allowed in this method."]
+        status << [200,
+                   200,
+                   200,
+                   406,
+                   404,
+                   406]
+        u <<["ahmed",
+             "ahmed",
+             "ahmed",
+             "ahmed",
+             "ahmed",
+             "ahmed"]
+
+        m <<  ["PCS",
+               "CBR",
+               "CBR",
+               "CBR",
+               "CBR",
+               "CBR"]
+
+        umrOutput <<[null,
+                     null,
+                     null,
+                     null,
+                     null,
+                     null]
+    }
+
+    private UMR findUMR(String user, String micro){
+        def u = User.findByUsername(user)
+        def m = Microservice.findByName(micro)
+        def umr = UMR.findByUsersAndMicroservices(u, m)
+        return umr
     }
 
 }
