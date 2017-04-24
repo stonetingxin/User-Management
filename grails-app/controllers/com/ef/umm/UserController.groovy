@@ -181,7 +181,7 @@ class UserController extends RestfulController<User> {
             User newUser = User.findByUsername(jsonObject?.username)
             if(newUser){
                 resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "User with username: ${jsonObject?.username} already exists.")
+                resultSet.put("message", "User with username: '${jsonObject?.username}' already exists.")
                 response.status = 406
                 render resultSet as JSON
                 return
@@ -389,7 +389,7 @@ class UserController extends RestfulController<User> {
             render resultSet as JSON
             return
         }
-        if(userInstance.username == 'Admin'){
+        if(userInstance.username == 'admin'){
             resultSet.put("status", NOT_ACCEPTABLE)
             resultSet.put("message", "This user cannot be deleted. Permission denied.")
             response.status = 406

@@ -12,10 +12,12 @@ class UserControllerSpec extends Specification {
 
     def setup() {
         try {
-            def ahmed = new User(username: "ahmed", password: "admin", authProvider: "local")
-            def hamid = new User(username: "hamid", password: "nothing", authProvider: "external")
+            def ahmed = new User(username: "ahmed", password: "admin")
+            def hamid = new User(username: "hamid", password: "nothing")
+            def userAdmin = new User(username: "admin", password: "admin")
             ahmed?.save()
             hamid?.save()
+            userAdmin.save()
 
             def admin = new Role(authority: "Admin", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
@@ -105,40 +107,65 @@ class UserControllerSpec extends Specification {
     def cleanup() {
     }
 
-    void "test usernameExists api (false response)"() {
+    @Unroll
+    void "test usernameExists api"() {
         when: 'usernameExists is called'
-        request?.json = $/{"username":"asif"}/$
+        request?.json = input
         controller?.usernameExists()
 
         then: 'DB lookup should be performed to evaluate existence of user'
-        response?.status == 200
-        response?.json.exists == false
-        response?.json.message == "username: 'asif' does not exist."
+        response?.status == status
+        response?.json.exists == exists
+        response?.json.message == output
+
+        where:
+        input << [$/{"username":"asif"}/$,
+                  $/{"username":"ahmed"}/$,
+                  $/{"usernam":"asif"}/$]
+
+        output<< ["username: 'asif' does not exist.",
+                  "User with username: 'ahmed' already exists.",
+                  "Invalid JSON provided. Please read the API specifications."]
+
+        exists <<[false,
+                  true,
+                  null]
+
+        status <<[200,
+                  200,
+                  406]
     }
 
-    void "test usernameExists api (true response)"() {
-        when: 'usernameExists is called'
-        request?.json = $/{"username":"hamid"}/$
-        controller?.usernameExists()
-
-        then: 'DB lookup should be performed to evaluate existence of user'
-        response?.status == 200
-        response?.json.exists == true
-        response?.json.message == "User with username: 'hamid' already exists."
-    }
 
 
-
+    @Unroll
     void "test create api"() {
         when: 'save method is called with a json containing user details'
         request?.method = "POST"
-        request?.json = $/{"username":"asif","password":"blahblah"}/$
+        request?.json = input
         controller?.create()
 
         then: 'a new user should be created incrementing the total user count by 1'
-        response?.status == 200
-        User.count() == 3
-        response?.json.message == "New user: 'asif' has been created successfully."
+        response?.status == status
+        User.count() == count
+        response?.json.message == output
+
+        where:
+        input << [$/{"username":"asif","password":"blahblah"}/$,
+                  $/{"username":"ahmed", "password":"asdasd"}/$,
+                  $/{"usernam":"asif"}/$]
+
+        output<< ["New user: 'asif' has been created successfully.",
+                  "User with username: 'ahmed' already exists.",
+                  "Invalid JSON provided. Please read the API specifications."]
+
+        count <<[4,
+                 3,
+                 3]
+
+        status <<[200,
+                  406,
+                  406]
     }
 
     void "test list api"() {
@@ -156,7 +183,8 @@ class UserControllerSpec extends Specification {
                 $/"expression":"*:*"}]}}]},{"id":2,"username":"hamid","email":null,"firstName":null,"lastName"/$+
                 $/:null,"microServices":[{"id":2,"name":"CBR","description":"Caller Based Routing","role":/$+
                 $/{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app./$+
-                $/ef.admin","expression":"*:*"}]}}]}]}/$
+                $/ef.admin","expression":"*:*"}]}}]},{"id":3,"username":"admin","email":null,"firstName":null,/$+
+                $/"lastName":null,"microServices":[]}]}/$
     }
 
     void "test show api"() {
@@ -175,16 +203,35 @@ class UserControllerSpec extends Specification {
                 $/admin","expression":"*:*"}]}}]}}/$
     }
 
+    @Unroll
     void "test delete api"() {
         when: 'delete is called with a valid user id'
         request?.method = "DELETE"
-        request?.setParameter("id", "2")
+        request?.setParameter("id", input)
         controller?.delete()
 
         then: 'user having that id should be deleted decrementing the user count by 1'
-        response?.status == 200
-        User.count() == 1
-        response?.json.message == "Successfully deleted user: hamid"
+        response?.status == status
+        User.count() == count
+        response?.json.message == output
+
+        where:
+
+        input <<["1",
+                 "2",
+                 "3"]
+
+        output<< ["Successfully deleted user: ahmed",
+                  "Successfully deleted user: hamid",
+                  "This user cannot be deleted. Permission denied."]
+
+        count <<[2,
+                 2,
+                 3]
+
+        status <<[200,
+                  200,
+                  406]
     }
 
     void "test update api"() {

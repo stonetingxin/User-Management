@@ -79,39 +79,12 @@ class RoleController {
             if(newRole){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Role with name: ${jsonObject?.authority} already exists." +
-                              "Kindly provide either a new name, or call update API.")
+                              " Kindly provide either a new name, or call update API.")
                 response.status = 406
                 render resultSet as JSON
                 return
             }
-            newRole = new Role(authority: jsonObject?.authority)
-            def perms = jsonObject?.permissions
-            if(!jsonObject?.permissions ){
-                resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
-                response.status = 406
-                render resultSet as JSON
-                return
-            }
-            def perm
-            perms?.each{
-                if(!it?.expression || !it?.name){
-                    resultSet.put("status", NOT_ACCEPTABLE)
-                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
-                    response.status = 406
-                    render resultSet as JSON
-                    return
-                }
-                perm = Permission.findByExpressionOrName(it?.expression, it?.name)
-                if(!perm){
-                    perm = new Permission(expression: it?.expression, name: it?.name)
-                    newRole.addToPermissions(perm)
-                }
-                else{
-                    newRole.addToPermissions(perm)
-                }
-
-            }
+            newRole = new Role(authority: jsonObject?.authority, description: jsonObject?.description)
 
             newRole.validate()
             if (newRole.hasErrors()) {
@@ -125,13 +98,12 @@ class RoleController {
             newRole.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "New Role: '${newRole.authority}' has been created with " +
-                    "permissions: ${newRole.permissions}")
+            resultSet.put("message", "New Role: '${newRole.authority}' has been created successfully. ")
             render resultSet as JSON
             return
 
         }catch(Exception ex){
-            log.error("Exception occured while creating new user: ", ex)
+            log.error("Exception occured while creating new role: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
@@ -146,7 +118,7 @@ class RoleController {
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || jsonObject?.addRevoke != 'add' || jsonObject?.addRevoke != 'revoke'){
+            if(!jsonObject?.id || !jsonObject?.addRevoke != 'add'){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -191,10 +163,10 @@ class RoleController {
                     render resultSet as JSON
                     return
                 }
-                if(!Role.findByPermissions(perm) && addRevoke == 'add')
+                if(addRevoke == 'add' && !roleInstance*.permissions.contains(perm))
                     roleInstance.addToPermissions(perm)
 
-                if(Role.findByPermissions(perm) && addRevoke == 'revoke')
+                if(addRevoke == 'revoke' && roleInstance*.permissions.contains(perm))
                     roleInstance.removeFromPermissions(perm)
             }
 
@@ -232,7 +204,7 @@ class RoleController {
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.authority || !jsonObject?.id ){
+            if(!jsonObject?.id || !jsonObject?.authority){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -264,7 +236,7 @@ class RoleController {
             roleInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "${roleInstance.authority} has been updated successfully.")
+            resultSet.put("message", "Role has been updated successfully.")
             render resultSet as JSON
             return
 
@@ -293,8 +265,7 @@ class RoleController {
         try {
 
             def umr = UMR.findAllByRoles(roleInstance)
-            if(umr)
-            {
+            if(umr){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Cannot delete the role. Role is assigned to following user(s):")
                 resultSet.put("Users", umr*.toString())

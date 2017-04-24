@@ -9,8 +9,8 @@ class BootStrap {
     def init = { servletContext ->
         if (Role.count() == 0) {
             try {
-                def admin = new User(username: "Admin", password: "admin", authProvider: "local")
-                def hamid = new User(username: "hamid", password: "nothing", authProvider: "external")
+                def admin = new User(username: "admin", password: "admin")
+                def hamid = new User(username: "hamid", password: "nothing")
                 admin?.save(flush: true, failOnError: true)
                 hamid?.save(flush: true, failOnError: true)
 

@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import groovy.json.JsonBuilder
-import spock.lang.Specification
+import spock.lang.*
 
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
@@ -15,10 +15,12 @@ class RoleControllerSpec extends Specification {
 
     def setup() {
         try {
-            def ahmed = new User(username: "ahmed", password: "admin", authProvider: "local")
-            def hamid = new User(username: "hamid", password: "nothing", authProvider: "external")
+            def ahmed = new User(username: "ahmed", password: "admin")
+            def hamid = new User(username: "hamid", password: "nothing")
+            def userAdmin = new User(username: "admin", password: "admin")
             ahmed?.save()
             hamid?.save()
+            userAdmin.save()
 
             def admin = new Role(authority: "Admin", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
@@ -36,8 +38,8 @@ class RoleControllerSpec extends Specification {
             cbr?.save()
 
 
-            UMR.create ahmed, admin, pcs
-            UMR.create hamid, admin, cbr
+            UMR.create ahmed, admin, pcs, true
+            UMR.create hamid, admin, cbr, true
 
             UMR.withSession {
                 it.flush()
@@ -106,19 +108,34 @@ class RoleControllerSpec extends Specification {
     def cleanup() {
     }
 
+    @Unroll
     void "test create api"() {
         when: 'save method is called with a json containing user, microservice and role details'
         request?.method = "POST"
-        request?.json = $/{"authority":"ROLE_NEW","permissions":[{"name":"com.app.ef.queue",/$+
-                $/"expression":"nothing:*"},{"name":"com.app.ef.blue","expression":"something:*"}]}/$
-        Role.count() == 2
+        request?.json = input
         controller?.create()
 
         then: 'a new role should be created incrementing the total role count by 1'
-        response?.status == 200
-        Role.count() == 3
-        response?.json.message == "New Role: 'ROLE_NEW' has been created with permissions:" +
-                " [Name: com.app.ef.queue, Expression: nothing:*, Name: com.app.ef.blue, Expression: something:*]"
+        response?.status == status
+        Role.count() == count
+        response?.json.message == output
+
+        where:
+        input << [$/{"authority":"ROLE_NEW"}/$,
+                  $/{"autho=rity":"ROLE_NEW"}/$,
+                  $/{"authority":"Admin"}/$]
+
+        output<< ["New Role: 'ROLE_NEW' has been created successfully. ",
+                  "Invalid JSON provided. Please read the API specifications.",
+                  "Role with name: Admin already exists. Kindly provide either a new name, or call update API."]
+
+        count <<[3,
+                 2,
+                 2]
+
+        status <<[200,
+                  406,
+                  406]
     }
 
     void "test list api"() {
@@ -148,62 +165,67 @@ class RoleControllerSpec extends Specification {
                 $/.ef.admin","expression":"*:*"}]}}/$
     }
 
-    void "test delete api (successfull)"() {
+    @Unroll
+    void "test delete api"() {
         when: 'delete is called with a valid role id'
         request?.method = "DELETE"
-        request?.setParameter("id", "2")
-        Role.count()==2
+        request?.setParameter("id", input)
         controller?.delete()
 
         then: 'role having that id should be deleted decrementing the role count by 1'
-        response?.status == 200
-        Role.count() == 1
-        response?.json.message == "Successfully deleted role: Supervisor"
+        response?.status == status
+        Role.count() == count
+        response?.json.message == output
+
+        where:
+        input <<["1",
+                 "2",
+                 "3"]
+
+        output<< ["Cannot delete the role. Role is assigned to following user(s):",
+                  "Successfully deleted role: Supervisor",
+                  "Role not found. Provide a valid role instance."]
+
+        count <<[2,
+                 1,
+                 2]
+
+        status <<[406,
+                  200,
+                  404]
     }
 
-    void "test delete api (unsuccessfull)"() {
-        when: 'delete is called with a valid role id which is assigned to users'
-        request?.method = "DELETE"
-        request?.setParameter("id", "1")
-        Role.count()==2
-        controller?.delete()
 
-        then: 'role having that id should not be deleted.'
-        response?.status == 406
-        Role.count() == 2
-        response?.json.message == "Cannot delete the role. Role is already assigned to following user(s):"
-    }
-
+    @Unroll
     void "test update role api"() {
 
         when: 'update is called with existing user-microservice association'
-        request?.method = "POST"
-        request?.json = $/{"authority":"ROLE_NEW","permissions":[{"name":"com.app.ef.queue",/$+
-                $/"expression":"nothing:*"},{"name":"com.app.ef.blue","expression":"something:*"}]}/$
-        controller?.create()
         request?.method = "PUT"
-        request?.json = $/{"authority":"ROLE_NEW","permissions":[{"name":"com.app.ef.queue",/$+
-                $/"expression":"BlahBlah:*"},{"name":"com.app.ef.blue","expression":"onething:*"}]}/$
+        request?.json = input
         controller?.update()
 
         then: 'the role of user for corresponding microservice should be updated as provided in the request json'
-        response?.status == 200
-        response?.json.message == "Role has been changed for ahmed in PCS"
-        def umr = UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("PCS"))
-        umr.toString() == "ahmed as Supervisor in PCS"
+        response?.status == status
+        response?.json.message == output
+
+        where:
+        input << [$/{"id":"2","authority":"blahblah", "description":"bleh blehbleh"}/$,
+                  $/{"id":"1","authority":"blahblah"}/$,
+                  $/{"id":"3","authority":"blahblah"}/$]
+
+        output << ["Role has been updated successfully.",
+                   "Role has been updated successfully.",
+                   "Role not found. Invalid update request. For creating new role, use create API instead."]
+
+        status << [200,
+                   200,
+                   404]
     }
 
-    void "test update microservice-role api"() {
-        when: 'update is called for a new user-microservice association'
-        request?.method = "PUT"
-        request?.json = $/{"username":"ahmed","microservice":"CBR","role":"Admin"}/$
-        UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("CBR")) == null
-        controller?.update()
-
-        then: 'the corresponding role microservice should be added for the user'
-        response?.status == 200
-        response?.json.message == "New role: 'Admin' has been added for ahmed in CBR"
-        def umr = UMR.findByUsersAndMicroservices(User.findByUsername("ahmed"), Microservice.findByName("CBR"))
-        umr.toString() == "ahmed as Admin in CBR"
+    private UMR findUMR(String user, String micro){
+        def u = User.findByUsername(user)
+        def m = Microservice.findByName(micro)
+        def umr = UMR.findByUsersAndMicroservices(u, m)
+        return umr
     }
 }

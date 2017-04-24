@@ -50,7 +50,7 @@ class MicroserviceController {
             render resultSet as JSON
             return
         }catch (Exception ex){
-            log.error("Couldn't retrieve the role.")
+            log.error("Couldn't retrieve the microservice.")
             log.error("Following is the stack trace along with the error message: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
@@ -65,6 +65,15 @@ class MicroserviceController {
 
         try{
             def jsonObject = request.getJSON()
+
+            if(!jsonObject?.name){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
             Microservice newMicro = Microservice.findByName(jsonObject?.name)
             if(newMicro){
                 resultSet.put("status", NOT_ACCEPTABLE)
@@ -74,17 +83,7 @@ class MicroserviceController {
                 render resultSet as JSON
                 return
             }
-            newMicro = new Microservice(name: jsonObject?.name)
-            def roles = jsonObject?.roles
-            def role
-            roles?.each{
-                role = Role.findByAuthority(it?.authority)
-                if(!role){
-                    role = new Role(authority: it?.authority)
-                }
-
-                newMicro.addToRoles(role)
-            }
+            newMicro = new Microservice(name: jsonObject?.name, description: jsonObject?.description)
 
             newMicro.validate()
             if (newMicro.hasErrors()) {
@@ -98,13 +97,12 @@ class MicroserviceController {
             newMicro.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "New Microservice: '${newMicro.name}' has been created with " +
-                    "Roles: ${newMicro.roles}")
+            resultSet.put("message", "New Microservice: '${newMicro.name}' has been created successfully.")
             render resultSet as JSON
             return
 
         }catch(Exception ex){
-            log.error("Exception occured while creating new user: ", ex)
+            log.error("Exception occured while creating new microservice: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
@@ -118,7 +116,7 @@ class MicroserviceController {
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.name ){
+            if(!jsonObject?.id || !jsonObject?.name){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -126,7 +124,7 @@ class MicroserviceController {
                 return
             }
 
-            Microservice microInstance = Role.findByAuthority(jsonObject?.name)
+            Microservice microInstance = Microservice.findById(jsonObject?.id)
             if(!microInstance){
                 resultSet.put("status", NOT_FOUND)
                 resultSet.put("message", "Microservice not found. Invalid update request. " +
@@ -135,9 +133,42 @@ class MicroserviceController {
                 render resultSet as JSON
                 return
             }
+            microInstance.name = jsonObject?.name
+            microInstance.description = jsonObject?.description
 
-            def roles = jsonObject?.roles
-            if(!jsonObject?.roles ){
+            microInstance.validate()
+            if (microInstance.hasErrors()) {
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("error", microInstance.errors)
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            microInstance.save(flush: true, failOnError: true)
+
+            resultSet.put("status", OK)
+            resultSet.put("message", "${microInstance.name} has been updated successfully.")
+            render resultSet as JSON
+            return
+
+        }catch (Exception ex){
+            log.error("Exception occured while updating microservice: ", ex)
+
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def addRemoveRoles(){
+        def resultSet = [:]
+
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.id || !jsonObject?.roles || !jsonObject?.addRemove){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -145,23 +176,41 @@ class MicroserviceController {
                 return
             }
 
+            Microservice microInstance = Microservice.findById(jsonObject?.id)
+            if(!microInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "Microservice not found. Invalid update request. " +
+                        "For registering new Microservice, use create API instead.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+
+            def addRemove = jsonObject?.addRemove
+            def roles = jsonObject?.roles
+
             def role
             roles?.each{
-                if(!it?.authority){
+                if(!it?.id){
                     resultSet.put("status", NOT_ACCEPTABLE)
                     resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                     response.status = 406
                     render resultSet as JSON
                     return
                 }
-
-                role = Role.findByAuthority(it?.authority)
-                if(!role) {
-                    microInstance.addToRoles(authority: it?.authority, description: it?.description)
+                role = Permission.findById(it?.id as Long)
+                if(!role){
+                    resultSet.put("status", NOT_FOUND)
+                    resultSet.put("message", "Role not found. Please provide a valid role id.")
+                    response.status = 404
+                    render resultSet as JSON
+                    return
                 }
-                else{
+                if(addRemove == 'add' && !microInstance*.roles.contains(role))
                     microInstance.addToRoles(role)
-                }
+
+                if(addRemove == 'remove'&& microInstance*.roles.contains(role))
+                    microInstance.removeFromRoles(role)
             }
 
             microInstance.validate()
@@ -176,7 +225,8 @@ class MicroserviceController {
             microInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "${microInstance.name} has been updated with role: ${microInstance.roles}")
+            resultSet.put("message", "${microInstance.name} has been updated with follwoing " +
+                                     "roles: ${microInstance.roles}")
             render resultSet as JSON
             return
 
@@ -204,6 +254,10 @@ class MicroserviceController {
 
         try {
             def name = microInstance.name
+            def umr = UMR.findAllByMicroservices(microInstance)
+            umr.each{
+                it?.delete(flush: true, failOnErrors:true)
+            }
             microInstance?.delete(flush: true, failOnErrors:true)
             resultSet.put("status", OK)
             resultSet.put("message", "Successfully deleted microservice: ${name}")
