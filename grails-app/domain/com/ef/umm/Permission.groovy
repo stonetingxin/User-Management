@@ -8,7 +8,7 @@ class Permission {
     static hasMany = [roles: Role]
     static belongsTo = [Role]
     static constraints = {
-        name(maxSize: 20, blank: false)
+        name(maxSize: 50, blank: false)
         expression(blank: false, nullable: false, unique: true)
         description(blank: true, maxSize: 1000, nullable: true)
     }

@@ -74,10 +74,20 @@ class PermissionController {
 
             Permission newPerm = Permission.findByNameOrExpression(jsonObject?.name, jsonObject?.expression)
             if(newPerm){
+                def message
+                if(Permission.findByNameAndExpression(jsonObject?.name, jsonObject?.expression)){
+                    message = "Permission with name: ${jsonObject?.name} and expression: " +
+                              "${jsonObject?.expression} already exists."
+                }
+                else if(Permission.findByName(jsonObject?.name)){
+                    message = "Permission with name: ${jsonObject?.name} already exists. " +
+                              "Kindly provide a new name or call create api."
+                }
+                else{
+                    message = "Permission with expression: ${jsonObject?.expression} already exists."
+                }
                 resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Permission with name: ${jsonObject?.name} and/or expression: " +
-                                          "${jsonObject?.expression} already exists. Kindly provide either " +
-                                          "a new name/expression, or call update API.")
+                resultSet.put("message", message)
                 response.status = 406
                 render resultSet as JSON
                 return

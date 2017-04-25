@@ -119,24 +119,32 @@ class PermissionControllerSpec extends Specification {
 
         then: 'a new user should be created incrementing the total user count by 1'
         response?.status == status
-        Microservice.count() == count
+        Permission.count() == count
         response?.json.message == output
 
         where:
         input << [$/{"name":"com.ef.umm.user.update","expression":"user:update"}/$,
                   $/{"name":"com.ef.umm.user.delete","expression":"user:delete", "description":"asd"}/$,
+                  $/{"name":"com.app.ef.show","expression":"user:delete", "description":"asd"}/$,
+                  $/{"name":"com.app.ef.show","expression":"show:*", "description":"asd"}/$,
                   $/{"nam":"asif"}/$]
 
-        output<< ["New Microservice: 'UMM' has been created successfully.",
-                  "Microservice: CBR already exists.Kindly provide either a new name, or call update API.",
+        output<< ["New Permission: 'com.ef.umm.user.update' has been created successfully.",
+                  "New Permission: 'com.ef.umm.user.delete' has been created successfully.",
+                  "Permission with name: com.app.ef.show already exists. Kindly provide a new name or call create api.",
+                  "Permission with name: com.app.ef.show and expression: show:* already exists.",
                   "Invalid JSON provided. Please read the API specifications."]
 
-        count <<[3,
-                 2,
-                 2]
+        count <<[4,
+                 4,
+                 3,
+                 3,
+                 3]
 
         status <<[200,
                   200,
+                  406,
+                  406,
                   406]
     }
 
@@ -144,61 +152,50 @@ class PermissionControllerSpec extends Specification {
         when: 'list function is called '
         controller?.list()
 
-        then: 'a json response of complete list of users with corresponding microservices,' +
-                'roles and permissions should be returned.'
+        then: 'a json response of complete list of permissions should be returned.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles":/$+
-                $/[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,/$+
-                $/"name":"com.app.ef.admin","expression":"*:*"}]}]},{"id":2,"name":"CBR","description"/$+
-                $/:"Caller Based Routing","roles":[{"id":1,"name":"Admin","description":"Administrator"/$+
-                $/,"permissions":[{"id":1,"name":"com.app.ef.admin","expression":"*:*"}]}]}]}/$
+                $/"Permissions":[{"id":1,"name":"com.app.ef.admin","expression":"*:*"},{"id":2,"name"/$+
+                $/:"com.app.ef.show","expression":"show:*"},{"id":3,"name":"com.app.ef.update","express/$+
+                $/ion":"update:*"}]}/$
     }
 
     void "test show api"() {
-        when: 'show is called for a valid microservice id'
+        when: 'show is called for a valid permission id'
         request?.setParameter("id", "1")
         controller?.show()
 
-        then: 'a json should be returned with microservice having that id along with the ' +
-                'corresponding roles and permissions'
+        then: 'a json should be returned with permission having that id.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Microservice":{"id":1,"name":"PCS","description":"Post Call Survey","roles":[{"id":1/$+
-                $/,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef/$+
-                $/.admin","expression":"*:*"}]}]}}/$
+                          $/"Permission":{"id":1,"name":"com.app.ef.admin","expression":"*:*"}}/$
     }
 
     @Unroll
     void "test delete api"() {
-        when: 'delete is called with a valid microservice id'
+        when: 'delete is called with a valid permission id'
         request?.method = "DELETE"
         request?.setParameter("id", input)
         controller?.delete()
 
-        then: 'microservice having that id should be deleted decrementing the microservice count by 1'
+        then: 'permission having that id should be deleted decrementing the permission count by 1'
         response?.status == status
-//        def micro = Microservice.findById("1" as Long)
-//        println micro
-//        def umr = UMR.findByMicroservices(micro)
-//        println umr
-//        umr == null
-        Microservice.count() == count
+        Permission.count() == count
         response?.json.message == output
 
         where:
 
         input <<["1",
                  "2",
-                 "3"]
+                 "5"]
 
-        output<< ["Successfully deleted microservice: PCS",
-                  "Successfully deleted microservice: CBR",
-                  "MicroService not found. Provide a valid microservice instance."]
+        output<< ["Successfully deleted permission: com.app.ef.admin",
+                  "Successfully deleted permission: com.app.ef.show",
+                  "Permission not found. Provide a valid permission instance."]
 
-        count <<[1,
-                 1,
-                 2]
+        count <<[2,
+                 2,
+                 3]
 
         status <<[200,
                   200,
@@ -207,29 +204,29 @@ class PermissionControllerSpec extends Specification {
 
     @Unroll
     void "test update api"() {
-        when: 'update is called with existing microservice'
+        when: 'update is called with existing permission'
         request?.method = "PUT"
         request?.json = input
         controller?.update()
 
-        then: 'corresponding microservice should be updated as provided in the request json'
+        then: 'corresponding permission should be updated as provided in the request json'
         response?.status == status
         response?.json.message == output
 
         where:
 
-        input <<[$/{"id":"1", "name":"UMM","description":"User Management Microservice"}/$,
-                 $/{"id":"2", "name":"CBR"}/$,
-                 $/{"id":"3", "name":"asif"}/$]
+        input <<[$/{"id":"1", "name":"com.ef.umm.admin","expression":"*:*"}/$,
+                 $/{"id":"5", "name":"com.ef.umm.update", "expression":"update:*"}/$,
+                 $/{"d":"3", "name":"asif"}/$]
 
-        output<< ["UMM has been updated successfully.",
-                  "CBR has been updated successfully.",
-                  "Microservice not found. Invalid update request. For registering new Microservice, use create API instead."]
+        output<< ["com.ef.umm.admin has been updated successfully.",
+                  "Permission not found. Invalid update request. For creating new permission, use create API instead.",
+                  "Invalid JSON provided. Please read the API specifications."]
 
 
         status <<[200,
-                  200,
-                  404]
+                  404,
+                  406]
     }
 
 }
