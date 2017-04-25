@@ -98,7 +98,7 @@ class BootStrap {
                     id value?.microservices?.id
                     name value?.microservices?.name
                     description value?.microservices?.description
-                    role value?.roles
+                    roles value?.roles
 
                 }
                 micro.add(map)

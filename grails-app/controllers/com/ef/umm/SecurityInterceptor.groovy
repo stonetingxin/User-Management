@@ -17,7 +17,6 @@ class SecurityInterceptor {
         def micro = Microservice.findByName('UMM')
         def umr = UMR.findAllByUsersAndMicroservices(user, micro)
         def role = umr.roles.authority
-
         if(role[0]!= 'ROLE_ADMIN'){
             def resultSet = [:]
             resultSet.put("status", FORBIDDEN)

@@ -68,14 +68,13 @@ class UserController extends RestfulController<User> {
         }
     }
 
-
     @Transactional
-    def updatePassword(){
+    def resetPassword(){
         def resultSet = [:]
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.username || !jsonObject?.curPassword || !jsonObject?.newPassword){
+            if(!jsonObject?.id || !jsonObject?.newPassword){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -83,7 +82,57 @@ class UserController extends RestfulController<User> {
                 return
             }
 
-            User userInstance = User.findByUsername(jsonObject?.username)
+            User userInstance = User.findById(jsonObject?.id as Long)
+            if(!userInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "User not found. Please provide a valid username.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+
+            userInstance.password = jsonObject?.newPassword
+
+            userInstance.validate()
+            if (userInstance.hasErrors()){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("error", userInstance?.errors)
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            userInstance.save(flush: true, failOnError: true)
+
+            resultSet.put("status", OK)
+            resultSet.put("message", "Password has been reset successfully.")
+            render resultSet as JSON
+            return
+
+        }catch(Exception ex){
+            log.error("Exception occured while resetting password: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def updatePassword(){
+        def resultSet = [:]
+
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.id || !jsonObject?.curPassword || !jsonObject?.newPassword){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            User userInstance = User.findById(jsonObject?.id as Long)
             if(!userInstance){
                 resultSet.put("status", NOT_FOUND)
                 resultSet.put("message", "User not found. Please provide a valid username.")
