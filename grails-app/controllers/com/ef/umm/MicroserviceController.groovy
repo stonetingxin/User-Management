@@ -272,11 +272,10 @@ class MicroserviceController {
             }
             def name = microInstance.name
 //            UMR.removeAll(microInstance, true)
-//            def umr = UMR.findAllByMicroservices(microInstance)
-//
-//            umr.each{
-//                it?.delete(flush: true, failOnErrors:true)
-//            }
+            def umr = UMR.findAllByMicroservices(microInstance)
+            umr.each{
+                it?.delete(flush: true, failOnErrors:true)
+            }
 
             microInstance?.delete(flush: true, failOnErrors:true)
             resultSet.put("status", OK)

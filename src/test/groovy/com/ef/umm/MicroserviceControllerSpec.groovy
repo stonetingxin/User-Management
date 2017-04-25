@@ -190,20 +190,20 @@ class MicroserviceControllerSpec extends Specification {
         where:
 
         input <<["1",
-                 "2",
-                 "3"]
+                 "3",
+                 "2"]
 
         output<< ["Successfully deleted microservice: PCS",
-                  "Successfully deleted microservice: CBR",
-                  "MicroService not found. Provide a valid microservice instance."]
+                  "MicroService not found. Provide a valid microservice instance.",
+                  "Successfully deleted microservice: CBR"]
 
         count <<[1,
-                 1,
-                 2]
+                 2,
+                 0]
 
         status <<[200,
-                  200,
-                  404]
+                  404,
+                  200]
     }
 
     @Unroll
