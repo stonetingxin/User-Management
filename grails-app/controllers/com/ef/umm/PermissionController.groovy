@@ -2,6 +2,7 @@ package com.ef.umm
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import static org.springframework.http.HttpStatus.*
 
 class PermissionController {
 
@@ -168,15 +169,16 @@ class PermissionController {
     @Transactional
     def delete(){
         def resultSet = [:]
-        def permInstance = Permission.findById(params?.id)
-        if (!permInstance) {
-            resultSet.put("status", NOT_FOUND)
-            resultSet.put("message", "Permission not found. Provide a valid permission instance.")
-            response.status = 404
-            render resultSet as JSON
-            return
-        }
+
         try {
+            def permInstance = Permission.findById(params?.id)
+            if (!permInstance) {
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "Permission not found. Provide a valid permission instance.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
             def name = permInstance?.name
             permInstance?.delete(flush: true, failOnErrors:true)
             resultSet.put("status", OK)

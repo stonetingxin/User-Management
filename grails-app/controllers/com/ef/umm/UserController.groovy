@@ -381,22 +381,24 @@ class UserController extends RestfulController<User> {
     @Transactional
     def delete(){
         def resultSet = [:]
-        def userInstance = User.findById(params?.id)
-        if (!userInstance) {
-            resultSet.put("status", NOT_FOUND)
-            resultSet.put("message", "User not found. Provide a valid user instance.")
-            response.status = 404
-            render resultSet as JSON
-            return
-        }
-        if(userInstance.username == 'admin'){
-            resultSet.put("status", NOT_ACCEPTABLE)
-            resultSet.put("message", "This user cannot be deleted. Permission denied.")
-            response.status = 406
-            render resultSet as JSON
-            return
-        }
+
         try {
+            def userInstance = User.findById(params?.id)
+            if (!userInstance) {
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "User not found. Provide a valid user instance.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+            if(userInstance.username == 'admin'){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "This user cannot be deleted. Permission denied.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
             def umr = UMR.findAllByUsers(userInstance)
             umr.each{
                 it?.delete(flush: true, failOnErrors:true)

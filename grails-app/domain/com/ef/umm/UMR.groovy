@@ -17,6 +17,13 @@ class UMR implements Serializable{
         return "${users.username} as ${roles.authority} in ${microservices.name}"
     }
 
+    static void removeAll(Microservice m, boolean flush = false) {
+        if (m == null) return
+
+        UMR.where { microservices == m }.deleteAll()
+
+        if (flush) { UMR.withSession { it.flush() } }
+    }
 
     static UMR create(User user, Role role, Microservice microservice, boolean flush = false) {
         def instance = new UMR(users: user, roles: role, microservices: microservice)

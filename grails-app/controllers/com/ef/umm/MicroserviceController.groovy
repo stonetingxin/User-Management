@@ -165,12 +165,20 @@ class MicroserviceController {
     @Transactional
     def addRemoveRoles(){
         def resultSet = [:]
-
+        def message
         try{
             def jsonObject = request.getJSON()
             if(!jsonObject?.id || !jsonObject?.roles || !jsonObject?.addRemove){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            if(!(jsonObject?.addRemove == 'add' || jsonObject?.addRemove == 'remove')){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Only add or remove is allowed in this method.")
                 response.status = 406
                 render resultSet as JSON
                 return
@@ -198,7 +206,7 @@ class MicroserviceController {
                     render resultSet as JSON
                     return
                 }
-                role = Permission.findById(it?.id as Long)
+                role = Role.findById(it?.id as Long)
                 if(!role){
                     resultSet.put("status", NOT_FOUND)
                     resultSet.put("message", "Role not found. Please provide a valid role id.")
@@ -206,11 +214,22 @@ class MicroserviceController {
                     render resultSet as JSON
                     return
                 }
-                if(addRemove == 'add' && !microInstance*.roles.contains(role))
+                if(addRemove == 'add' && !microInstance.roles.contains(role)){
                     microInstance.addToRoles(role)
+                    message = "Roles have been successfully added."
+                }
 
-                if(addRemove == 'remove'&& microInstance*.roles.contains(role))
+                if(addRemove == 'remove'&& microInstance.roles.contains(role)){
                     microInstance.removeFromRoles(role)
+                    message = "Roles have been successfully removed."
+                }
+            }
+            if(addRemove == 'add' && !message){
+                message = "Roles have already been assigned in the microservice."
+            }
+
+            if(addRemove == 'remove' && !message){
+                message = "Roles cannot be removed since they're not assigned to the microservice."
             }
 
             microInstance.validate()
@@ -225,14 +244,12 @@ class MicroserviceController {
             microInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "${microInstance.name} has been updated with follwoing " +
-                                     "roles: ${microInstance.roles}")
+            resultSet.put("message", message)
             render resultSet as JSON
             return
 
         }catch (Exception ex){
-            log.error("Exception occured while updating user: ", ex)
-
+            log.error("Exception occured while add/remove roles in microservice: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
@@ -243,21 +260,24 @@ class MicroserviceController {
     @Transactional
     def delete(){
         def resultSet = [:]
-        def microInstance = Microservice.findById(params?.id)
-        if (!microInstance) {
-            resultSet.put("status", NOT_FOUND)
-            resultSet.put("message", "MicroService not found. Provide a valid microservice instance.")
-            response.status = 404
-            render resultSet as JSON
-            return
-        }
 
         try {
-            def name = microInstance.name
-            def umr = UMR.findAllByMicroservices(microInstance)
-            umr.each{
-                it?.delete(flush: true, failOnErrors:true)
+            def microInstance = Microservice.findById(params?.id)
+            if (!microInstance) {
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "MicroService not found. Provide a valid microservice instance.")
+                response.status = 404
+                render resultSet as JSON
+                return
             }
+            def name = microInstance.name
+//            UMR.removeAll(microInstance, true)
+//            def umr = UMR.findAllByMicroservices(microInstance)
+//
+//            umr.each{
+//                it?.delete(flush: true, failOnErrors:true)
+//            }
+
             microInstance?.delete(flush: true, failOnErrors:true)
             resultSet.put("status", OK)
             resultSet.put("message", "Successfully deleted microservice: ${name}")

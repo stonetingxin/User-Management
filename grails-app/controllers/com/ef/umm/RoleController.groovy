@@ -274,16 +274,16 @@ class RoleController {
     @Transactional
     def delete(){
         def resultSet = [:]
-        def roleInstance = Role.findById(params?.id)
-        if (!roleInstance) {
-            resultSet.put("status", NOT_FOUND)
-            resultSet.put("message", "Role not found. Provide a valid role instance.")
-            response.status = 404
-            render resultSet as JSON
-            return
-        }
-        try {
 
+        try {
+            def roleInstance = Role.findById(params?.id)
+            if (!roleInstance) {
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "Role not found. Provide a valid role instance.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
             def umr = UMR.findAllByRoles(roleInstance)
             if(umr){
                 resultSet.put("status", NOT_ACCEPTABLE)
