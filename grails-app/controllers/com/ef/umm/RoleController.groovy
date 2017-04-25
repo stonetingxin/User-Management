@@ -115,10 +115,10 @@ class RoleController {
     @Transactional
     def addRevokePermissions(){
         def resultSet = [:]
-
+        def message
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || !jsonObject?.addRevoke != 'add'){
+            if(!jsonObject?.id || !jsonObject?.addRevoke || !jsonObject?.permissions?.id){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -126,12 +126,19 @@ class RoleController {
                 return
             }
 
+            if(!(jsonObject?.addRevoke == 'add' || jsonObject?.addRevoke == 'revoke')){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Only add or revoke is allowed in this method.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
             def addRevoke = jsonObject?.addRevoke
             Role roleInstance = Role.findById(jsonObject?.id as Long)
             if(!roleInstance){
                 resultSet.put("status", NOT_FOUND)
                 resultSet.put("message", "Role not found. Invalid update request. " +
-                        "For creating new role, use create API instead.")
+                                         "For creating new role, use create API instead.")
                 response.status = 404
                 render resultSet as JSON
                 return
@@ -163,13 +170,27 @@ class RoleController {
                     render resultSet as JSON
                     return
                 }
-                if(addRevoke == 'add' && !roleInstance*.permissions.contains(perm))
-                    roleInstance.addToPermissions(perm)
 
-                if(addRevoke == 'revoke' && roleInstance*.permissions.contains(perm))
+                if(addRevoke == 'add' && !roleInstance?.permissions.contains(perm)){
+                    roleInstance.addToPermissions(perm)
+                    message = "Permissions have been successfully added."
+                }
+
+
+                if(addRevoke == 'revoke' && roleInstance?.permissions.contains(perm)){
                     roleInstance.removeFromPermissions(perm)
+                    message = "Permissions have been successfully revoked."
+                }
+
             }
 
+            if(addRevoke == 'add' && !message){
+                message = "Permissions have already been added in the role."
+            }
+
+            if(addRevoke == 'revoke' && !message){
+                message = "Permission cannot be revoked since it's not assigned to the role."
+            }
             roleInstance.validate()
             if (roleInstance.hasErrors()) {
                 resultSet.put("status", NOT_ACCEPTABLE)
@@ -182,8 +203,7 @@ class RoleController {
             roleInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", "${roleInstance.authority} has following permission(s):" +
-                                     " ${roleInstance.permissions}")
+            resultSet.put("message", message)
             render resultSet as JSON
             return
 

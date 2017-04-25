@@ -222,10 +222,85 @@ class RoleControllerSpec extends Specification {
                    404]
     }
 
-    private UMR findUMR(String user, String micro){
-        def u = User.findByUsername(user)
-        def m = Microservice.findByName(micro)
-        def umr = UMR.findByUsersAndMicroservices(u, m)
-        return umr
+    @Unroll
+    void "test add permissions api"() {
+        when: 'addRevokePermissions is called with add functionality'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.addRevokePermissions()
+
+        then: 'the corresponding permission should be added for the role'
+        response?.status == status
+        response?.json.message == output
+        def out = null
+        if(findPerms(id)){
+            out = findPerms(id).toString()
+        }
+        out == umrOutput
+
+        where:
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRevoke":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"1"}], "addRevoke":"add"}/$]
+
+        output << ["Permissions have been successfully added.",
+                   "Permissions have already been added in the role.",
+                   "Permissions have been successfully added."]
+        status << [200,
+                   200,
+                   200]
+        id <<["1",
+             "2",
+             "2"]
+
+        umrOutput <<["[Name: com.app.ef.admin, Expression: *:*, Name: com.app.ef.show, Expression: show:*]",
+                     "[Name: com.app.ef.show, Expression: show:*]",
+                     "[Name: com.app.ef.admin, Expression: *:*, Name: com.app.ef.show, Expression: show:*]"]
+    }
+
+    @Unroll
+    void "test revoke permissions api"() {
+        when: 'addRevokePermissions is called with revoke functionality'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.addRevokePermissions()
+
+        then: 'the corresponding permission should be revoked from the role'
+        response?.status == status
+        response?.json.message == output
+        def out = null
+        if(findPerms(id)){
+            out = findPerms(id).toString()
+        }
+        out == umrOutput
+
+        where:
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRevoke":"revoke"}/$,
+                  $/{"id":"2","permissions":[{"id":"1"}], "addRevoke":"revoke"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"asdf"}/$,
+                  $/{"id":"1","permissions":[{"id":"2"}], "addRevoke":"revoke"}/$]
+
+        output << ["Permissions have been successfully revoked.",
+                   "Permission cannot be revoked since it's not assigned to the role.",
+                   "Only add or revoke is allowed in this method.",
+                   "Permission cannot be revoked since it's not assigned to the role."]
+        status << [200,
+                   200,
+                   406,
+                   200]
+        id <<["1",
+              "2",
+              "2",
+              "1"]
+
+        umrOutput <<[  null,
+                      "[Name: com.app.ef.show, Expression: show:*]",
+                      "[Name: com.app.ef.show, Expression: show:*]",
+                      "[Name: com.app.ef.admin, Expression: *:*]"]
+    }
+
+    private findPerms(String id){
+        def role = Role.findById(id)
+        return role.permissions.sort{it?.expression}
     }
 }
