@@ -10,6 +10,7 @@ class SecurityInterceptor {
         match(controller: 'user')
         match(controller: 'microservice')
         match(controller: 'role')
+        match(controller: 'permission')
     }
 
     boolean before() {

@@ -146,7 +146,7 @@ class RoleControllerSpec extends Specification {
                 'should be returned.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"}/$+
-                $/,"Roles":[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1/$+
+                $/,"roles":[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1/$+
                 $/,"name":"com.app.ef.admin","expression":"*:*"}]},{"id":2,"name":"Supervisor","description"/$+
                 $/:"Supervisor role","permissions":[{"id":2,"name":"com.app.ef.show","expression":"show:*"}/$+
                 $/]}]}/$
@@ -160,7 +160,7 @@ class RoleControllerSpec extends Specification {
         then: 'a json should be returned with user having that id along with the ' +
                 'corresponding microservices, roles and permissions'
         response?.status == 200
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},"Role":/$+
+        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},"role":/$+
                 $/{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app/$+
                 $/.ef.admin","expression":"*:*"}]}}/$
     }
@@ -243,9 +243,10 @@ class RoleControllerSpec extends Specification {
                   $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"add"}/$,
                   $/{"id":"2","permissions":[{"id":"1"}], "addRevoke":"add"}/$]
 
-        output << ["Permissions have been successfully added.",
-                   "Permissions have already been added in the role.",
-                   "Permissions have been successfully added."]
+        output << ["[Permission: com.app.ef.admin have already been added in the role., " +
+                           "Permission: com.app.ef.show has been successfully added.]",
+                   "[Permission: com.app.ef.show have already been added in the role.]",
+                   "[Permission: com.app.ef.admin has been successfully added.]"]
         status << [200,
                    200,
                    200]
@@ -280,10 +281,11 @@ class RoleControllerSpec extends Specification {
                   $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"asdf"}/$,
                   $/{"id":"1","permissions":[{"id":"2"}], "addRevoke":"revoke"}/$]
 
-        output << ["Permissions have been successfully revoked.",
-                   "Permission cannot be revoked since it's not assigned to the role.",
+        output << ["[Permission: com.app.ef.admin have been successfully revoked., " +
+                           "Permission: com.app.ef.show cannot be revoked since it's not assigned to the role.]",
+                   "[Permission: com.app.ef.admin cannot be revoked since it's not assigned to the role.]",
                    "Only add or revoke is allowed in this method.",
-                   "Permission cannot be revoked since it's not assigned to the role."]
+                   "[Permission: com.app.ef.show cannot be revoked since it's not assigned to the role.]"]
         status << [200,
                    200,
                    406,

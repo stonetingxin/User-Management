@@ -19,7 +19,7 @@ class PermissionController {
         try{
             def permList = Permission.list()
             resultSet.put("status", OK)
-            resultSet.put("Permissions", permList)
+            resultSet.put("permissions", permList)
             render resultSet as JSON
             return
         }catch (Exception ex){
@@ -45,7 +45,7 @@ class PermissionController {
             }
 
             resultSet.put("status", OK)
-            resultSet.put("Permission", permInstance)
+            resultSet.put("permission", permInstance)
             render resultSet as JSON
             return
         }catch (Exception ex){

@@ -9,7 +9,8 @@ import static org.springframework.http.HttpStatus.*
 class UserController extends RestfulController<User> {
 
     static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE", show: "GET",
-                             updatePassword: "PUT", addRevokeMicroserviceRoles: "PUT"]
+                             updatePassword: "PUT", addRevokeMicroserviceRoles: "PUT", changePassword: "PUT",
+                             resetPassword: "PUT", usernameExists: "GET"]
 
     def springSecurityService
 
@@ -30,7 +31,7 @@ class UserController extends RestfulController<User> {
         try{
             def userList = User.list()
             resultSet.put("status", OK)
-            resultSet.put("Users", userList)
+            resultSet.put("users", userList)
             render resultSet as JSON
         }catch (Exception ex){
             log.error("Couldn't retrieve the list of the users.")
@@ -54,7 +55,7 @@ class UserController extends RestfulController<User> {
             }
 
             resultSet.put("status", OK)
-            resultSet.put("User", userInstance)
+            resultSet.put("user", userInstance)
             render resultSet as JSON
         }catch (Exception ex){
             log.error("Couldn't retrieve the specific user." +
@@ -170,43 +171,6 @@ class UserController extends RestfulController<User> {
 
         }catch(Exception ex){
             log.error("Exception occured while updating password: ", ex)
-            resultSet.put("status", INTERNAL_SERVER_ERROR)
-            resultSet.put("message", ex.getMessage())
-            response.status = 500
-            render resultSet as JSON
-        }
-    }
-
-    def usernameExists(){
-        def resultSet = [:]
-
-        try{
-            def jsonObject = request.getJSON()
-            if(!jsonObject?.username){
-                resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
-                response.status = 406
-                render resultSet as JSON
-                return
-            }
-            User userInstance = User.findByUsername(jsonObject?.username)
-            if(userInstance){
-                resultSet.put("status", OK)
-                resultSet.put("exists", true)
-                resultSet.put("message", "User with username: '${jsonObject?.username}' already exists.")
-                render resultSet as JSON
-                return
-            }
-            else{
-                resultSet.put("status", OK)
-                resultSet.put("exists", false)
-                resultSet.put("message", "username: '${jsonObject?.username}' does not exist.")
-                render resultSet as JSON
-                return
-            }
-
-        }catch(Exception ex){
-            log.error("Exception occured while checking username existence: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500

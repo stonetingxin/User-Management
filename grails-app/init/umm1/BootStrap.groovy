@@ -104,7 +104,7 @@ class BootStrap {
                 micro.add(map)
             }
 
-            output['microServices'] = micro
+            output['microservices'] = micro
             return output
         }
     }

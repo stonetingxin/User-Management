@@ -155,7 +155,7 @@ class PermissionControllerSpec extends Specification {
         then: 'a json response of complete list of permissions should be returned.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Permissions":[{"id":1,"name":"com.app.ef.admin","expression":"*:*"},{"id":2,"name"/$+
+                $/"permissions":[{"id":1,"name":"com.app.ef.admin","expression":"*:*"},{"id":2,"name"/$+
                 $/:"com.app.ef.show","expression":"show:*"},{"id":3,"name":"com.app.ef.update","express/$+
                 $/ion":"update:*"}]}/$
     }
@@ -168,7 +168,7 @@ class PermissionControllerSpec extends Specification {
         then: 'a json should be returned with permission having that id.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                          $/"Permission":{"id":1,"name":"com.app.ef.admin","expression":"*:*"}}/$
+                          $/"permission":{"id":1,"name":"com.app.ef.admin","expression":"*:*"}}/$
     }
 
     @Unroll

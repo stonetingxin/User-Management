@@ -22,7 +22,7 @@ class RoleController {
         try{
             def roleList = Role.list()
             resultSet.put("status", OK)
-            resultSet.put("Roles", roleList)
+            resultSet.put("roles", roleList)
             render resultSet as JSON
             return
         }catch (Exception ex){
@@ -48,7 +48,7 @@ class RoleController {
             }
 
             resultSet.put("status", OK)
-            resultSet.put("Role", roleInstance)
+            resultSet.put("role", roleInstance)
             render resultSet as JSON
             return
         }catch (Exception ex){
@@ -115,10 +115,10 @@ class RoleController {
     @Transactional
     def addRevokePermissions(){
         def resultSet = [:]
-        def message
+        def message = []
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || !jsonObject?.addRevoke || !jsonObject?.permissions?.id){
+            if(!jsonObject?.id || !jsonObject?.addRevoke || !jsonObject?.permissions){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -163,34 +163,33 @@ class RoleController {
                     return
                 }
                 perm = Permission.findById(it?.id as Long)
-                if(!perm){
-                    resultSet.put("status", NOT_ACCEPTABLE)
-                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
-                    response.status = 406
-                    render resultSet as JSON
-                    return
+                if(perm){
+                    if(addRevoke == 'add'){
+                        if(!roleInstance?.permissions.contains(perm)){
+                            roleInstance.addToPermissions(perm)
+                            message.add("Permission: ${perm.name} has been successfully added.")
+                        }
+                        else{
+                            message.add("Permission: ${perm.name} have already been added in the role.")
+                        }
+                    }
+
+                    if(addRevoke == 'revoke'){
+                        if(roleInstance?.permissions.contains(perm)){
+                            roleInstance.removeFromPermissions(perm)
+                            message.add("Permission: ${perm.name} have been successfully revoked.")
+                        }
+                        else{
+                            message.add("Permission: ${perm.name} cannot be revoked since it's not assigned to the role.")
+                        }
+                    }
                 }
-
-                if(addRevoke == 'add' && !roleInstance?.permissions.contains(perm)){
-                    roleInstance.addToPermissions(perm)
-                    message = "Permissions have been successfully added."
-                }
-
-
-                if(addRevoke == 'revoke' && roleInstance?.permissions.contains(perm)){
-                    roleInstance.removeFromPermissions(perm)
-                    message = "Permissions have been successfully revoked."
+                else{
+                    message.add("Permission with id: ${it?.id} not found.")
                 }
 
             }
 
-            if(addRevoke == 'add' && !message){
-                message = "Permissions have already been added in the role."
-            }
-
-            if(addRevoke == 'revoke' && !message){
-                message = "Permission cannot be revoked since it's not assigned to the role."
-            }
             roleInstance.validate()
             if (roleInstance.hasErrors()) {
                 resultSet.put("status", NOT_ACCEPTABLE)
@@ -203,7 +202,7 @@ class RoleController {
             roleInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", message)
+            resultSet.put("message", message.toString())
             render resultSet as JSON
             return
 

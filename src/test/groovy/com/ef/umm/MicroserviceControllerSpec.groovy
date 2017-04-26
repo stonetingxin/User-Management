@@ -149,7 +149,7 @@ class MicroserviceControllerSpec extends Specification {
                 'roles and permissions should be returned.'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles":/$+
+                $/"microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles":/$+
                 $/[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,/$+
                 $/"name":"com.app.ef.admin","expression":"*:*"}]}]},{"id":2,"name":"CBR","description"/$+
                 $/:"Caller Based Routing","roles":[{"id":1,"name":"Admin","description":"Administrator"/$+
@@ -165,7 +165,7 @@ class MicroserviceControllerSpec extends Specification {
                 'corresponding roles and permissions'
         response?.status == 200
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Microservice":{"id":1,"name":"PCS","description":"Post Call Survey","roles":[{"id":1/$+
+                $/"microservice":{"id":1,"name":"PCS","description":"Post Call Survey","roles":[{"id":1/$+
                 $/,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef/$+
                 $/.admin","expression":"*:*"}]}]}}/$
     }
@@ -254,12 +254,12 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"add"}/$,
                   $/{"id":"2","roles":[{"id":"3"}], "addRemove":"add"}/$]
 
-        output << ["Roles have been successfully added.",
-                   "Roles have been successfully added.",
-                   "Role not found. Please provide a valid role id."]
+        output << ["[Role: Admin has already been assigned in the microservice., Role: Supervisor has been successfully added.]",
+                   "[Role: Supervisor has been successfully added.]",
+                   "[Role with id: 3 not found.]"]
         status << [200,
                    200,
-                   404]
+                   200]
         id <<["1",
               "2",
               "2"]
@@ -292,10 +292,11 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"asdf"}/$,
                   $/{"id":"1","roles":[{"id":"2"}], "addRemove":"remove"}/$]
 
-        output << ["Roles have been successfully removed.",
-                   "Roles have been successfully removed.",
+        output << ["[Role: Admin has been successfully removed., Role: " +
+                           "Supervisor cannot be removed since it's not been assigned.]",
+                   "[Role: Admin has been successfully removed.]",
                    "Only add or remove is allowed in this method.",
-                   "Roles cannot be removed since they're not assigned to the microservice."]
+                   "[Role: Supervisor cannot be removed since it's not been assigned.]"]
         status << [200,
                    200,
                    406,

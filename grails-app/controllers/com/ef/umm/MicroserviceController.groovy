@@ -21,7 +21,7 @@ class MicroserviceController {
         try{
             def microList = Microservice.list()
             resultSet.put("status", OK)
-            resultSet.put("Microservices", microList)
+            resultSet.put("microservices", microList)
             render resultSet as JSON
         }catch (Exception ex){
             log.error("Couldn't retrieve the list of the microservices.")
@@ -39,14 +39,14 @@ class MicroserviceController {
             def microInstance = Microservice.get(params?.id)
             if (!microInstance) {
                 resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "Microservice not found. Provide a valid microservice.")
+                resultSet.put("message", "icroservice not found. Provide a valid microservice.")
                 response.status = 404
                 render resultSet as JSON
                 return
             }
 
             resultSet.put("status", OK)
-            resultSet.put("Microservice", microInstance)
+            resultSet.put("microservice", microInstance)
             render resultSet as JSON
             return
         }catch (Exception ex){
@@ -165,7 +165,7 @@ class MicroserviceController {
     @Transactional
     def addRemoveRoles(){
         def resultSet = [:]
-        def message
+        def message = []
         try{
             def jsonObject = request.getJSON()
             if(!jsonObject?.id || !jsonObject?.roles || !jsonObject?.addRemove){
@@ -207,29 +207,29 @@ class MicroserviceController {
                     return
                 }
                 role = Role.findById(it?.id as Long)
-                if(!role){
-                    resultSet.put("status", NOT_FOUND)
-                    resultSet.put("message", "Role not found. Please provide a valid role id.")
-                    response.status = 404
-                    render resultSet as JSON
-                    return
+                if(role){
+                    if(addRemove == 'add'){
+                        if(!microInstance.roles.contains(role)){
+                            microInstance.addToRoles(role)
+                            message.add("Role: ${role.authority} has been successfully added.")
+                        }
+                        else{
+                            message.add("Role: ${role.authority} has already been assigned in the microservice.")
+                        }
+                    }
+                    if(addRemove == 'remove'){
+                        if(microInstance.roles.contains(role)){
+                            microInstance.removeFromRoles(role)
+                            message.add("Role: ${role.authority} has been successfully removed.")
+                        }
+                        else{
+                            message.add("Role: ${role.authority} cannot be removed since it's not been assigned.")
+                        }
+                    }
                 }
-                if(addRemove == 'add' && !microInstance.roles.contains(role)){
-                    microInstance.addToRoles(role)
-                    message = "Roles have been successfully added."
+                else{
+                    message.add("Role with id: ${it?.id} not found.")
                 }
-
-                if(addRemove == 'remove'&& microInstance.roles.contains(role)){
-                    microInstance.removeFromRoles(role)
-                    message = "Roles have been successfully removed."
-                }
-            }
-            if(addRemove == 'add' && !message){
-                message = "Roles have already been assigned in the microservice."
-            }
-
-            if(addRemove == 'remove' && !message){
-                message = "Roles cannot be removed since they're not assigned to the microservice."
             }
 
             microInstance.validate()
@@ -244,7 +244,7 @@ class MicroserviceController {
             microInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", message)
+            resultSet.put("message", message.toString())
             render resultSet as JSON
             return
 

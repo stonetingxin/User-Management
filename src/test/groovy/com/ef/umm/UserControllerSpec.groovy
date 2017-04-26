@@ -108,37 +108,6 @@ class UserControllerSpec extends Specification {
     }
 
     @Unroll
-    void "test usernameExists api"() {
-        when: 'usernameExists is called'
-        request?.json = input
-        controller?.usernameExists()
-
-        then: 'DB lookup should be performed to evaluate existence of user'
-        response?.status == status
-        response?.json.exists == exists
-        response?.json.message == output
-
-        where:
-        input << [$/{"username":"asif"}/$,
-                  $/{"username":"ahmed"}/$,
-                  $/{"usernam":"asif"}/$]
-
-        output<< ["username: 'asif' does not exist.",
-                  "User with username: 'ahmed' already exists.",
-                  "Invalid JSON provided. Please read the API specifications."]
-
-        exists <<[false,
-                  true,
-                  null]
-
-        status <<[200,
-                  200,
-                  406]
-    }
-
-
-
-    @Unroll
     void "test create api"() {
         when: 'save method is called with a json containing user details'
         request?.method = "POST"
@@ -175,9 +144,9 @@ class UserControllerSpec extends Specification {
         then: 'a json response of complete list of users with corresponding microservices,' +
                 'roles and permissions should be returned.'
         response?.status == 200
-        response?.json.Users[0].username == "ahmed"
+        response?.json.users[0].username == "ahmed"
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"Users":[{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
+                $/"users":[{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
                 $/"microServices":[{"id":1,"name":"PCS","description":"Post Call Survey","role":{"id":1,/$+
                 $/"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef.admin",/$+
                 $/"expression":"*:*"}]}}]},{"id":2,"username":"hamid","email":null,"firstName":null,"lastName"/$+
@@ -195,9 +164,9 @@ class UserControllerSpec extends Specification {
         then: 'a json should be returned with user having that id along with the ' +
                 'corresponding microservices, roles and permissions'
         response?.status == 200
-        response?.json?.User?.microServices[0]?.name == 'PCS'
+        response?.json?.user?.microServices[0]?.name == 'PCS'
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"User":{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
+                $/"user":{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
                 $/"microServices":[{"id":1,"name":"PCS","description":"Post Call Survey","role":{"id":1,/$+
                 $/"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef./$+
                 $/admin","expression":"*:*"}]}}]}}/$
