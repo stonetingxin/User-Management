@@ -59,6 +59,7 @@ class BootStrap {
             output['id'] = it?.id
             output['name'] = it?.name
             output['expression'] = it?.expression
+            output['description'] = it?.description
             return output
         }
 

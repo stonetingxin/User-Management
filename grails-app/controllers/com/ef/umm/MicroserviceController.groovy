@@ -244,7 +244,7 @@ class MicroserviceController {
             microInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", message.toString())
+            resultSet.put("message", message)
             render resultSet as JSON
             return
 

@@ -170,14 +170,14 @@ class RoleController {
                             message.add("Permission: ${perm.name} has been successfully added.")
                         }
                         else{
-                            message.add("Permission: ${perm.name} have already been added in the role.")
+                            message.add("Permission: ${perm.name} has already been added in the role.")
                         }
                     }
 
                     if(addRevoke == 'revoke'){
                         if(roleInstance?.permissions.contains(perm)){
                             roleInstance.removeFromPermissions(perm)
-                            message.add("Permission: ${perm.name} have been successfully revoked.")
+                            message.add("Permission: ${perm.name} has been successfully revoked.")
                         }
                         else{
                             message.add("Permission: ${perm.name} cannot be revoked since it's not assigned to the role.")
@@ -202,7 +202,7 @@ class RoleController {
             roleInstance.save(flush: true, failOnError: true)
 
             resultSet.put("status", OK)
-            resultSet.put("message", message.toString())
+            resultSet.put("message", message)
             render resultSet as JSON
             return
 

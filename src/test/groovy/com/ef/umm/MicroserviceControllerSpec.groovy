@@ -242,7 +242,8 @@ class MicroserviceControllerSpec extends Specification {
 
         then: 'the corresponding permission should be added for the role'
         response?.status == status
-        response?.json.message == output
+        def message =response?.json.message
+        message.toString() == output
         def out = null
         if(findRoles(id)){
             out = findRoles(id).toString()
@@ -254,9 +255,10 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"add"}/$,
                   $/{"id":"2","roles":[{"id":"3"}], "addRemove":"add"}/$]
 
-        output << ["[Role: Admin has already been assigned in the microservice., Role: Supervisor has been successfully added.]",
-                   "[Role: Supervisor has been successfully added.]",
-                   "[Role with id: 3 not found.]"]
+        output << [$/["Role: Admin has already been assigned in the microservice."/$+
+                   $/,"Role: Supervisor has been successfully added."]/$,
+                   $/["Role: Supervisor has been successfully added."]/$,
+                   $/["Role with id: 3 not found."]/$]
         status << [200,
                    200,
                    200]
@@ -278,7 +280,8 @@ class MicroserviceControllerSpec extends Specification {
 
         then: 'the corresponding roles should be removed from the microservice'
         response?.status == status
-        response?.json.message == output
+        def message =response?.json.message
+        message.toString() == output
         def out = null
         if(findRoles(id)){
             out = findRoles(id).toString()
@@ -292,11 +295,11 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"asdf"}/$,
                   $/{"id":"1","roles":[{"id":"2"}], "addRemove":"remove"}/$]
 
-        output << ["[Role: Admin has been successfully removed., Role: " +
-                           "Supervisor cannot be removed since it's not been assigned.]",
-                   "[Role: Admin has been successfully removed.]",
+        output << [$/["Role: Admin has been successfully removed.","Role: /$+
+                   $/Supervisor cannot be removed since it's not been assigned."]/$,
+                   $/["Role: Admin has been successfully removed."]/$,
                    "Only add or remove is allowed in this method.",
-                   "[Role: Supervisor cannot be removed since it's not been assigned.]"]
+                   $/["Role: Supervisor cannot be removed since it's not been assigned."]/$]
         status << [200,
                    200,
                    406,

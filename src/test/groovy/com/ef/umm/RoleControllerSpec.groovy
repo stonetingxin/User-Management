@@ -231,7 +231,8 @@ class RoleControllerSpec extends Specification {
 
         then: 'the corresponding permission should be added for the role'
         response?.status == status
-        response?.json.message == output
+        def message = response?.json.message
+        message.toString() == output
         def out = null
         if(findPerms(id)){
             out = findPerms(id).toString()
@@ -243,10 +244,10 @@ class RoleControllerSpec extends Specification {
                   $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"add"}/$,
                   $/{"id":"2","permissions":[{"id":"1"}], "addRevoke":"add"}/$]
 
-        output << ["[Permission: com.app.ef.admin have already been added in the role., " +
-                           "Permission: com.app.ef.show has been successfully added.]",
-                   "[Permission: com.app.ef.show have already been added in the role.]",
-                   "[Permission: com.app.ef.admin has been successfully added.]"]
+        output << [$/["Permission: com.app.ef.admin has already been added in the role."/$+
+                   $/,"Permission: com.app.ef.show has been successfully added."]/$,
+                   $/["Permission: com.app.ef.show has already been added in the role."]/$,
+                   $/["Permission: com.app.ef.admin has been successfully added."]/$]
         status << [200,
                    200,
                    200]
@@ -268,7 +269,8 @@ class RoleControllerSpec extends Specification {
 
         then: 'the corresponding permission should be revoked from the role'
         response?.status == status
-        response?.json.message == output
+        def message = response?.json.message
+        message.toString() == output
         def out = null
         if(findPerms(id)){
             out = findPerms(id).toString()
@@ -281,11 +283,11 @@ class RoleControllerSpec extends Specification {
                   $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"asdf"}/$,
                   $/{"id":"1","permissions":[{"id":"2"}], "addRevoke":"revoke"}/$]
 
-        output << ["[Permission: com.app.ef.admin have been successfully revoked., " +
-                           "Permission: com.app.ef.show cannot be revoked since it's not assigned to the role.]",
-                   "[Permission: com.app.ef.admin cannot be revoked since it's not assigned to the role.]",
+        output << [$/["Permission: com.app.ef.admin has been successfully revoked.",/$+
+                   $/"Permission: com.app.ef.show cannot be revoked since it's not assigned to the role."]/$,
+                   $/["Permission: com.app.ef.admin cannot be revoked since it's not assigned to the role."]/$,
                    "Only add or revoke is allowed in this method.",
-                   "[Permission: com.app.ef.show cannot be revoked since it's not assigned to the role.]"]
+                   $/["Permission: com.app.ef.show cannot be revoked since it's not assigned to the role."]/$]
         status << [200,
                    200,
                    406,
