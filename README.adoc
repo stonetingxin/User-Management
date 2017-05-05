@@ -1,0 +1,4443 @@
+= EF APPSuite Micro-Services API Design Specifications
+:toc: left
+:sectnums:
+:toclevels: 3
+
+[[_overview]]
+== Overview
+This article contains API design specification documentation of EF AppSuite user management micro service.
+
+
+=== Version information
+[%hardbreaks]
+__Version__ : 1.0.0
+
+
+=== URI scheme
+[%hardbreaks]
+__Host__ : 192.168.1.104:9090
+__BasePath__ : /
+__Schemes__ : HTTP
+
+
+=== Tags
+
+* Login : User login operation
+* User : Operations about users
+* Microservice : Operations about microservices
+* Role : Operations about roles
+* Permission : Operations about permissions
+
+
+=== Produces
+
+* `application/json`
+
+
+
+
+[[_paths]]
+== Resources
+
+[[_login_resource]]
+=== Login
+User login operation
+
+
+[[_api_login_post]]
+==== LogIn User
+....
+POST /api/login
+....
+
+
+===== Description
+This API would be used to login user into the application with specified credentials.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**user** +
+__required__|Credentails of the user being logged in the application|<<_userlogin,userLogin>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|User LoggedIn Successfully|<<_userloginresponse,userLoginResponse>>
+|**401**|Unauthorized. Username and/or password is incorrect|<<_401out,401Out>>
+|**405**|HTTP Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/api/login
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "username" : "string",
+  "password" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "username" : "string",
+  "roles" : [ "string" ],
+  "token_type" : "string",
+  "access_token" : "string",
+  "expires_in" : 0,
+  "refresh_token" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_resource]]
+=== User
+Operations about users
+
+
+[[_user_addrevokemicroserviceroles_put]]
+==== Add or revoke role of a user in any microservice
+....
+PUT /user/addRevokeMicroserviceRoles
+....
+
+
+===== Description
+This API function adds or removes the roles of a user in a particular microservice.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**addRevoke** +
+__required__|JSON object containing user's ID, microservice's ID and role's ID along with the command (add/revoke).|<<_addrevokeuser,addRevokeUser>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|successfull addition or revoking of a user's role|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/addRevokeMicroserviceRoles
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "microservice" : {
+    "id" : "string"
+  },
+  "role" : {
+    "id" : "string"
+  },
+  "addRevoke" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_create_post]]
+==== Create User
+....
+POST /user/create
+....
+
+
+===== Description
+This API would be used to register a new user with the specified attributes namely username, password, email, first name and last name.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**user** +
+__required__|All the attributes of the user being created in JSON format.|<<_newuser,newUser>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|User Created Successfully|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/create
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "username" : "string",
+  "password" : "string",
+  "firstName" : "string",
+  "lastName" : "string",
+  "email" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_delete_delete]]
+==== Delete User
+....
+DELETE /user/delete
+....
+
+
+===== Description
+This API would be used to delete application's local user.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the user being deleted|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|User Deleted Successfully|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/delete
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_list_get]]
+==== Users List
+....
+GET /user/list
+....
+
+
+===== Description
+This API would be used to get list of all users.
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Users List Fetched Successfully|<<_useroutput,userOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/list
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "users" : [ {
+    "id" : "string",
+    "username" : "string",
+    "email" : "string",
+    "firstName" : "string",
+    "lastName" : "string",
+    "microservices" : [ {
+      "id" : "string",
+      "name" : "string",
+      "description" : "string",
+      "roles" : [ {
+        "id" : "string",
+        "name" : "string",
+        "description" : "string",
+        "permissions" : [ {
+          "id" : "string",
+          "name" : "string",
+          "expression" : "string",
+          "description" : "string"
+        } ]
+      } ]
+    } ]
+  } ]
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_resetpassword_put]]
+==== reset password by admin
+....
+PUT /user/resetPassword
+....
+
+
+===== Description
+This API resets the password. Only an admin is privileged to reset password of a user.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**resetPassword** +
+__required__|JSON containing the user ID and the new password.|<<_resetpassword,resetPassword>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Password has been reset successfully.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/resetPassword
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "newPassword" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_show_get]]
+==== Get User's detail
+....
+GET /user/show
+....
+
+
+===== Description
+This API would be used to fetch complete details of any particular user.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the user to fetch complete details|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Operation Completed Successfully|<<_useroutput,userOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/show
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "users" : [ {
+    "id" : "string",
+    "username" : "string",
+    "email" : "string",
+    "firstName" : "string",
+    "lastName" : "string",
+    "microservices" : [ {
+      "id" : "string",
+      "name" : "string",
+      "description" : "string",
+      "roles" : [ {
+        "id" : "string",
+        "name" : "string",
+        "description" : "string",
+        "permissions" : [ {
+          "id" : "string",
+          "name" : "string",
+          "expression" : "string",
+          "description" : "string"
+        } ]
+      } ]
+    } ]
+  } ]
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_update_put]]
+==== update user's info
+....
+PUT /user/update
+....
+
+
+===== Description
+This API function updates the user's info viz. email, first name and last name.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**user** +
+__required__|JSON containing user's ID along with the optional parameters which are to be updated.|<<_updateuser,updateUser>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|user has been updated successfully.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/update
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "firstName" : "string",
+  "lastName" : "string",
+  "email" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_user_updatepassword_put]]
+==== change user's password
+....
+PUT /user/updatePassword
+....
+
+
+===== Description
+This API function changes password of a user. Any user is privileged to change his/her password
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**updatePassword** +
+__required__|Id, current password and new password provided as a JSON object.|<<_updatepassword,updatePassword>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Password updated successfully.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/user/updatePassword
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "curPassword" : "string",
+  "newPassword" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_resource]]
+=== Microservice
+Operations about microservices
+
+
+[[_microservice_addremoveroles_put]]
+==== Add or remove roles in a microservice
+....
+PUT /microservice/addRemoveRoles
+....
+
+
+===== Description
+This API would be used to add or remove any particular roles of a microservice.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**addRemoveRoles** +
+__required__|JSON contanining microservice id and role ids.|<<_addremoveroles,addRemoveRoles>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully added or removed the roles of a microservice.|<<_messageoutputarray,messageOutputArray>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/addRemoveRoles
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "roles" : [ {
+    "id" : "string"
+  } ],
+  "addRemove" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : [ {
+    "enumType" : "string",
+    "name" : "string"
+  } ],
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_create_post]]
+==== create a new microservice
+....
+POST /microservice/create
+....
+
+
+===== Description
+Registers a new microservice in local DB.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**createMicroservice** +
+__required__|JSON containing name and description of a microservice.|<<_createmicroservice,createMicroservice>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully created the microservice.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/create
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "name" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_delete_delete]]
+==== Delete microservice
+....
+DELETE /microservice/delete
+....
+
+
+===== Description
+This API would be used to delete particular microservice.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the microservice being deleted|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Microservice Deleted Successfully|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/delete
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_list_get]]
+==== Get microservice's list
+....
+GET /microservice/list
+....
+
+
+===== Description
+This API would be used to fetch complete details of all microServices i.e, roles and corresponding permissions.
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Operation Completed Successfully|<<_microserviceoutput,microserviceOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/list
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "microservices" : [ {
+    "id" : "string",
+    "name" : "string",
+    "description" : "string",
+    "roles" : [ {
+      "id" : "string",
+      "name" : "string",
+      "description" : "string",
+      "permissions" : [ {
+        "id" : "string",
+        "name" : "string",
+        "expression" : "string",
+        "description" : "string"
+      } ]
+    } ]
+  } ]
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_show_get]]
+==== Get microservice
+....
+GET /microservice/show
+....
+
+
+===== Description
+This API would be used to fetch complete details of any particular microService i.e, roles and corresponding permissions.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the microservice to fetch complete details|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Operation Completed Successfully|<<_microserviceshowoutput,microserviceShowOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/show
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "microservice" : {
+    "id" : "string",
+    "name" : "string",
+    "description" : "string",
+    "roles" : [ {
+      "id" : "string",
+      "name" : "string",
+      "description" : "string",
+      "permissions" : [ {
+        "id" : "string",
+        "name" : "string",
+        "expression" : "string",
+        "description" : "string"
+      } ]
+    } ]
+  }
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_microservice_update_put]]
+==== update a microservice's info
+....
+PUT /microservice/update
+....
+
+
+===== Description
+Updates the permission set of a user for a specific microservice.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**updateMicroService** +
+__required__|microService to be updated.|<<_updatemicroservice,updateMicroservice>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully updated the microservice.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/microservice/update
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "name" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_resource]]
+=== Role
+Operations about roles
+
+
+[[_role_addrevokepermissions_put]]
+==== add or revoke permissions from a role
+....
+PUT /role/addRevokePermissions
+....
+
+
+===== Description
+This API function adds or revokes the permissions grouped in a roll.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**role** +
+__required__|Object containing role's ID along with the IDs of permissions to be added or revoked.|<<_addrevokepermissions,addRevokePermissions>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully added/revoked the permissions of a role.|<<_messageoutputarray,messageOutputArray>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/addRevokePermissions
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "addRevoke" : "string",
+  "permissions" : [ {
+    "id" : "string"
+  } ]
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : [ {
+    "enumType" : "string",
+    "name" : "string"
+  } ],
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_create_post]]
+==== create a new role
+....
+POST /role/create
+....
+
+
+===== Description
+This API function creates a new role.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**role** +
+__required__|An object containing attributes of a role.|<<_createrole,createRole>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully created a role.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/create
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "authority" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_delete_delete]]
+==== delete a role for a microservice
+....
+DELETE /role/delete
+....
+
+
+===== Description
+Delete the specified role. Request can only succeed if role has no user.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the role being deleted|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully deleted a role for microservice.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/delete
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_list_get]]
+==== lists all the roles.
+....
+GET /role/list
+....
+
+
+===== Description
+Lists the roles with their permissions.
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully fetched the list of all roles.|<<_roleoutput,roleOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/list
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "roles" : [ {
+    "id" : "string",
+    "name" : "string",
+    "description" : "string",
+    "permissions" : [ {
+      "id" : "string",
+      "name" : "string",
+      "expression" : "string",
+      "description" : "string"
+    } ]
+  } ]
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_show_get]]
+==== Show a particular role
+....
+GET /role/show
+....
+
+
+===== Description
+Show details of a particular role with corresponding permissions.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the role to fetch complete details|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully fetched the particulars of a role.|<<_roleshowoutput,roleShowOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/show
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "role" : {
+    "id" : "string",
+    "name" : "string",
+    "description" : "string",
+    "permissions" : [ {
+      "id" : "string",
+      "name" : "string",
+      "expression" : "string",
+      "description" : "string"
+    } ]
+  }
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_role_update_put]]
+==== update an existing role.
+....
+PUT /role/update
+....
+
+
+===== Description
+This API updates the attributes of a role viz. authority and description.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**updateRole** +
+__required__|Object containing attributes of a role.|<<_roleupdate,roleUpdate>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully updated the role.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/role/update
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "authority" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_permission_resource]]
+=== Permission
+Operations about permissions
+
+
+[[_permission_create_post]]
+==== create a new permission
+....
+POST /permission/create
+....
+
+
+===== Description
+This API function creates a new permission.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**permission** +
+__required__|JSON object containing name, expression and description of the new permission to be created.|<<_createpermission,createPermission>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully created new permission.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/permission/create
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "name" : "string",
+  "expression" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_permission_delete_delete]]
+==== delete a permission
+....
+DELETE /permission/delete
+....
+
+
+===== Description
+Delete a permission specified by the ID.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the permission being deleted|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully deleted a permission.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/permission/delete
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_permission_list_get]]
+==== lists all the permissions.
+....
+GET /permission/list
+....
+
+
+===== Description
+Lists the all the permissions in the system.
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully fetched the list of all permissions.|<<_permoutput,permOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/permission/list
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "permissions" : [ {
+    "id" : "string",
+    "name" : "string",
+    "expression" : "string",
+    "description" : "string"
+  } ]
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_permission_show_get]]
+==== show a permission.
+....
+GET /permission/show
+....
+
+
+===== Description
+Show particulars of permission in the system.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Query**|**id** +
+__required__|Id of the permission to fetch complete details|string (int)
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully fetched the particular permission's details.|<<_permshowoutput,permShowOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/permission/show
+----
+
+
+====== Request query
+[source,json]
+----
+{
+  "id" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "permission" : {
+    "id" : "string",
+    "name" : "string",
+    "expression" : "string",
+    "description" : "string"
+  }
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+[[_permission_update_put]]
+==== update an existing permission
+....
+PUT /permission/update
+....
+
+
+===== Description
+This API function updates an existing permission.
+
+
+===== Parameters
+
+[options="header", cols=".^2,.^3,.^9,.^4"]
+|===
+|Type|Name|Description|Schema
+|**Body**|**updatePermission** +
+__required__|contains id, name, expression and description of the permission to be updated.|<<_updatepermission,updatePermission>>
+|===
+
+
+===== Responses
+
+[options="header", cols=".^2,.^14,.^4"]
+|===
+|HTTP Code|Description|Schema
+|**200**|Successfully updated the permission.|<<_messageoutput,messageOutput>>
+|**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
+|**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
+|**404**|Not found|<<_errorformat,errorFormat>>
+|**405**|Method Not Allowed|No Content
+|**406**|Not acceptable|<<_errorformat,errorFormat>>
+|**500**|Internal Server Error|<<_errorformat,errorFormat>>
+|**default**|Unexpected error|<<_error,Error>>
+|===
+
+
+===== Security
+
+[options="header", cols=".^3,.^4"]
+|===
+|Type|Name
+|**apiKey**|**<<_apiauthkey,APIAuthKey>>**
+|===
+
+
+===== Example HTTP request
+
+====== Request path
+----
+/permission/update
+----
+
+
+====== Request body
+[source,json]
+----
+{
+  "id" : "string",
+  "name" : "string",
+  "expression" : "string",
+  "description" : "string"
+}
+----
+
+
+===== Example HTTP response
+
+====== Response 200
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 401
+[source,json]
+----
+{
+  "timestamp" : 0,
+  "status" : 0,
+  "error" : "string",
+  "message" : "string",
+  "path" : "string"
+}
+----
+
+
+====== Response 403
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 404
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 406
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response 500
+[source,json]
+----
+{
+  "status" : {
+    "enumType" : "string",
+    "name" : "string"
+  },
+  "message" : "string"
+}
+----
+
+
+====== Response default
+[source,json]
+----
+{
+  "code" : 0,
+  "message" : "string",
+  "fields" : "string"
+}
+----
+
+
+
+
+[[_definitions]]
+== Definitions
+
+[[_401out]]
+=== 401Out
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**error** +
+__optional__|**Example** : `"string"`|string
+|**message** +
+__optional__|**Example** : `"string"`|string
+|**path** +
+__optional__|**Example** : `"string"`|string
+|**status** +
+__optional__|**Example** : `0`|integer
+|**timestamp** +
+__optional__|**Example** : `0`|integer
+|===
+
+
+[[_error]]
+=== Error
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**code** +
+__optional__|**Example** : `0`|integer (int32)
+|**fields** +
+__optional__|**Example** : `"string"`|string
+|**message** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_addremoveroles]]
+=== addRemoveRoles
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**addRemove** +
+__required__|**Example** : `"string"`|enum (add, remove)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**roles** +
+__required__|**Example** : `[ "<<_roleinput>>" ]`|< <<_roleinput,roleInput>> > array
+|===
+
+
+[[_addrevokepermissions]]
+=== addRevokePermissions
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**addRevoke** +
+__required__|**Example** : `"string"`|enum (add, revoke)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**permissions** +
+__required__|**Example** : `[ "<<_perminput>>" ]`|< <<_perminput,permInput>> > array
+|===
+
+
+[[_addrevokeuser]]
+=== addRevokeUser
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**addRevoke** +
+__required__|**Example** : `"string"`|enum (add, revoke)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**microservice** +
+__required__|**Example** : `"<<_microinput>>"`|<<_microinput,microInput>>
+|**role** +
+__required__|**Example** : `"<<_roleinput>>"`|<<_roleinput,roleInput>>
+|===
+
+
+[[_createmicroservice]]
+=== createMicroservice
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string (string)
+|**name** +
+__required__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_createpermission]]
+=== createPermission
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string (string)
+|**expression** +
+__required__|**Example** : `"string"`|string (string)
+|**name** +
+__required__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_createrole]]
+=== createRole
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**authority** +
+__optional__|**Example** : `"string"`|string
+|**description** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_errorformat]]
+=== errorFormat
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**message** +
+__optional__|**Example** : `"string"`|string
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_messageoutput]]
+=== messageOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**message** +
+__optional__|**Example** : `"string"`|string
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_messageoutputarray]]
+=== messageOutputArray
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**message** +
+__optional__|**Example** : `"string"`|string
+|**status** +
+__optional__|**Example** : `[ "<<_status>>" ]`|< <<_status,status>> > array
+|===
+
+
+[[_microinput]]
+=== microInput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|===
+
+
+[[_microservice]]
+=== microService
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|id of the microservice +
+**Example** : `"string"`|string (string)
+|**name** +
+__optional__|name of the microservice +
+**Example** : `"string"`|string (string)
+|**roles** +
+__optional__|**Example** : `[ "<<_role>>" ]`|< <<_role,role>> > array
+|===
+
+
+[[_microserviceoutput]]
+=== microserviceOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**microservices** +
+__optional__|**Example** : `[ "<<_microservice>>" ]`|< <<_microservice,microService>> > array
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_microserviceshowoutput]]
+=== microserviceShowOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**microservice** +
+__optional__|**Example** : `"<<_microservice>>"`|<<_microservice,microService>>
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_newuser]]
+=== newUser
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**email** +
+__optional__|**Example** : `"string"`|string (string)
+|**firstName** +
+__optional__|**Example** : `"string"`|string (string)
+|**lastName** +
+__optional__|**Example** : `"string"`|string (string)
+|**password** +
+__required__|**Example** : `"string"`|string (password)
+|**username** +
+__required__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_perminput]]
+=== permInput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|===
+
+
+[[_permoutput]]
+=== permOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**permissions** +
+__optional__|**Example** : `[ "<<_permission>>" ]`|< <<_permission,permission>> > array
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_permshowoutput]]
+=== permShowOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**permission** +
+__optional__|**Example** : `"<<_permission>>"`|<<_permission,permission>>
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_permission]]
+=== permission
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**expression** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|id of the permission assigned +
+**Example** : `"string"`|string (string)
+|**name** +
+__optional__|name of the permission assigned +
+**Example** : `"string"`|string (string)
+|===
+
+
+[[_resetpassword]]
+=== resetPassword
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|**newPassword** +
+__required__|**Example** : `"string"`|string (password)
+|===
+
+
+[[_role]]
+=== role
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|id of the role +
+**Example** : `"string"`|string (string)
+|**name** +
+__optional__|name of the role +
+**Example** : `"string"`|string (string)
+|**permissions** +
+__optional__|**Example** : `[ "<<_permission>>" ]`|< <<_permission,permission>> > array
+|===
+
+
+[[_roleinput]]
+=== roleInput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|===
+
+
+[[_roleoutput]]
+=== roleOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**roles** +
+__optional__|**Example** : `[ "<<_role>>" ]`|< <<_role,role>> > array
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_roleshowoutput]]
+=== roleShowOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**role** +
+__optional__|**Example** : `"<<_role>>"`|<<_role,role>>
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|===
+
+
+[[_roleupdate]]
+=== roleUpdate
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**authority** +
+__required__|**Example** : `"string"`|string
+|**description** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__required__|**Example** : `"string"`|string
+|===
+
+
+[[_status]]
+=== status
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**enumType** +
+__optional__|**Example** : `"string"`|string (string)
+|**name** +
+__optional__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_updatemicroservice]]
+=== updateMicroservice
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string (string)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**name** +
+__optional__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_updatepassword]]
+=== updatePassword
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**curPassword** +
+__required__|**Example** : `"string"`|string (password)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**newPassword** +
+__required__|**Example** : `"string"`|string (password)
+|===
+
+
+[[_updatepermission]]
+=== updatePermission
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**description** +
+__optional__|**Example** : `"string"`|string (string)
+|**expression** +
+__optional__|**Example** : `"string"`|string (string)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**name** +
+__optional__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_updateuser]]
+=== updateUser
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**email** +
+__optional__|**Example** : `"string"`|string (string)
+|**firstName** +
+__optional__|**Example** : `"string"`|string (string)
+|**id** +
+__required__|**Example** : `"string"`|string
+|**lastName** +
+__optional__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_userdetails]]
+=== userDetails
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**email** +
+__optional__|**Example** : `"string"`|string
+|**firstName** +
+__optional__|**Example** : `"string"`|string
+|**id** +
+__optional__|**Example** : `"string"`|string (int)
+|**lastName** +
+__optional__|**Example** : `"string"`|string
+|**microservices** +
+__optional__|**Example** : `[ "<<_microservice>>" ]`|< <<_microservice,microService>> > array
+|**username** +
+__optional__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_userlogin]]
+=== userLogin
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**password** +
+__required__|**Example** : `"string"`|string (password)
+|**username** +
+__required__|**Example** : `"string"`|string (string)
+|===
+
+
+[[_userloginresponse]]
+=== userLoginResponse
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**access_token** +
+__optional__|**Example** : `"string"`|string
+|**expires_in** +
+__optional__|**Example** : `0`|integer
+|**refresh_token** +
+__optional__|**Example** : `"string"`|string
+|**roles** +
+__optional__|**Example** : `[ "string" ]`|< string > array
+|**token_type** +
+__optional__|**Example** : `"string"`|string
+|**username** +
+__optional__|**Example** : `"string"`|string
+|===
+
+
+[[_useroutput]]
+=== userOutput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**status** +
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
+|**users** +
+__optional__|**Example** : `[ "<<_userdetails>>" ]`|< <<_userdetails,userDetails>> > array
+|===
+
+
+
+
+[[_securityscheme]]
+== Security
+
+[[_apiauthkey]]
+=== APIAuthKey
+[%hardbreaks]
+__Type__ : apiKey
+__Name__ : Authorization
+__In__ : HEADER
+
+
+
