@@ -239,8 +239,8 @@ class UserControllerSpec extends Specification {
         where:
         input << [$/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
                           $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"add"}/$,
-                  $/{"id":"1","microservices":[{"id":"2","roles":[{"id":"1"},{"id":"2"}]},/$+
-                          $/{"id":"2","roles":[{"id":"4"},{"id": "2"}]}],"addRevoke":"add"}/$,
+                  $/{"id":"1","microservices":[{"id":"2","roles":[{"id":"2"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"2"},{"id": "2"}]}],"addRevoke":"add"}/$,
                   $/{"id":"1","microservices":[{"id":"3","roles":[{"id":"1"},{"id":"2"}]},/$+
                           $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"add"}/$,
                   $/{"id":"1","microservices":[{"id":"1","roles":[{"id":"22"},{"id":"2"}]},/$+
@@ -252,9 +252,9 @@ class UserControllerSpec extends Specification {
                            "added Supervisor role in PCS for user: ahmed\",\"Successfully" +
                            " added Admin role in CBR for user: ahmed\",\"Successfully added" +
                            " Supervisor role in CBR for user: ahmed\"]",
-                   "[\"Successfully added Admin role in CBR for user: ahmed\",\"Successfully" +
-                           " added Supervisor role in CBR for user: ahmed\",\"Role with id: 4 not" +
-                           " found.\",\"User: ahmed already has Supervisor role in CBR.\"]",
+                   "[\"Successfully added Supervisor role in CBR for user: ahmed\",\"User: ahmed " +
+                           "already has Supervisor role in CBR.\",\"User: ahmed already has Supervisor" +
+                           " role in CBR.\",\"User: ahmed already has Supervisor role in CBR.\"]",
                    "[\"Microservice with id: 3 not found.\",\"Successfully added Admin role in CBR" +
                            " for user: ahmed\",\"Successfully added Supervisor role in CBR for user: ahmed\"]",
                    "[\"Role with id: 22 not found.\",\"Successfully added Supervisor role in PCS for " +
@@ -279,7 +279,7 @@ class UserControllerSpec extends Specification {
                "CBR"]
 
         umrOutput <<["ahmed as Admin in CBR",
-                     "ahmed as Admin in CBR",
+                     "ahmed as Supervisor in CBR",
                      "ahmed as Admin in CBR",
                      "ahmed as Admin in CBR",
                      "ahmed as Supervisor in CBR"]

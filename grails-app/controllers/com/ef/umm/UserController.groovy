@@ -344,7 +344,8 @@ class UserController extends RestfulController<User> {
                         role = Role.findById(it?.id as Long)
                         if(role){
                             if(addRevoke == "add"){
-                               if(!UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)){
+                                def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)
+                               if(!umr){
                                    UMR.create userInstance, role, micro, true
                                    message.add("Successfully added ${role.authority} role in ${micro.name} for " +
                                            "user: ${userInstance.username}")
