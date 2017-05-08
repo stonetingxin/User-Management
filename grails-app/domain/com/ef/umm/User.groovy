@@ -1,27 +1,5 @@
 package com.ef.umm
 
-//class User {
-//    String email
-//    String firstName
-//    String lastName
-//    String username
-//    String password
-//    String authProvider
-//
-//    static constraints = {
-//        email(email: true, blank: true, nullable: true, matches: "^[a-zA-Z0-9!#\$%&'*+/=?^_`{|}~.-]+@[a-zA-Z]+\\.com\$")
-//        firstName(maxSize: 100, blank: true, nullable: true)
-//        lastName(maxSize: 100, blank: true, nullable: true)
-//        username(nullable: false, blank: false, size: 2..20, matches: "^[a-zA-Z0-9][0-9a-zA-Z_.]*\$", unique: true)
-//        password(minSize: 5, blank: false, nullable: false)
-//        authProvider (blank:true)
-//    }
-//
-//    String toString() {
-//        return username
-//    }
-//}
-
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 

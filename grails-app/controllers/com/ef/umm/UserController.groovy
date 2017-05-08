@@ -280,15 +280,25 @@ class UserController extends RestfulController<User> {
     @Transactional
     def addRevokeMicroserviceRoles() {
         def resultSet = [:]
+        def message = []
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || !jsonObject?.microservice?.id || !jsonObject?.role?.id || !jsonObject?.addRevoke){
+            if(!jsonObject?.id || !jsonObject?.microservices || !jsonObject?.addRevoke){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
                 render resultSet as JSON
                 return
             }
+
+            if(!(jsonObject?.addRevoke == 'add' || jsonObject?.addRevoke == 'revoke')){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Only add or revoke is allowed in this method.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
             def addRevoke = jsonObject?.addRevoke
             User userInstance = User.findById(jsonObject?.id as Long)
             if(!userInstance){
@@ -299,88 +309,79 @@ class UserController extends RestfulController<User> {
                 return
             }
 
-            Microservice micro = Microservice.findById(jsonObject?.microservice?.id as Long)
+            def micros = jsonObject?.microservices
 
-            if(!micro){
-                resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "Microservice not found. Provide a valid microservice.")
-                response.status = 404
-                render resultSet as JSON
-                return
-            }
+            def micro
 
-            Role role = Role.findById(jsonObject?.role?.id as Long)
-
-            if(!role){
-                resultSet.put("status", NOT_FOUND)
-                resultSet.put("message", "Role not found. Provide a valid role.")
-                response.status = 404
-                render resultSet as JSON
-                return
-            }
-
-            UMR umr = UMR.findByUsersAndMicroservices(userInstance, micro)
-
-            if(addRevoke == 'add'){
-                if(umr){
-                    if(umr.roles !=role){
-                        umr.setRoles(role)
-                        umr.save(flush: true, failOnError: true)
-                        resultSet.put("status", OK)
-                        resultSet.put("message", "Role has been changed for ${userInstance.username} in ${micro.name}")
-                        render resultSet as JSON
-                        return
-                    }
-                    else{
-                        resultSet.put("status", OK)
-                        resultSet.put("message", "${userInstance.username} already has ${role.authority} role for ${micro.name}")
-                        render resultSet as JSON
-                        return
-                    }
-                }
-                else{
-                    umr = UMR.create userInstance, role, micro
-                    umr.save(flush:true)
-                    resultSet.put("status", OK)
-                    resultSet.put("message", "New role: '${role.authority}' has been added for " +
-                            "${userInstance.username} in ${micro.name}")
+            micros?.each{
+                if(!it?.id){
+                    resultSet.put("status", NOT_ACCEPTABLE)
+                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                    response.status = 406
                     render resultSet as JSON
                     return
                 }
-            }
-            else if(addRevoke == 'revoke'){
-                if(umr){
-                    if(umr.roles !=role){
-                        resultSet.put("status", OK)
-                        resultSet.put("message", "Role cannot be revoked since it's not been assigned." +
-                                " ${userInstance.username} has ${umr?.roles?.authority} role in ${micro.name}")
+                micro = Microservice.findById(it?.id as Long)
+                if(micro){
+                    def roles = it?.roles
+                    if(!roles){
+                        resultSet.put("status", NOT_ACCEPTABLE)
+                        resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                        response.status = 406
                         render resultSet as JSON
                         return
                     }
-                    else{
-                        umr.delete(flush: true, failOnErrors:true)
-                        resultSet.put("status", OK)
-                        resultSet.put("message", "Role: '${role.authority}' has been revoked for " +
-                                "${userInstance.username} in ${micro.name}")
-                        render resultSet as JSON
-                        return
+
+                    def role
+                    roles?.each{
+                        if(!it?.id){
+                            resultSet.put("status", NOT_ACCEPTABLE)
+                            resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                            response.status = 406
+                            render resultSet as JSON
+                            return
+                        }
+                        role = Role.findById(it?.id as Long)
+                        if(role){
+                            if(addRevoke == "add"){
+                               if(!UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)){
+                                   UMR.create userInstance, role, micro, true
+                                   message.add("Successfully added ${role.authority} role in ${micro.name} for " +
+                                           "user: ${userInstance.username}")
+                               }
+                               else{
+                                   message.add("User: ${userInstance.username} already has ${role.authority} role" +
+                                           " in ${micro.name}.")
+                               }
+                            }
+
+                            if(addRevoke == "revoke"){
+                                def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)
+                                if(umr){
+                                    umr?.delete(flush: true, failOnError: true)
+                                    message.add("Successfully revoked ${role.authority} role in ${micro.name} for " +
+                                            "user: ${userInstance.username}")
+                                }
+                                else{
+                                    message.add("User: ${userInstance.username} does not have ${role.authority} role" +
+                                            " in ${micro.name}.")
+                                }
+                            }
+                        }
+                        else{
+                            message.add("Role with id: ${it?.id} not found.")
+                        }
                     }
                 }
                 else{
-                    resultSet.put("status", OK)
-                    resultSet.put("message", "Role cannot be revoked since it's not been assigned." +
-                            " ${userInstance.username} does not have any role in ${micro.name}")
-                    render resultSet as JSON
-                    return
+                    message.add("Microservice with id: ${it?.id} not found.")
                 }
             }
-            else{
-                resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Only add or revoke is allowed in this method.")
-                response.status = 406
-                render resultSet as JSON
-                return
-            }
+
+            resultSet.put("status", OK)
+            resultSet.put("message", message)
+            render resultSet as JSON
+            return
 
         }catch (Exception ex){
             log.error("Exception occured while adding/revoking microservices and roles to a user: ", ex)

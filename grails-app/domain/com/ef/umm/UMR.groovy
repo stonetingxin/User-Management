@@ -7,7 +7,7 @@ class UMR implements Serializable{
     Microservice microservices
 
     static constraints = {
-        id composite: ['users', 'microservices']
+        id composite: ['users', 'microservices', 'roles']
         roles nullable: false
         microservices nullable: false
         users nullable: false
@@ -27,9 +27,6 @@ class UMR implements Serializable{
 
     static UMR create(User user, Role role, Microservice microservice, boolean flush = false) {
         def instance = new UMR(users: user, roles: role, microservices: microservice)
-        if(!instance.validate()){
-            println instance.errors
-        }
         instance.save(flush: flush, insert: true)
         instance
     }

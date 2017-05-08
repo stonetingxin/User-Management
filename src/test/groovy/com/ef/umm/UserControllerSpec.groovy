@@ -228,7 +228,8 @@ class UserControllerSpec extends Specification {
 
         then: 'the corresponding role microservice should be added for the user'
         response?.status == status
-        response?.json.message == output
+        def message = response?.json.message
+        message.toString() == output
         def out = null
         if(findUMR(u, m)){
             out = findUMR(u, m).toString()
@@ -236,22 +237,35 @@ class UserControllerSpec extends Specification {
         out == umrOutput
 
         where:
-        input << [$/{"id":"1","microservice":{"id":"1"}, "role":{"id":"1"}, "addRevoke":"add"}/$,
-                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"1"}, "addRevoke":"add"}/$,
-                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"add"}/$,
-                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"2"}, "addRevoke":"add"}/$,
-                  $/{"id":"1","microservice":{"id":"3"}, "role":{"id":"3"}, "addRevoke":"add"}/$]
+        input << [$/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"add"}/$,
+                  $/{"id":"1","microservices":[{"id":"2","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"4"},{"id": "2"}]}],"addRevoke":"add"}/$,
+                  $/{"id":"1","microservices":[{"id":"3","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"add"}/$,
+                  $/{"id":"1","microservices":[{"id":"1","roles":[{"id":"22"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"add"}/$,
+                  $/{"id":"1","microservices":[{"id":"2","roles":[{"id":"54"},{"id":"2"}]},/$+
+                          $/{"id":"2"}],"addRevoke":"add"}/$]
 
-        output << ["ahmed already has Admin role for PCS",
-                   "New role: 'Admin' has been added for ahmed in CBR",
-                   "Role has been changed for ahmed in PCS",
-                   "New role: 'Supervisor' has been added for ahmed in CBR",
-                   "Microservice not found. Provide a valid microservice."]
+        output << ["[\"User: ahmed already has Admin role in PCS.\",\"Successfully " +
+                           "added Supervisor role in PCS for user: ahmed\",\"Successfully" +
+                           " added Admin role in CBR for user: ahmed\",\"Successfully added" +
+                           " Supervisor role in CBR for user: ahmed\"]",
+                   "[\"Successfully added Admin role in CBR for user: ahmed\",\"Successfully" +
+                           " added Supervisor role in CBR for user: ahmed\",\"Role with id: 4 not" +
+                           " found.\",\"User: ahmed already has Supervisor role in CBR.\"]",
+                   "[\"Microservice with id: 3 not found.\",\"Successfully added Admin role in CBR" +
+                           " for user: ahmed\",\"Successfully added Supervisor role in CBR for user: ahmed\"]",
+                   "[\"Role with id: 22 not found.\",\"Successfully added Supervisor role in PCS for " +
+                           "user: ahmed\",\"Successfully added Admin role in CBR for user: ahmed\"" +
+                           ",\"Successfully added Supervisor role in CBR for user: ahmed\"]",
+                   "Invalid JSON provided. Please read the API specifications."]
         status << [200,
                    200,
                    200,
                    200,
-                   404]
+                   406]
         u <<["ahmed",
              "ahmed",
              "ahmed",
@@ -264,11 +278,11 @@ class UserControllerSpec extends Specification {
                "CBR",
                "CBR"]
 
-        umrOutput <<[null,
+        umrOutput <<["ahmed as Admin in CBR",
                      "ahmed as Admin in CBR",
-                     null,
-                     "ahmed as Supervisor in CBR",
-                     null]
+                     "ahmed as Admin in CBR",
+                     "ahmed as Admin in CBR",
+                     "ahmed as Supervisor in CBR"]
     }
 
     @Unroll
@@ -280,29 +294,39 @@ class UserControllerSpec extends Specification {
 
         then: 'the corresponding role-microservice should be revoked for the user'
         response?.status == status
-        response?.json.message == output
+        def message = response?.json.message
+        message.toString() == output
         findUMR(u, m) == umrOutput
 
 
         where:
-        input << [$/{"id":"1","microservice":{"id":"1"}, "role":{"id":"1"}, "addRevoke":"revoke"}/$,
-                  $/{"id":"1","microservice":{"id":"2"}, "role":{"id":"1"}, "addRevoke":"revoke"}/$,
-                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"revoke"}/$,
-                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":""}, "addRevoke":"revoke"}/$,
-                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"3"}, "addRevoke":"revoke"}/$,
-                  $/{"id":"1","microservice":{"id":"1"}, "role":{"id":"2"}, "addRevoke":"revok"}/$]
+        input << [$/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservices":[{"id":"3","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "4"}]}],"addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2"}],"addRevoke":"revoke"}/$,
+                  $/{"id":"4","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"": "2"}]}],"addRevoke":"revoke"}/$,
+                  $/{"id":"1","microservices":[{"id":"1","roles":[{"id":"1"},{"id":"2"}]},/$+
+                          $/{"id":"2","roles":[{"id":"1"},{"id": "2"}]}],"addRevoke":"remove"}/$]
 
-        output << ["Role: 'Admin' has been revoked for ahmed in PCS",
-                   "Role cannot be revoked since it's not been assigned. ahmed does not have any role in CBR",
-                   "Role cannot be revoked since it's not been assigned. ahmed has Admin role in PCS",
+        output << [$/["Successfully revoked Admin role in PCS for user: ahmed","User: ahmed /$+
+                           $/does not have Supervisor role in PCS.","User: ahmed does not have /$+
+                           $/Admin role in CBR.","User: ahmed does not have Supervisor role in CBR."]/$,
+                   $/["Microservice with id: 3 not found.","User: ahmed does not have Admin role in /$+
+                           $/CBR.","Role with id: 4 not found."]/$,
                    "Invalid JSON provided. Please read the API specifications.",
-                   "Role not found. Provide a valid role.",
+                   "User not found. Invalid add/revoke request",
+                   "Invalid JSON provided. Please read the API specifications.",
                    "Only add or revoke is allowed in this method."]
         status << [200,
                    200,
-                   200,
                    406,
                    404,
+                   406,
                    406]
         u <<["ahmed",
              "ahmed",

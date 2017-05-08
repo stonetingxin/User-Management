@@ -145,13 +145,6 @@ class RoleController {
             }
 
             def perms = jsonObject?.permissions
-            if(!jsonObject?.permissions ){
-                resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
-                response.status = 406
-                render resultSet as JSON
-                return
-            }
 
             def perm
             perms?.each{
