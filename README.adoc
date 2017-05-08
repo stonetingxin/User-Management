@@ -15,7 +15,7 @@ __Version__ : 1.0.0
 
 === URI scheme
 [%hardbreaks]
-__Host__ : 192.168.1.104:9090
+__Host__ : localhost:9090
 __BasePath__ : /
 __Schemes__ : HTTP
 
@@ -180,7 +180,7 @@ __required__|JSON object containing user's ID, microservice's ID and role's ID a
 [options="header", cols=".^2,.^14,.^4"]
 |===
 |HTTP Code|Description|Schema
-|**200**|successfull addition or revoking of a user's role|<<_messageoutput,messageOutput>>
+|**200**|successfull addition or revoking of a user's role|<<_messageoutputarray,messageOutputArray>>
 |**401**|Unauthorized. Token authentication failed.|<<_401out,401Out>>
 |**403**|Access denied. User is forbidden to access this resource.|<<_errorformat,errorFormat>>
 |**404**|Not found|<<_errorformat,errorFormat>>
@@ -213,12 +213,12 @@ __required__|JSON object containing user's ID, microservice's ID and role's ID a
 ----
 {
   "id" : "string",
-  "microservice" : {
-    "id" : "string"
-  },
-  "role" : {
-    "id" : "string"
-  },
+  "microservices" : [ {
+    "id" : "string",
+    "roles" : [ {
+      "id" : "string"
+    } ]
+  } ],
   "addRevoke" : "string"
 }
 ----
@@ -234,7 +234,7 @@ __required__|JSON object containing user's ID, microservice's ID and role's ID a
     "enumType" : "string",
     "name" : "string"
   },
-  "message" : "string"
+  "message" : [ "string" ]
 }
 ----
 
@@ -1450,11 +1450,11 @@ __required__|JSON contanining microservice id and role ids.|<<_addremoveroles,ad
 [source,json]
 ----
 {
-  "status" : [ {
+  "status" : {
     "enumType" : "string",
     "name" : "string"
-  } ],
-  "message" : "string"
+  },
+  "message" : [ "string" ]
 }
 ----
 
@@ -2355,11 +2355,11 @@ __required__|Object containing role's ID along with the IDs of permissions to be
 [source,json]
 ----
 {
-  "status" : [ {
+  "status" : {
     "enumType" : "string",
     "name" : "string"
-  } ],
-  "message" : "string"
+  },
+  "message" : [ "string" ]
 }
 ----
 
@@ -3951,7 +3951,7 @@ __required__|**Example** : `"string"`|enum (add, remove)
 |**id** +
 __required__|**Example** : `"string"`|string
 |**roles** +
-__required__|**Example** : `[ "<<_roleinput>>" ]`|< <<_roleinput,roleInput>> > array
+__required__|**Example** : `[ "<<_idinput>>" ]`|< <<_idinput,idInput>> > array
 |===
 
 
@@ -3966,7 +3966,7 @@ __required__|**Example** : `"string"`|enum (add, revoke)
 |**id** +
 __required__|**Example** : `"string"`|string
 |**permissions** +
-__required__|**Example** : `[ "<<_perminput>>" ]`|< <<_perminput,permInput>> > array
+__required__|**Example** : `[ "<<_idinput>>" ]`|< <<_idinput,idInput>> > array
 |===
 
 
@@ -3980,10 +3980,8 @@ __required__|**Example** : `[ "<<_perminput>>" ]`|< <<_perminput,permInput>> > a
 __required__|**Example** : `"string"`|enum (add, revoke)
 |**id** +
 __required__|**Example** : `"string"`|string
-|**microservice** +
-__required__|**Example** : `"<<_microinput>>"`|<<_microinput,microInput>>
-|**role** +
-__required__|**Example** : `"<<_roleinput>>"`|<<_roleinput,roleInput>>
+|**microservices** +
+__required__|**Example** : `[ "<<_multiroles>>" ]`|< <<_multiroles,multiRoles>> > array
 |===
 
 
@@ -4041,6 +4039,17 @@ __optional__|**Example** : `"<<_status>>"`|<<_status,status>>
 |===
 
 
+[[_idinput]]
+=== idInput
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|===
+
+
 [[_messageoutput]]
 === messageOutput
 
@@ -4061,20 +4070,9 @@ __optional__|**Example** : `"<<_status>>"`|<<_status,status>>
 |===
 |Name|Description|Schema
 |**message** +
-__optional__|**Example** : `"string"`|string
+__optional__|**Example** : `[ "string" ]`|< string > array
 |**status** +
-__optional__|**Example** : `[ "<<_status>>" ]`|< <<_status,status>> > array
-|===
-
-
-[[_microinput]]
-=== microInput
-
-[options="header", cols=".^3,.^11,.^4"]
-|===
-|Name|Description|Schema
-|**id** +
-__required__|**Example** : `"string"`|string
+__optional__|**Example** : `"<<_status>>"`|<<_status,status>>
 |===
 
 
@@ -4123,6 +4121,19 @@ __optional__|**Example** : `"<<_status>>"`|<<_status,status>>
 |===
 
 
+[[_multiroles]]
+=== multiRoles
+
+[options="header", cols=".^3,.^11,.^4"]
+|===
+|Name|Description|Schema
+|**id** +
+__required__|**Example** : `"string"`|string
+|**roles** +
+__required__|**Example** : `[ "<<_idinput>>" ]`|< <<_idinput,idInput>> > array
+|===
+
+
 [[_newuser]]
 === newUser
 
@@ -4139,17 +4150,6 @@ __optional__|**Example** : `"string"`|string (string)
 __required__|**Example** : `"string"`|string (password)
 |**username** +
 __required__|**Example** : `"string"`|string (string)
-|===
-
-
-[[_perminput]]
-=== permInput
-
-[options="header", cols=".^3,.^11,.^4"]
-|===
-|Name|Description|Schema
-|**id** +
-__required__|**Example** : `"string"`|string
 |===
 
 
@@ -4227,17 +4227,6 @@ __optional__|name of the role +
 **Example** : `"string"`|string (string)
 |**permissions** +
 __optional__|**Example** : `[ "<<_permission>>" ]`|< <<_permission,permission>> > array
-|===
-
-
-[[_roleinput]]
-=== roleInput
-
-[options="header", cols=".^3,.^11,.^4"]
-|===
-|Name|Description|Schema
-|**id** +
-__required__|**Example** : `"string"`|string
 |===
 
 
@@ -4438,6 +4427,3 @@ __optional__|**Example** : `[ "<<_userdetails>>" ]`|< <<_userdetails,userDetails
 __Type__ : apiKey
 __Name__ : Authorization
 __In__ : HEADER
-
-
-
