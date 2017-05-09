@@ -77,6 +77,7 @@ class UserControllerSpec extends Specification {
         JSON.registerObjectMarshaller(User) {
             def output = [:]
             def umr
+            def umr1
             def micro = []
             JsonBuilder json = new JsonBuilder()
 
@@ -87,18 +88,22 @@ class UserControllerSpec extends Specification {
             output['lastName'] = it?.lastName
 
             umr = UMR.findAllByUsers(it)
-            umr.eachWithIndex{value, index ->
+
+            def uniqueUmr = umr.unique { uniqueMicro ->
+                uniqueMicro.microservices
+            }
+            uniqueUmr.each{value ->
+                umr1=UMR.findAllByUsersAndMicroservices(it, value?.microservices)
                 def map = json {
                     id value?.microservices?.id
                     name value?.microservices?.name
                     description value?.microservices?.description
-                    role value?.roles
-
+                    roles umr1*.roles
                 }
                 micro.add(map)
             }
 
-            output['microServices'] = micro
+            output['microservices'] = micro
             return output
         }
 
@@ -147,13 +152,13 @@ class UserControllerSpec extends Specification {
         response?.json.users[0].username == "ahmed"
         response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
                 $/"users":[{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
-                $/"microServices":[{"id":1,"name":"PCS","description":"Post Call Survey","role":{"id":1,/$+
-                $/"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef.admin",/$+
-                $/"expression":"*:*"}]}}]},{"id":2,"username":"hamid","email":null,"firstName":null,"lastName"/$+
-                $/:null,"microServices":[{"id":2,"name":"CBR","description":"Caller Based Routing","role":/$+
-                $/{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app./$+
-                $/ef.admin","expression":"*:*"}]}}]},{"id":3,"username":"admin","email":null,"firstName":null,/$+
-                $/"lastName":null,"microServices":[]}]}/$
+                $/"microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles":[{"id"/$+
+                $/:1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app./$+
+                $/ef.admin","expression":"*:*"}]}]}]},{"id":2,"username":"hamid","email":null,"firstName":/$+
+                $/null,"lastName":null,"microservices":[{"id":2,"name":"CBR","description":"Caller Based Ro/$+
+                $/uting","roles":[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1/$+
+                $/,"name":"com.app.ef.admin","expression":"*:*"}]}]}]},{"id":3,"username":"admin","email":null/$+
+                $/,"firstName":null,"lastName":null,"microservices":[]}]}/$
     }
 
     void "test show api"() {
@@ -164,12 +169,12 @@ class UserControllerSpec extends Specification {
         then: 'a json should be returned with user having that id along with the ' +
                 'corresponding microservices, roles and permissions'
         response?.status == 200
-        response?.json?.user?.microServices[0]?.name == 'PCS'
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"user":{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName":null,/$+
-                $/"microServices":[{"id":1,"name":"PCS","description":"Post Call Survey","role":{"id":1,/$+
-                $/"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef./$+
-                $/admin","expression":"*:*"}]}}]}}/$
+        response?.json?.user?.microservices[0]?.name == 'PCS'
+        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":/$+
+                $/"OK"},"user":{"id":1,"username":"ahmed","email":null,"firstName":null,"lastName"/$+
+                $/:null,"microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles"/$+
+                $/:[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":/$+
+                $/"com.app.ef.admin","expression":"*:*"}]}]}]}}/$
     }
 
     @Unroll

@@ -84,6 +84,7 @@ class BootStrap {
         JSON.registerObjectMarshaller(User) {
             def output = [:]
             def umr
+            def umr1
             def micro = []
             JsonBuilder json = new JsonBuilder()
 
@@ -94,13 +95,17 @@ class BootStrap {
             output['lastName'] = it?.lastName
 
             umr = UMR.findAllByUsers(it)
-            umr.eachWithIndex{value, index ->
+
+            def uniqueUmr = umr.unique { uniqueMicro ->
+                uniqueMicro.microservices
+            }
+            uniqueUmr.each{value ->
+                umr1=UMR.findAllByUsersAndMicroservices(it, value?.microservices)
                 def map = json {
                     id value?.microservices?.id
                     name value?.microservices?.name
                     description value?.microservices?.description
-                    roles value?.roles
-
+                    roles umr1*.roles
                 }
                 micro.add(map)
             }

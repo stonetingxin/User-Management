@@ -79,6 +79,7 @@ class RoleControllerSpec extends Specification {
         JSON.registerObjectMarshaller(User) {
             def output = [:]
             def umr
+            def umr1
             def micro = []
             JsonBuilder json = new JsonBuilder()
 
@@ -89,18 +90,22 @@ class RoleControllerSpec extends Specification {
             output['lastName'] = it?.lastName
 
             umr = UMR.findAllByUsers(it)
-            umr.eachWithIndex{value, index ->
+
+            def uniqueUmr = umr.unique { uniqueMicro ->
+                uniqueMicro.microservices
+            }
+            uniqueUmr.each{value ->
+                umr1=UMR.findAllByUsersAndMicroservices(it, value?.microservices)
                 def map = json {
                     id value?.microservices?.id
                     name value?.microservices?.name
                     description value?.microservices?.description
-                    role value?.roles
-
+                    roles umr1*.roles
                 }
                 micro.add(map)
             }
 
-            output['microServices'] = micro
+            output['microservices'] = micro
             return output
         }
     }
