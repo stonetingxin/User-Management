@@ -19,8 +19,8 @@ class BootStrap {
                 roleAdmin?.save(flush: true, failOnError: true)
 
                 def role = new Role(authority: "ROLE_USER", description: "User role")
-                role.addToPermissions(name: "com.app.ef.show", expression: "user:show")
-                role.addToPermissions(name: "com.app.ef.update", expression: "user:update")
+                role.addToPermissions(name: "com.app.ef.show", expression: "user:show:*")
+                role.addToPermissions(name: "com.app.ef.update", expression: "user:update:*")
                 role?.save(flush: true, failOnError: true)
 
                 def umm = new Microservice(name: 'UMM', description: 'User Management MicroService')
