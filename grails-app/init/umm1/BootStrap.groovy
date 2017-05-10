@@ -63,7 +63,7 @@ class BootStrap {
                 }
 
                 if(!Microservice.findByName("UMM")){
-                    umm = new Microservice(name: 'UMM', description: 'User Management MicroService')
+                    umm = new Microservice(name: 'umm', description: 'User Management MicroService')
                     umm.addToRoles(roleAdmin)
                     umm.addToRoles(role)
                     umm?.save(flush: true, failOnError: true)

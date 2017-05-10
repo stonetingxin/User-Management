@@ -17,4 +17,5 @@ class AuthorizationService {
         def truePerm = perms*.contains(perm)
         return truePerm.contains(true)
     }
+
 }
