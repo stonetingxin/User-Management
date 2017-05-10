@@ -52,7 +52,7 @@ class SecurityInterceptor {
         def micro = Microservice.findByName(microName)
 
         if(!micro){
-            resultSet.put("message", "Microservice: '${microName}' does not exist.")
+            resultSet.put("message", "Microservice: '${microName}' does not exist. Contact system admin.")
             render resultSet as JSON
             return false
         }
@@ -63,16 +63,23 @@ class SecurityInterceptor {
             return false
         }
 
-        def role = Role.findByAuthority("ROLE_ADMIN")
-        def perm = Permission.findByExpression("${controller}:${action}")
-        if(role && authorizationService.hasRole(user, micro, role)){
+        def permSuper = Permission.findByExpression("*:*")
+        def permFull = Permission.findByExpression("${controller}:*")
+        def permAction = Permission.findByExpression("${controller}:${action}")
+
+        if(permSuper && authorizationService.hasRole(user, micro, permSuper)){
             return true
         }
 
-        if(!perm || !authorizationService.hasPermission(user, micro, perm)) {
-            render resultSet as JSON
-            return false
+        if(permFull && authorizationService.hasPermission(user, micro, permFull)){
+            return true
         }
+
+        if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
+            return true
+        }
+
+        false
 
 //        switch (actionName){
 //            case 'list':
@@ -158,7 +165,6 @@ class SecurityInterceptor {
 //                return false
 //
 //        }
-        true
     }
 
     boolean after() { true }
