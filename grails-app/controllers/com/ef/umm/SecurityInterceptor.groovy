@@ -82,92 +82,9 @@ class SecurityInterceptor {
             return true
         }
 
+        render resultSet as JSON
         false
 
-//        switch (actionName){
-//            case 'list':
-//                if(!authorizationService.hasRole(user, micro, role)) {
-//                    render resultSet as JSON
-//                    return false
-//                }
-//                break
-//            case 'show':
-//                def userId = params?.id as Long
-//                def permSuper = Permission.findByExpression("*:*")
-//                def permUser = Permission.findByExpression("user:show:${userId}")
-//                def permFull = Permission.findByExpression("user:show:*")
-//
-//                if(authorizationService.hasPermission(user, micro, permSuper))
-//                    return true
-//
-//                if(authorizationService.hasPermission(user, micro, permFull))
-//                    return true
-//
-//                if(authorizationService.hasPermission(user, micro, permUser))
-//                    return true
-//
-//                render resultSet as JSON
-//                return false
-//                break
-//            case 'create':
-//                if(!authorizationService.hasRole(user, micro, role)){
-//                    render resultSet as JSON
-//                    return false
-//                }
-//                break
-//            case 'delete':
-//                if(!authorizationService.hasRole(user, micro, role)){
-//                    render resultSet as JSON
-//                    return false
-//                }
-//                break
-//            case 'update':
-//                def jsonObject = request.getJSON()
-//                def userId = jsonObject?.id as Long
-//                def permSuper = Permission.findByExpression("*:*")
-//                def permUser = Permission.findByExpression("user:update:${userId}")
-//                def permFull = Permission.findByExpression("user:update:*")
-//
-//                if(authorizationService.hasPermission(user, micro, permSuper))
-//                    return true
-//
-//                if(authorizationService.hasPermission(user, micro, permFull))
-//                    return true
-//
-//                if(authorizationService.hasPermission(user, micro, permUser))
-//                    return true
-//
-//                render resultSet as JSON
-//                return false
-//                break
-//            case 'resetPassword':
-//                if(!authorizationService.hasRole(user, micro, role)){
-//                    render resultSet as JSON
-//                    return false
-//                }
-//                break
-//            case 'updatePassword':
-//                def jsonObject = request.getJSON()
-//                def userId = jsonObject?.id as Long
-//                def permUser = Permission.findByExpression("user:updatePassword:${userId}")
-//
-//                if(authorizationService.hasPermission(user, micro, permUser))
-//                    return true
-//
-//                render resultSet as JSON
-//                return false
-//                break
-//            case 'addRevokeMicroserviceRoles':
-//                if(!authorizationService.hasRole(user, micro, role)){
-//                    render resultSet as JSON
-//                    return false
-//                }
-//                break
-//            default:
-//                render resultSet as JSON
-//                return false
-//
-//        }
     }
 
     boolean after() { true }
