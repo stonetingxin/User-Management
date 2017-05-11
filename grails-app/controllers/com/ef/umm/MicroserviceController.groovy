@@ -218,6 +218,13 @@ class MicroserviceController {
                         }
                     }
                     if(addRemove == 'remove'){
+                        if(microInstance.name == "umm" && role.authority == "ROLE_ADMIN"){
+                            resultSet.put("status", NOT_ACCEPTABLE)
+                            resultSet.put("message", "Admin role cannot be removed from umm.")
+                            response.status = 406
+                            render resultSet as JSON
+                            return
+                        }
                         if(microInstance.roles.contains(role)){
                             microInstance.removeFromRoles(role)
                             message.add("Role: ${role.authority} has been successfully removed.")
@@ -271,6 +278,13 @@ class MicroserviceController {
                 return
             }
             def name = microInstance.name
+            if(name == "umm"){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "UMM cannot be deleted from microservice's list.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
             def umr = UMR.findAllByMicroservices(microInstance)
             umr.each{
                 it?.delete(flush: true, failOnErrors:true)

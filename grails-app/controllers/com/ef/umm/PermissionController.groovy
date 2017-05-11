@@ -189,6 +189,14 @@ class PermissionController {
                 render resultSet as JSON
                 return
             }
+            if(permInstance.expression == "*:*"){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Cannot delete admin's permissions.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
             def name = permInstance?.name
             permInstance?.delete(flush: true, failOnErrors:true)
             resultSet.put("status", OK)

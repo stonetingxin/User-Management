@@ -358,6 +358,14 @@ class UserController extends RestfulController<User> {
 
                             if(addRevoke == "revoke"){
                                 def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)
+                                if(micro.name == "umm" && role.authority == "ROLE_ADMIN"
+                                        && userInstance.username == "admin"){
+                                    resultSet.put("status", NOT_ACCEPTABLE)
+                                    resultSet.put("message", "Admin roles cannot be revoked for super user.")
+                                    response.status = 406
+                                    render resultSet as JSON
+                                    return
+                                }
                                 if(umr){
                                     umr?.delete(flush: true, failOnError: true)
                                     message.add("Successfully revoked ${role.authority} role in ${micro.name} for " +

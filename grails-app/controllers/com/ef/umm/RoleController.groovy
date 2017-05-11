@@ -168,6 +168,13 @@ class RoleController {
                     }
 
                     if(addRevoke == 'revoke'){
+                        if(roleInstance.authority == "ROLE_ADMIN" && perm.expression == "*:*"){
+                            resultSet.put("status", NOT_ACCEPTABLE)
+                            resultSet.put("message", "Super user permissions cannot be revoked from admin role.")
+                            response.status = 406
+                            render resultSet as JSON
+                            return
+                        }
                         if(roleInstance?.permissions.contains(perm)){
                             roleInstance.removeFromPermissions(perm)
                             message.add("Permission: ${perm.name} has been successfully revoked.")
@@ -269,10 +276,17 @@ class RoleController {
 
         try {
             def roleInstance = Role.findById(params?.id)
-            if (!roleInstance) {
+            if (!roleInstance){
                 resultSet.put("status", NOT_FOUND)
                 resultSet.put("message", "Role not found. Provide a valid role instance.")
                 response.status = 404
+                render resultSet as JSON
+                return
+            }
+            if(roleInstance.authority == "ROLE_ADMIN"){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Cannot delete the admin role.")
+                response.status = 406
                 render resultSet as JSON
                 return
             }

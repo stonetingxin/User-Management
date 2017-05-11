@@ -22,21 +22,12 @@ class SecurityInterceptor {
         resultSet.put("message", "Access forbidden. User not authorized.")
         response.status = 403
 
-        def uri = request.forwardURI
-        def tokens = uri.tokenize("/")
-        if(tokens.size()>=3){
-            microName = tokens[0]
-            controller = tokens[1]
-            action = tokens[2]
-        }
-        if(tokens.size()==2){
-            microName = "umm"
-            controller = tokens[0]
-            action = tokens[1]
-        }
+        (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
+
         println microName
         println controller
         println action
+
         if(!springSecurityService?.principal?.username){
             resultSet.put("message", "Access denied. Token not provided in the header.")
             render resultSet as JSON
@@ -67,7 +58,7 @@ class SecurityInterceptor {
         def permFull = Permission.findByExpression("${controller}:*")
         def permAction = Permission.findByExpression("${controller}:${action}")
 
-        if(permSuper && authorizationService.hasRole(user, micro, permSuper)){
+        if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
             return true
         }
 
