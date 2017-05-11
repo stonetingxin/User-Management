@@ -66,7 +66,7 @@ class MicroserviceController {
         try{
             def jsonObject = request.getJSON()
 
-            if(!jsonObject?.name){
+            if(!jsonObject?.name || !jsonObject?.ipAddress ){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -83,7 +83,8 @@ class MicroserviceController {
                 render resultSet as JSON
                 return
             }
-            newMicro = new Microservice(name: jsonObject?.name, description: jsonObject?.description)
+            newMicro = new Microservice(name: jsonObject?.name, ipAddress: jsonObject?.ipAddress,
+                    description: jsonObject?.description)
 
             newMicro.validate()
             if (newMicro.hasErrors()) {
@@ -116,7 +117,7 @@ class MicroserviceController {
 
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || !jsonObject?.name){
+            if(!jsonObject?.id || !jsonObject?.name || !jsonObject.ipAddress){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -134,6 +135,7 @@ class MicroserviceController {
                 return
             }
             microInstance.name = jsonObject?.name
+            microInstance.ipAddress = jsonObject?.ipAddress
             microInstance.description = jsonObject?.description
 
             microInstance.validate()

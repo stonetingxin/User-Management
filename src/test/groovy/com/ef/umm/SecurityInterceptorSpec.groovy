@@ -19,7 +19,7 @@ class SecurityInterceptorSpec extends Specification {
 
     void "Test security interceptor matching"() {
         when: "A request matches the interceptor"
-        withRequest(controller: "security")
+        withRequest(uri: "/**")
 
         then: "The interceptor does match"
         interceptor.doesMatch()

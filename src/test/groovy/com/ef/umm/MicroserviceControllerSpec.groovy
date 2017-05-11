@@ -22,7 +22,7 @@ class MicroserviceControllerSpec extends Specification {
             hamid?.save()
             userAdmin.save()
 
-            def admin = new Role(authority: "Admin", description: "Administrator")
+            def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
             admin?.save()
 
@@ -32,8 +32,8 @@ class MicroserviceControllerSpec extends Specification {
             role?.save()
 
 
-            def pcs = new Microservice(name: 'PCS', description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', description: 'Caller Based Routing')
+            def pcs = new Microservice(name: 'PCS', ipAddress: "192.168.1.79:8080", description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "192.168.1.79:8080", description: 'Caller Based Routing')
             pcs.addToRoles(admin)
             pcs?.save()
             cbr.addToRoles(admin)
@@ -129,8 +129,8 @@ class MicroserviceControllerSpec extends Specification {
         response?.json.message == output
 
         where:
-        input << [$/{"name":"UMM","description":"User Management Microservice"}/$,
-                  $/{"name":"CBR", "password":"asdasd"}/$,
+        input << [$/{"name":"UMM", "ipAddress":"http://localhost:8080","description":"User Management Microservice"}/$,
+                  $/{"name":"CBR", "ipAddress":"http://192.168.1.79:8080", "password":"asdasd"}/$,
                   $/{"nam":"asif"}/$]
 
         output<< ["New Microservice: 'UMM' has been created successfully.",
@@ -153,12 +153,14 @@ class MicroserviceControllerSpec extends Specification {
         then: 'a json response of complete list of users with corresponding microservices,' +
                 'roles and permissions should be returned.'
         response?.status == 200
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"microservices":[{"id":1,"name":"PCS","description":"Post Call Survey","roles":/$+
-                $/[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,/$+
-                $/"name":"com.app.ef.admin","expression":"*:*"}]}]},{"id":2,"name":"CBR","description"/$+
-                $/:"Caller Based Routing","roles":[{"id":1,"name":"Admin","description":"Administrator"/$+
-                $/,"permissions":[{"id":1,"name":"com.app.ef.admin","expression":"*:*"}]}]}]}/$
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus" +
+                "\",\"name\":\"OK\"},\"microservices\":[{\"id\":1,\"name\":\"PCS\",\"descr" +
+                "iption\":\"Post Call Survey\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"" +
+                ",\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"" +
+                "com.app.ef.admin\",\"expression\":\"*:*\"}]}]},{\"id\":2,\"name\":\"CBR\"," +
+                "\"description\":\"Caller Based Routing\",\"roles\":[{\"id\":1,\"name\":\"R" +
+                "OLE_ADMIN\",\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"" +
+                "name\":\"com.app.ef.admin\",\"expression\":\"*:*\"}]}]}]}"
     }
 
     void "test show api"() {
@@ -169,10 +171,11 @@ class MicroserviceControllerSpec extends Specification {
         then: 'a json should be returned with microservice having that id along with the ' +
                 'corresponding roles and permissions'
         response?.status == 200
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},/$+
-                $/"microservice":{"id":1,"name":"PCS","description":"Post Call Survey","roles":[{"id":1/$+
-                $/,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app.ef/$+
-                $/.admin","expression":"*:*"}]}]}}/$
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"" +
+                "name\":\"OK\"},\"microservice\":{\"id\":1,\"name\":\"PCS\",\"description\":\"P" +
+                "ost Call Survey\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\",\"description\":" +
+                "\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com.app.ef.admin\",\"" +
+                "expression\":\"*:*\"}]}]}}"
     }
 
     @Unroll
@@ -224,18 +227,18 @@ class MicroserviceControllerSpec extends Specification {
 
         where:
 
-        input <<[$/{"id":"1", "name":"UMM","description":"User Management Microservice"}/$,
-                 $/{"id":"2", "name":"CBR"}/$,
+        input <<[$/{"id":"1", "name":"UMM", "ipAddress":"http://localhost:8080","description":"User Management Microservice"}/$,
+                 $/{"id":"2", "name":"CBR","ipAddress":"http://localhost:8080"}/$,
                  $/{"id":"3", "name":"asif"}/$]
 
         output<< ["UMM has been updated successfully.",
                   "CBR has been updated successfully.",
-                  "Microservice not found. Invalid update request. For registering new Microservice, use create API instead."]
+                  "Invalid JSON provided. Please read the API specifications."]
 
 
         status <<[200,
                   200,
-                  404]
+                  406]
     }
 
     @Unroll
@@ -260,8 +263,8 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"add"}/$,
                   $/{"id":"2","roles":[{"id":"3"}], "addRemove":"add"}/$]
 
-        output << [$/["Role: Admin has already been assigned in the microservice."/$+
-                   $/,"Role: Supervisor has been successfully added."]/$,
+        output << ["[\"Role: ROLE_ADMIN has already been assigned in the microservice." +
+                           "\",\"Role: Supervisor has been successfully added.\"]",
                    $/["Role: Supervisor has been successfully added."]/$,
                    $/["Role with id: 3 not found."]/$]
         status << [200,
@@ -271,9 +274,9 @@ class MicroserviceControllerSpec extends Specification {
               "2",
               "2"]
 
-        umrOutput <<["[Role(authority:Admin), Role(authority:Supervisor)]",
-                     "[Role(authority:Admin), Role(authority:Supervisor)]",
-                     "[Role(authority:Admin)]"]
+        umrOutput <<["[Role(authority:ROLE_ADMIN), Role(authority:Supervisor)]",
+                     "[Role(authority:ROLE_ADMIN), Role(authority:Supervisor)]",
+                     "[Role(authority:ROLE_ADMIN)]"]
     }
 
     @Unroll
@@ -300,9 +303,9 @@ class MicroserviceControllerSpec extends Specification {
                   $/{"id":"2","roles":[{"id":"2"}], "addRemove":"asdf"}/$,
                   $/{"id":"1","roles":[{"id":"2"}], "addRemove":"remove"}/$]
 
-        output << [$/["Role: Admin has been successfully removed.","Role: /$+
-                   $/Supervisor cannot be removed since it's not been assigned."]/$,
-                   $/["Role: Admin has been successfully removed."]/$,
+        output << ["[\"Role: ROLE_ADMIN has been successfully removed.\",\"" +
+                           "Role: Supervisor cannot be removed since it's not been assigned.\"]",
+                   "[\"Role: ROLE_ADMIN has been successfully removed.\"]",
                    "Only add or remove is allowed in this method.",
                    $/["Role: Supervisor cannot be removed since it's not been assigned."]/$]
         status << [200,
@@ -316,8 +319,8 @@ class MicroserviceControllerSpec extends Specification {
 
         umrOutput <<[null,
                      null,
-                     "[Role(authority:Admin)]",
-                     "[Role(authority:Admin)]"]
+                     "[Role(authority:ROLE_ADMIN)]",
+                     "[Role(authority:ROLE_ADMIN)]"]
     }
 
     private findRoles(String id){

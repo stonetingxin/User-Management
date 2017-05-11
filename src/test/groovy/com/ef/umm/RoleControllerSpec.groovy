@@ -22,7 +22,7 @@ class RoleControllerSpec extends Specification {
             hamid?.save()
             userAdmin.save()
 
-            def admin = new Role(authority: "Admin", description: "Administrator")
+            def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
             admin?.save()
 
@@ -30,8 +30,8 @@ class RoleControllerSpec extends Specification {
             role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
             role?.save()
 
-            def pcs = new Microservice(name: 'PCS', description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', description: 'Caller Based Routing')
+            def pcs = new Microservice(name: 'PCS', ipAddress: "192.168.1.79:8080",description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "192.168.1.79:8080",description: 'Caller Based Routing')
             pcs.addToRoles(admin)
             pcs?.save()
             cbr.addToRoles(admin)
@@ -128,11 +128,11 @@ class RoleControllerSpec extends Specification {
         where:
         input << [$/{"authority":"ROLE_NEW"}/$,
                   $/{"autho=rity":"ROLE_NEW"}/$,
-                  $/{"authority":"Admin"}/$]
+                  $/{"authority":"ROLE_ADMIN"}/$]
 
         output<< ["New Role: 'ROLE_NEW' has been created successfully. ",
                   "Invalid JSON provided. Please read the API specifications.",
-                  "Role with name: Admin already exists. Kindly provide either a new name, or call update API."]
+                  "Role with name: ROLE_ADMIN already exists. Kindly provide either a new name, or call update API."]
 
         count <<[3,
                  2,
@@ -150,11 +150,12 @@ class RoleControllerSpec extends Specification {
         then: 'a json response of complete list of roles with corresponding permissions,' +
                 'should be returned.'
         response?.status == 200
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"}/$+
-                $/,"roles":[{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1/$+
-                $/,"name":"com.app.ef.admin","expression":"*:*"}]},{"id":2,"name":"Supervisor","description"/$+
-                $/:"Supervisor role","permissions":[{"id":2,"name":"com.app.ef.show","expression":"show:*"}/$+
-                $/]}]}/$
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus" +
+                "\",\"name\":\"OK\"},\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\",\"descrip" +
+                "tion\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com.app.ef." +
+                "admin\",\"expression\":\"*:*\"}]},{\"id\":2,\"name\":\"Supervisor\",\"desc" +
+                "ription\":\"Supervisor role\",\"permissions\":[{\"id\":2,\"name\":\"com.app" +
+                ".ef.show\",\"expression\":\"show:*\"}]}]}"
     }
 
     void "test show api"() {
@@ -165,9 +166,10 @@ class RoleControllerSpec extends Specification {
         then: 'a json should be returned with user having that id along with the ' +
                 'corresponding microservices, roles and permissions'
         response?.status == 200
-        response?.text == $/{"status":{"enumType":"org.springframework.http.HttpStatus","name":"OK"},"role":/$+
-                $/{"id":1,"name":"Admin","description":"Administrator","permissions":[{"id":1,"name":"com.app/$+
-                $/.ef.admin","expression":"*:*"}]}}/$
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStat" +
+                "us\",\"name\":\"OK\"},\"role\":{\"id\":1,\"name\":\"ROLE_ADMIN\",\"des" +
+                "cription\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com." +
+                "app.ef.admin\",\"expression\":\"*:*\"}]}}"
     }
 
     @Unroll
@@ -187,7 +189,7 @@ class RoleControllerSpec extends Specification {
                  "2",
                  "3"]
 
-        output<< ["Cannot delete the role. Role is assigned to following user(s):",
+        output<< ["Cannot delete the admin role.",
                   "Successfully deleted role: Supervisor",
                   "Role not found. Provide a valid role instance."]
 
@@ -288,12 +290,11 @@ class RoleControllerSpec extends Specification {
                   $/{"id":"2","permissions":[{"id":"2"}], "addRevoke":"asdf"}/$,
                   $/{"id":"1","permissions":[{"id":"2"}], "addRevoke":"revoke"}/$]
 
-        output << [$/["Permission: com.app.ef.admin has been successfully revoked.",/$+
-                   $/"Permission: com.app.ef.show cannot be revoked since it's not assigned to the role."]/$,
+        output << ["Super user permissions cannot be revoked from admin role.",
                    $/["Permission: com.app.ef.admin cannot be revoked since it's not assigned to the role."]/$,
                    "Only add or revoke is allowed in this method.",
                    $/["Permission: com.app.ef.show cannot be revoked since it's not assigned to the role."]/$]
-        status << [200,
+        status << [406,
                    200,
                    406,
                    200]
@@ -302,7 +303,7 @@ class RoleControllerSpec extends Specification {
               "2",
               "1"]
 
-        umrOutput <<[  null,
+        umrOutput <<[  "[Name: com.app.ef.admin, Expression: *:*]",
                       "[Name: com.app.ef.show, Expression: show:*]",
                       "[Name: com.app.ef.show, Expression: show:*]",
                       "[Name: com.app.ef.admin, Expression: *:*]"]

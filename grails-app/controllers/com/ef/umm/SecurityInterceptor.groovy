@@ -59,14 +59,26 @@ class SecurityInterceptor {
         def permAction = Permission.findByExpression("${controller}:${action}")
 
         if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
+            if(microName != "umm"){
+                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                return true
+            }
             return true
         }
 
         if(permFull && authorizationService.hasPermission(user, micro, permFull)){
+            if(microName != "umm"){
+                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                return true
+            }
             return true
         }
 
         if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
+            if(microName != "umm"){
+                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                return true
+            }
             return true
         }
 

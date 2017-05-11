@@ -22,7 +22,7 @@ class BootStrap {
                 }
 
                 if(!Microservice.findByName("umm")){
-                    umm = new Microservice(name: 'umm', description: 'User Management MicroService')
+                    umm = new Microservice(name: 'umm', ipAddress: "localhost:9090", description: 'User Management MicroService')
                     umm.addToRoles(roleAdmin)
                     umm?.save(flush: true, failOnError: true)
                 }
@@ -63,6 +63,7 @@ class BootStrap {
             def output = [:]
             output['id'] = it?.id
             output['name'] = it?.name
+            output['ipAddress'] = it?.ipAddress
             output['description'] = it?.description
             output['roles'] = it?.roles
             return output
@@ -91,6 +92,7 @@ class BootStrap {
                 def map = json {
                     id value?.microservices?.id
                     name value?.microservices?.name
+                    ipAddress value?.microservices?.ipAddress
                     description value?.microservices?.description
                     roles umr1*.roles
                 }

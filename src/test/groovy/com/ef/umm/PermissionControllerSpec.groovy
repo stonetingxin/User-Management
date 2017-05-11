@@ -22,7 +22,7 @@ class PermissionControllerSpec extends Specification {
             hamid?.save()
             userAdmin.save()
 
-            def admin = new Role(authority: "Admin", description: "Administrator")
+            def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
             admin?.save()
 
@@ -32,8 +32,8 @@ class PermissionControllerSpec extends Specification {
             role?.save()
 
 
-            def pcs = new Microservice(name: 'PCS', description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', description: 'Caller Based Routing')
+            def pcs = new Microservice(name: 'PCS', ipAddress: "192.168.1.79:8080",description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "192.168.1.79:8080",description: 'Caller Based Routing')
             pcs.addToRoles(admin)
             pcs?.save()
             cbr.addToRoles(admin)
@@ -194,15 +194,15 @@ class PermissionControllerSpec extends Specification {
                  "2",
                  "5"]
 
-        output<< ["Successfully deleted permission: com.app.ef.admin",
+        output<< ["Cannot delete admin's permissions.",
                   "Successfully deleted permission: com.app.ef.show",
                   "Permission not found. Provide a valid permission instance."]
 
-        count <<[2,
+        count <<[3,
                  2,
                  3]
 
-        status <<[200,
+        status <<[406,
                   200,
                   404]
     }
