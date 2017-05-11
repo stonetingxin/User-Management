@@ -1,6 +1,7 @@
 package com.ef.umm
 
 import grails.transaction.Transactional
+import grails.util.Environment
 
 @Transactional
 class AuthorizationService {
@@ -37,15 +38,20 @@ class AuthorizationService {
     def extractURI(def uri){
         def microName, controller, action
         def tokens = uri.tokenize("/")
+        microName = tokens[0]
+        controller = tokens[1]
         if(tokens.size()>=3){
-            microName = tokens[0]
-            controller = tokens[1]
             action = tokens[2]
         }
-        if(tokens.size()==2){
-            microName = "umm"
-            controller = tokens[0]
-            action = tokens[1]
+        else{
+            action = "index"
+        }
+        if (Environment.current == Environment.DEVELOPMENT) {
+            if(tokens.size()==2){
+                microName = "umm"
+                controller = tokens[0]
+                action = tokens[1]
+            }
         }
 
         return [microName, controller, action]
