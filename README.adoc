@@ -674,6 +674,7 @@ This API would be used to get list of all users.
     "microservices" : [ {
       "id" : "string",
       "name" : "string",
+      "ipAddress" : "string",
       "description" : "string",
       "roles" : [ {
         "id" : "string",
@@ -978,6 +979,7 @@ __required__|Id of the user to fetch complete details|string (int)
     "microservices" : [ {
       "id" : "string",
       "name" : "string",
+      "ipAddress" : "string",
       "description" : "string",
       "roles" : [ {
         "id" : "string",
@@ -1594,6 +1596,7 @@ __required__|JSON containing name and description of a microservice.|<<_createmi
 ----
 {
   "name" : "string",
+  "ipAddress" : "string",
   "description" : "string"
 }
 ----
@@ -1899,6 +1902,7 @@ This API would be used to fetch complete details of all microServices i.e, roles
   "microservices" : [ {
     "id" : "string",
     "name" : "string",
+    "ipAddress" : "string",
     "description" : "string",
     "roles" : [ {
       "id" : "string",
@@ -2041,6 +2045,7 @@ __required__|Id of the microservice to fetch complete details|string (int)
   "microservice" : {
     "id" : "string",
     "name" : "string",
+    "ipAddress" : "string",
     "description" : "string",
     "roles" : [ {
       "id" : "string",
@@ -2181,6 +2186,7 @@ __required__|microService to be updated.|<<_updatemicroservice,updateMicroservic
 {
   "id" : "string",
   "name" : "string",
+  "ipAddress" : "string",
   "description" : "string"
 }
 ----
@@ -3993,6 +3999,8 @@ __required__|**Example** : `[ "<<_multiroles>>" ]`|< <<_multiroles,multiRoles>> 
 |Name|Description|Schema
 |**description** +
 __optional__|**Example** : `"string"`|string (string)
+|**ipAddress** +
+__required__|**Example** : `"string"`|string (string)
 |**name** +
 __required__|**Example** : `"string"`|string (string)
 |===
@@ -4087,6 +4095,9 @@ __optional__|**Example** : `"string"`|string
 |**id** +
 __optional__|id of the microservice +
 **Example** : `"string"`|string (string)
+|**ipAddress** +
+__optional__|IP address of the deployed microservice +
+**Example** : `"string"`|string
 |**name** +
 __optional__|name of the microservice +
 **Example** : `"string"`|string (string)
@@ -4294,8 +4305,10 @@ __optional__|**Example** : `"string"`|string (string)
 __optional__|**Example** : `"string"`|string (string)
 |**id** +
 __required__|**Example** : `"string"`|string
+|**ipAddress** +
+__required__|**Example** : `"string"`|string (string)
 |**name** +
-__optional__|**Example** : `"string"`|string (string)
+__required__|**Example** : `"string"`|string (string)
 |===
 
 
@@ -4427,3 +4440,6 @@ __optional__|**Example** : `[ "<<_userdetails>>" ]`|< <<_userdetails,userDetails
 __Type__ : apiKey
 __Name__ : Authorization
 __In__ : HEADER
+
+
+
