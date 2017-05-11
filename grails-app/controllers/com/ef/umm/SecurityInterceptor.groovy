@@ -23,7 +23,7 @@ class SecurityInterceptor {
         response.status = 403
 
         (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
-
+        println request.forwardURI
         println microName
         println controller
         println action

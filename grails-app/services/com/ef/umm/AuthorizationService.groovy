@@ -36,24 +36,28 @@ class AuthorizationService {
     }
 
     def extractURI(def uri){
-        def microName, controller, action
+        def microName, controller, action, strippedURI
         def tokens = uri.tokenize("/")
-        microName = tokens[0]
-        controller = tokens[1]
-        if(tokens.size()>=3){
-            action = tokens[2]
-        }
-        else{
-            action = "index"
-        }
+
         if (Environment.current == Environment.DEVELOPMENT) {
+            if(tokens.size()>=3){
+                microName = tokens[0]
+                controller = tokens[1]
+                action = tokens[2]
+            }
             if(tokens.size()==2){
                 microName = "umm"
                 controller = tokens[0]
                 action = tokens[1]
             }
         }
-
+        if(Environment.current == Environment.PRODUCTION){
+            strippedURI = uri - "/umm"
+            tokens = strippedURI.tokenize("/")
+            microName = tokens[0]
+            controller = tokens[1]
+            action = tokens[2]
+        }
         return [microName, controller, action]
     }
 }
