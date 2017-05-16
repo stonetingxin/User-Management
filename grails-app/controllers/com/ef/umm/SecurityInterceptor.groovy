@@ -8,8 +8,8 @@ class SecurityInterceptor {
     def authorizationService
     public SecurityInterceptor(){
         match(uri: "/**")
-                .excludes(uri: "/console/**")
-                .excludes(uri: "/static/console/**")
+                .excludes(uri: "/umm/console/**")
+                .excludes(uri: "/umm/static/console/**")
     }
 
     boolean before() {
@@ -18,18 +18,35 @@ class SecurityInterceptor {
         def microName
         def controller
         def action
+        def micro
+        def req = request.forwardURI - "/umm"
         resultSet.put("status", FORBIDDEN)
-        resultSet.put("message", "Access forbidden. User not authorized.")
-        response.status = 403
+        resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
+
 
         (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
-        println request.forwardURI
-        println microName
-        println controller
-        println action
+        println("Requested URI is: " + request.forwardURI)
+        println("Name of the microservice is: " + microName)
+        println("Name of the controller is: " + controller)
+        println("Name of the action is: " + action)
 
+        log.debug("Requested URI is: " + request.forwardURI)
+        log.debug("Name of the microservice is: " + microName)
+        log.debug("Name of the controller is: " + controller)
+        log.debug("Name of the action is: " + action)
+
+        micro = Microservice.findByName(microName)
+
+        if(microName != "umm"){
+            println("If authorized, request will be forwarded to: ${micro?.ipAddress}${req}")
+            log.debug("If authorized, request will be forwarded to: ${micro?.ipAddress}${req}")
+        }
+
+        println("Logged in user is " + springSecurityService.getCurrentUser())
         if(!springSecurityService?.principal?.username){
+            log.debug("Access denied. Token not provided in the header.")
             resultSet.put("message", "Access denied. Token not provided in the header.")
+            response.status = 403
             render resultSet as JSON
             return false
         }
@@ -40,16 +57,18 @@ class SecurityInterceptor {
             println ex.getMessage()
         }
 
-        def micro = Microservice.findByName(microName)
-
         if(!micro){
+            log.debug("Microservice: '${microName}' does not exist. Contact system admin.")
             resultSet.put("message", "Microservice: '${microName}' does not exist. Contact system admin.")
+            response.status = 403
             render resultSet as JSON
             return false
         }
 
         if(!UMR.findByUsersAndMicroservices(user, micro)){
-            resultSet.put("message", "Access forbidden. User not authorized.")
+            log.debug("Access forbidden. User not authorized to request this resource.")
+            resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
+            response.status = 403
             render resultSet as JSON
             return false
         }
@@ -60,28 +79,36 @@ class SecurityInterceptor {
 
         if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
             if(microName != "umm"){
-                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                log.debug("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                redirect(url: "${micro?.ipAddress}${req}")
                 return true
             }
+            log.debug("Successfully Authorized. Forwarding request to: ${req}")
             return true
         }
 
         if(permFull && authorizationService.hasPermission(user, micro, permFull)){
             if(microName != "umm"){
-                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                log.debug("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                redirect(url: "${micro?.ipAddress}${req}")
                 return true
             }
+            log.debug("Successfully Authorized. Forwarding request to: ${req}")
             return true
         }
 
         if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
             if(microName != "umm"){
-                redirect(url: "${micro?.ipAddress}${request?.forwardURI}")
+                log.debug("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                redirect(url: "${micro?.ipAddress}${req}")
                 return true
             }
+            log.debug("Successfully Authorized. Forwarding request to: ${req}")
             return true
         }
 
+        log.debug("Access forbidden. User is not authorized to request this resource.")
+        response.status = 403
         render resultSet as JSON
         false
 

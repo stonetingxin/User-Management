@@ -80,7 +80,8 @@ endpoints:
         unique-names: true
 
 server:
-    port: 9090
+    contextPath: /umm
+    port: 9091
 ---
 hibernate:
     cache:
@@ -101,12 +102,14 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost:3306/umm1
+            dialect: org.hibernate.dialect.MySQL5Dialect
     test:
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost:3306/umm1
+            dialect: org.hibernate.dialect.MySQL5Dialect
     production:
         dataSource:
-            dbCreate: none
-            url: jdbc:mysql://192.168.1.79:3306/testumm
+            dbCreate: update
+            url: jdbc:mysql://localhost:3306/produmm
             dialect: org.hibernate.dialect.MySQL5Dialect
