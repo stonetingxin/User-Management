@@ -63,7 +63,7 @@ class SecurityInterceptor {
         try{
             user = User.findByUsername(springSecurityService?.principal?.username)
         }catch (Exception ex){
-            println ex.getMessage()
+            log.error("Exception occured while retrieving username in the securityInterceptor.", ex)
         }
 
         if(!micro){
