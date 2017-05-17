@@ -47,7 +47,9 @@ dependencies {
     compile "org.hibernate:hibernate-ehcache:5.1.1.Final"
 
     compile 'org.grails.plugins:spring-security-core:3.1.2'
-    compile "org.grails.plugins:spring-security-rest:2.0.0.M2"
+    compile ("org.grails.plugins:spring-security-rest:2.0.0.M2"){
+        exclude group: 'org.grails.plugins', module: 'spring-security-core'
+    }
 
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
