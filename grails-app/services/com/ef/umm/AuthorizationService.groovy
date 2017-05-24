@@ -1,7 +1,7 @@
 package com.ef.umm
 
 import grails.transaction.Transactional
-import grails.util.Environment
+import org.apache.commons.codec.binary.Base64
 
 @Transactional
 class AuthorizationService {
@@ -53,4 +53,17 @@ class AuthorizationService {
 
         return [microName, controller, action]
     }
+
+    def extractUsername(def token){
+        Base64 coder = new Base64()
+        def tok = token - "Bearer "
+        def principal = tok.tokenize(".")
+        def dec = coder.decode(principal[1])
+        def sub = new String(dec)
+        def user = sub.tokenize(",")
+        def username=user[1].tokenize(":")
+        username = username[1]-"\""
+        return username-"\""
+    }
+
 }

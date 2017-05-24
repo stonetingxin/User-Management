@@ -32,8 +32,8 @@ class MicroserviceControllerSpec extends Specification {
             role?.save()
 
 
-            def pcs = new Microservice(name: 'PCS', ipAddress: "192.168.1.79:8080", description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', ipAddress: "192.168.1.79:8080", description: 'Caller Based Routing')
+            def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080", description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080", description: 'Caller Based Routing')
             pcs.addToRoles(admin)
             pcs?.save()
             cbr.addToRoles(admin)
@@ -129,7 +129,7 @@ class MicroserviceControllerSpec extends Specification {
         response?.json.message == output
 
         where:
-        input << [$/{"name":"UMM", "ipAddress":"http://localhost:8080","description":"User Management Microservice"}/$,
+        input << [$/{"name":"UMM", "ipAddress":"http://127.0.0.1:8080","description":"User Management Microservice"}/$,
                   $/{"name":"CBR", "ipAddress":"http://192.168.1.79:8080", "password":"asdasd"}/$,
                   $/{"nam":"asif"}/$]
 
@@ -227,9 +227,9 @@ class MicroserviceControllerSpec extends Specification {
 
         where:
 
-        input <<[$/{"id":"1", "name":"UMM", "ipAddress":"http://localhost:8080","description":"User Management Microservice"}/$,
-                 $/{"id":"2", "name":"CBR","ipAddress":"http://localhost:8080"}/$,
-                 $/{"id":"3", "name":"asif"}/$]
+        input <<[$/{"id":"1", "name":"UMM", "ipAddress":"http://127.0.0.1:8080","description":"User Management Microservice"}/$,
+                 $/{"id":"2", "name":"CBR","ipAddress":"http://127.0.0.1:8080"}/$,
+                 $/{"id":"3", "name":"CBR"}/$]
 
         output<< ["UMM has been updated successfully.",
                   "CBR has been updated successfully.",

@@ -13,7 +13,7 @@ import ch.qos.logback.classic.filter.LevelFilter
 def basePath = "C:\\UMM Backend Logs"
 
 
-scan("30 seconds")
+//scan("30 seconds")
 // Log information about the configuration.
 statusListener(OnConsoleStatusListener)
 
@@ -107,9 +107,9 @@ if(!Environment.isDevelopmentMode()) {
     }
 
     logger('grails.app.controllers.com.ef.umm', DEBUG, ['APP_LOG', 'EXC_LOG'], false)
-    logger("org.springframework.security", INFO, ['SEC_LOG', 'EXC_LOG'], false)
-    logger("grails.plugin.springsecurity", INFO, ['SEC_LOG', 'EXC_LOG'], false)
-    logger("org.pac4j", INFO, ['SEC_LOG', 'EXC_LOG'], false)
+    logger("org.springframework.security", DEBUG, ['SEC_LOG', 'EXC_LOG'], false)
+    logger("grails.plugin.springsecurity", TRACE, ['SEC_LOG', 'EXC_LOG'], false)
+    logger("org.pac4j", DEBUG, ['SEC_LOG', 'EXC_LOG'], false)
 }
 else {
     logger('grails.app.controllers.com.ef.umm', DEBUG, ['STDOUT'], false)

@@ -141,7 +141,7 @@ class MicroserviceController {
             microInstance.validate()
             if (microInstance.hasErrors()) {
                 resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("error", microInstance.errors)
+                resultSet.put("message", microInstance.errors)
                 response.status = 406
                 render resultSet as JSON
                 return

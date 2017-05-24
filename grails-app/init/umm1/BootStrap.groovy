@@ -15,6 +15,9 @@ class BootStrap {
                 roleAdmin.addToPermissions(name: "com.ef.umm.admin", expression: "*:*")
                 roleAdmin?.save(flush: true, failOnError: true)
 
+                def roleUser = new Role(authority: "ROLE_USER", description: "User Role")
+                roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
+                roleUser?.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
                     admin = new User(username: "admin", password: "admiN123!")
@@ -27,7 +30,12 @@ class BootStrap {
                     umm?.save(flush: true, failOnError: true)
                 }
 
+                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://192.168.1.92:8080", description: 'Admin panel')
+                efadminpanel.addToRoles(roleAdmin)
+                efadminpanel?.save(flush: true, failOnError: true)
+
                 UMR.create admin, roleAdmin, umm
+                UMR.create admin, roleUser, efadminpanel
 
                 UMR.withSession {
                     it.flush()

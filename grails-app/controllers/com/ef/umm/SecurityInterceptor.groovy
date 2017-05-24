@@ -4,6 +4,7 @@ import grails.converters.JSON
 import static org.springframework.http.HttpStatus.*
 
 class SecurityInterceptor {
+    int order = HIGHEST_PRECEDENCE+100
     def springSecurityService
     def authorizationService
     public SecurityInterceptor(){
@@ -23,28 +24,37 @@ class SecurityInterceptor {
         resultSet.put("status", FORBIDDEN)
         resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
+        if(!request?.getHeader("Authorization")){
+            log.info("Access denied. Token not provided in the header.")
+            resultSet.put("message", "Access denied. Token not provided in the header.")
+            response.status = 403
+            render resultSet as JSON
+            return false
+        }
 
+        def userName= authorizationService.extractUsername(request?.getHeader("Authorization"))
         (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
 
         log.info("Requested URI is: " + request.forwardURI)
         log.info("Name of the microservice is: " + microName)
         log.info("Name of the controller is: " + controller)
         log.info("Name of the action is: " + action)
-        log.info("Logged in user is " + springSecurityService.getCurrentUser())
+        log.info("Logged in user is " + userName)
 
-//        To Test the logging of various levels in the application.
+//        To test the logging of various levels in the application. Uncomment following
+//        lines and each level of logging will invoke corresponding logback configuration.
 //
-//        try{
-//            throw new Exception("Blah Blah")
-//        }catch (Exception ex){
-//            log.error("manual exception", ex)
-//        }
-//
-//        log.error("...........................Error.............................")
-//        log.warn("...........................warn.............................")
-//        log.info("...........................info.............................")
-//        log.debug("...........................debug.............................")
-//        log.trace("...........................trace.............................")
+        try{
+            throw new Exception("Blah Blah")
+        }catch (Exception ex){
+            log.error("manual exception", ex)
+        }
+
+        log.error("...........................Error.............................")
+        log.warn("...........................warn.............................")
+        log.info("...........................info.............................")
+        log.debug("...........................debug.............................")
+        log.trace("...........................trace.............................")
 
         micro = Microservice.findByName(microName)
 
@@ -52,7 +62,7 @@ class SecurityInterceptor {
             log.info("If authorized, request will be forwarded to: ${micro?.ipAddress}${req}")
         }
 
-        if(!springSecurityService?.principal?.username){
+        if(!(springSecurityService?.principal?.username|| userName)){
             log.info("Access denied. Token not provided in the header.")
             resultSet.put("message", "Access denied. Token not provided in the header.")
             response.status = 403
@@ -61,7 +71,7 @@ class SecurityInterceptor {
         }
 
         try{
-            user = User.findByUsername(springSecurityService?.principal?.username)
+            user = User.findByUsername(userName)
         }catch (Exception ex){
             log.error("Exception occured while retrieving username in the securityInterceptor.", ex)
         }
@@ -90,7 +100,7 @@ class SecurityInterceptor {
             if(microName != "umm"){
                 log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
                 redirect(url: "${micro?.ipAddress}${req}")
-                return true
+                return false
             }
             log.info("Successfully Authorized. Forwarding request to: ${req}")
             return true
@@ -100,7 +110,7 @@ class SecurityInterceptor {
             if(microName != "umm"){
                 log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
                 redirect(url: "${micro?.ipAddress}${req}")
-                return true
+                return false
             }
             log.info("Successfully Authorized. Forwarding request to: ${req}")
             return true
@@ -110,7 +120,7 @@ class SecurityInterceptor {
             if(microName != "umm"){
                 log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
                 redirect(url: "${micro?.ipAddress}${req}")
-                return true
+                return false
             }
             log.info("Successfully Authorized. Forwarding request to: ${req}")
             return true
