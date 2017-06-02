@@ -19,13 +19,13 @@ class BootStrap {
                 roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
                 roleUser?.save(flush: true, failOnError: true)
 
-                if (!User.findByUsername("admin")) {
-                    admin = new User(username: "admin", password: "admiN123!")
+                if (!User.findByUsername("adminDB")) {
+                    admin = new User(username: "adminDB", password: "admiN123!")
                     admin?.save(flush: true, failOnError: true)
                 }
 
                 if(!Microservice.findByName("umm")){
-                    umm = new Microservice(name: 'umm', ipAddress: "localhost:9090", description: 'User Management MicroService')
+                    umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9090", description: 'User Management MicroService')
                     umm.addToRoles(roleAdmin)
                     umm?.save(flush: true, failOnError: true)
                 }

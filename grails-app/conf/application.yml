@@ -113,3 +113,22 @@ environments:
             dbCreate: update
             url: jdbc:mysql://localhost:3306/produmm
             dialect: org.hibernate.dialect.MySQL5Dialect
+grails:
+   plugin:
+      springsecurity:
+         ldap:
+            context:
+               managerDn: 'uid=admin,ou=system'
+               managerPassword: 'c12h22o11'
+               server: 'ldap://localhost:10389'
+            authorities:
+               groupSearchBase: 'dc=expertflow,dc=com'
+               retrieveDatabaseRoles: true
+               retrieveGroupRoles: false
+            useRememberMe: false
+            search:
+               base: 'ou=people,dc=expertflow,dc=com'
+               filter: 'uid={0}' # for Active Directory you need this
+               searchSubtree: true
+            auth:
+               hideUserNotFoundExceptions: false

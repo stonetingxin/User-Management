@@ -113,9 +113,9 @@ if(!Environment.isDevelopmentMode()) {
 }
 else {
     logger('grails.app.controllers.com.ef.umm', DEBUG, ['STDOUT'], false)
-    logger("org.springframework.security", DEBUG, ['STDOUT'], false)
+    logger("org.springframework.security", TRACE, ['STDOUT'], false)
     logger("grails.plugin.springsecurity", TRACE, ['STDOUT'], false)
-    logger("org.pac4j", DEBUG, ['STDOUT'], false)
+    logger("org.pac4j", TRACE, ['STDOUT'], false)
 }
 
 root(ERROR, ['STDOUT'])

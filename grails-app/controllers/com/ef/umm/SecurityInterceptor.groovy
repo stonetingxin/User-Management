@@ -4,6 +4,7 @@ import grails.converters.JSON
 import static org.springframework.http.HttpStatus.*
 
 class SecurityInterceptor {
+    static transactional = false
     int order = HIGHEST_PRECEDENCE+100
     def springSecurityService
     def authorizationService
@@ -41,20 +42,24 @@ class SecurityInterceptor {
         log.info("Name of the action is: " + action)
         log.info("Logged in user is " + userName)
 
+        if(!User.findByUsername(userName)){
+            new User(userName:userName, password: password).save(flush: true, failOnError: true)
+            log.info("Saved the LDAP user \"${userName}\" in local DB.")
+        }
 //        To test the logging of various levels in the application. Uncomment following
 //        lines and each level of logging will invoke corresponding logback configuration.
 //
-        try{
-            throw new Exception("Blah Blah")
-        }catch (Exception ex){
-            log.error("manual exception", ex)
-        }
-
-        log.error("...........................Error.............................")
-        log.warn("...........................warn.............................")
-        log.info("...........................info.............................")
-        log.debug("...........................debug.............................")
-        log.trace("...........................trace.............................")
+//        try{
+//            throw new Exception("Blah Blah")
+//        }catch (Exception ex){
+//            log.error("manual exception", ex)
+//        }
+//
+//        log.error("...........................Error.............................")
+//        log.warn("...........................warn.............................")
+//        log.info("...........................info.............................")
+//        log.debug("...........................debug.............................")
+//        log.trace("...........................trace.............................")
 
         micro = Microservice.findByName(microName)
 

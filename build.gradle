@@ -10,6 +10,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'net.saliman.cobertura' version '2.4.0'
+}
+
 version "0.1"
 group "umm1"
 
@@ -48,6 +52,7 @@ dependencies {
 
     compile 'org.grails.plugins:spring-security-core:3.1.2'
     compile 'org.grails.plugins:spring-security-rest:2.0.0.M2'
+    compile 'org.grails.plugins:spring-security-ldap:3.0.2'
 
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"

@@ -50,7 +50,7 @@ class User implements Serializable {
     static constraints = {
         username blank: false, unique: true
         password blank: false
-        email nullable: true
+        email nullable: true, matches: /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
         firstName nullable: true
         lastName nullable: true
     }
