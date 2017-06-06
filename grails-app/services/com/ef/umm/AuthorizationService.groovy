@@ -62,8 +62,14 @@ class AuthorizationService {
         def sub = new String(dec)
         def user = sub.tokenize(",")
         def username=user[1].tokenize(":")
-        username = username[1]-"\""
-        return username-"\""
+        username = username[1].replaceAll("^\"|\"\$" , "");
+        return username
+    }
+
+    def maskIt(){
+        Base64 coder = new Base64()
+        def ret = coder.decode("YXZzZHhcenhubSEkJSNtLGJubSxiKiZeJiojJiQjJSlubWJ2R0hWTkIlXiQhQCMmXiojJCFAJG0gbSxraGI=")
+        new String(ret)
     }
 
 }

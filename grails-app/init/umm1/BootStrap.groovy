@@ -43,7 +43,7 @@ class BootStrap {
                 }
             }
             catch (Exception ex){
-                log.error("Exception occured in bootstrap while creating permissions: ", ex)
+                log.error("Exception occured in bootstrap while initiating database: ", ex)
                 println ex.getMessage()
             }
 
@@ -89,7 +89,7 @@ class BootStrap {
             output['email'] = it?.email
             output['firstName'] = it?.firstName
             output['lastName'] = it?.lastName
-
+            output['AD'] = it?.AD
             umr = UMR.findAllByUsers(it)
 
             def uniqueUmr = umr.unique { uniqueMicro ->
