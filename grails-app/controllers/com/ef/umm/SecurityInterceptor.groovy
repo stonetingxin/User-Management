@@ -105,7 +105,7 @@ class SecurityInterceptor {
             if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    redirect(url: "${micro?.ipAddress}${req}")
+                    redirect(url: "${micro?.ipAddress}${req}", params: user)
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")
