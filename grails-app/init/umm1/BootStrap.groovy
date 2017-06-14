@@ -30,12 +30,12 @@ class BootStrap {
                     umm?.save(flush: true, failOnError: true)
                 }
 
-                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://192.168.1.92:8080", description: 'Admin panel')
+                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
                 efadminpanel.addToRoles(roleAdmin)
                 efadminpanel?.save(flush: true, failOnError: true)
 
                 UMR.create admin, roleAdmin, umm
-                UMR.create admin, roleUser, efadminpanel
+                UMR.create admin, roleAdmin, efadminpanel
 
                 UMR.withSession {
                     it.flush()

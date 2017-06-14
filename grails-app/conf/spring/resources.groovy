@@ -1,4 +1,5 @@
-// Place your Spring DSL code here
+import com.ef.umm.MyAccessTokenJsonRenderer
+/// / Place your Spring DSL code here
 beans = {
-    def accessTokenJsonRenderer
+    accessTokenJsonRenderer(MyAccessTokenJsonRenderer)
 }

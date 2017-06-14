@@ -1,5 +1,7 @@
 package com.ef.umm
 
+import grails.compiler.GrailsCompileStatic
+
 /**
  * Created by saqib ahmad on 6/6/2017.
  */
@@ -7,47 +9,35 @@ package com.ef.umm
 import grails.converters.JSON
 import grails.plugin.springsecurity.rest.oauth.OauthUser
 import grails.plugin.springsecurity.rest.token.AccessToken
-import groovy.transform.CompileStatic
+import grails.transaction.Transactional
+import groovy.json.JsonBuilder
 import groovy.util.logging.Slf4j
 import org.pac4j.core.profile.CommonProfile
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.Assert
 import grails.plugin.springsecurity.rest.token.rendering.*
 
 @Slf4j
-@CompileStatic
+@Transactional
 class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
 
-    String usernamePropertyName
-    String tokenPropertyName
-    String authoritiesPropertyName
-    String dummy
-
-    Boolean useBearerToken
+    String usernamePropertyName = "username"
+    String authoritiesPropertyName = "role"
 
     String generateJson(AccessToken accessToken) {
         Assert.isInstanceOf(UserDetails, accessToken.principal, "A UserDetails implementation is required")
         UserDetails userDetails = accessToken.principal as UserDetails
+        def result = [:]
+        def user
+        user = User.findByUsername(userDetails.username)
 
-        def result = [
-                (usernamePropertyName) : userDetails.username,
-                (authoritiesPropertyName) : accessToken.authorities.collect { GrantedAuthority role -> role.authority }
-        ]
+        result.put("userDetails" , user)
+        result.put("token_type", 'Bearer')
+        result.put("token", accessToken.accessToken)
+        result.put("expires_in" , accessToken.expiration)
+        result.put("refresh_token" , accessToken.refreshToken)
 
-        if (useBearerToken) {
-            result.token_type = 'Bearer'
-            result.access_token = accessToken.accessToken
 
-            if (accessToken.expiration) {
-                result.expires_in = accessToken.expiration
-            }
-
-            if (accessToken.refreshToken) result.refresh_token = accessToken.refreshToken
-
-        } else {
-            result["$tokenPropertyName".toString()] = accessToken.accessToken
-        }
 
         if (userDetails instanceof OauthUser) {
             CommonProfile profile = (userDetails as OauthUser).userProfile
