@@ -5,6 +5,8 @@ import grails.transaction.Transactional
 
 import static org.springframework.http.HttpStatus.*
 
+import grails.plugins.rest.client.RestBuilder
+
 class SecurityInterceptor {
     static transactional = false
     int order = HIGHEST_PRECEDENCE+100
@@ -19,16 +21,20 @@ class SecurityInterceptor {
     @Transactional
     boolean before() {
         def resultSet = [:]
-        def user, microName, controller
-        def action, micro
+        def user, microName, controller, method
+        def action, micro, jsonData, resp
+        def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
+        def rest = new RestBuilder()
         try{
-            def req = request.forwardURI - "/umm"
+            def req = request?.forwardURI - "/umm"
+            method = request?.method
+            jsonData = request.getJSON()
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
             if(!request?.getHeader("Authorization")){
-                log.info("Access denied. Token not provided in the header.")
-                resultSet.put("message", "Access denied. Token not provided in the header.")
+                log.info("Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
+                resultSet.put("message", "Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
                 response.status = 403
                 render resultSet as JSON
                 return false
@@ -37,7 +43,7 @@ class SecurityInterceptor {
             def userName= authorizationService.extractUsername(request?.getHeader("Authorization"))
             (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
 
-            log.info("Requested URI is: " + request.forwardURI)
+            log.info("Request data is: " + (params? params : jsonData))
             log.info("Name of the microservice is: " + microName)
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
@@ -90,6 +96,53 @@ class SecurityInterceptor {
                 return false
             }
 
+            if(microName != "umm"){
+                switch (method){
+                    case 'GET':
+                        if(params){
+                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
+                        }
+                        else{
+                            resp = rest.get("${micro?.ipAddress}${req}")
+                        }
+                        break
+                    case 'POST':
+                        if(params){
+                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
+                        } else if(jsonData){
+                            resp = rest.post("${micro?.ipAddress}${req}"){
+                                json jsonData
+                            }
+                        } else{
+                            resp = rest.post("${micro?.ipAddress}${req}")
+                        }
+                        break
+                    case 'PUT':
+                        if(params){
+                            resp = rest.put("${micro?.ipAddress}${req}?$queryString")
+                        } else if(jsonData){
+                            resp = rest.put("${micro?.ipAddress}${req}"){
+                                json jsonData
+                            }
+                        } else{
+                            resp = rest.put("${micro?.ipAddress}${req}")
+                        }
+                        break
+                    case 'DELETE':
+                        if(params){
+                            resp = rest.delete("${micro?.ipAddress}${req}?$queryString")
+                        } else if(jsonData){
+                            resp = rest.delete("${micro?.ipAddress}${req}"){
+                                json jsonData
+                            }
+                        } else{
+                            resp = rest.delete("${micro?.ipAddress}${req}")
+                        }
+                        break
+                    default: resp = null
+                }
+            }
+
             if(!UMR.findByUsersAndMicroservices(user, micro)){
                 log.info("Access forbidden. User not authorized to request this resource.")
                 resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
@@ -105,7 +158,11 @@ class SecurityInterceptor {
             if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    redirect(url: "${micro?.ipAddress}${req}", params: user)
+                    log.info("Response is: ${resp.json}")
+                    response.status = resp.responseEntity.statusCode.value
+                    if(resp.json)
+                        render resp.json as JSON
+
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")
@@ -115,7 +172,7 @@ class SecurityInterceptor {
             if(permFull && authorizationService.hasPermission(user, micro, permFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    redirect(url: "${micro?.ipAddress}${req}")
+                    render resp.json as JSON
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")
@@ -125,7 +182,7 @@ class SecurityInterceptor {
             if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    redirect(url: "${micro?.ipAddress}${req}")
+                    render resp.json as JSON
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")
