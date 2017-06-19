@@ -40,15 +40,14 @@ class AuthorizationService {
         strippedURI = uri - "/umm"
         def tokens = strippedURI.tokenize("/")
 
-        if(tokens.size()>=3){
-            microName = tokens[0]
-            controller = tokens[1]
-            action = tokens[2]
-        }
-        else if(tokens.size()==2){
+        if(tokens[0]== 'user' ||tokens[0]== 'microservice' ||tokens[0]== 'role' ||tokens[0]== 'permission'){
             microName = "umm"
             controller = tokens[0]
             action = tokens[1]
+        } else {
+            microName = tokens[0]
+            controller = tokens[1]
+            action = tokens[2]
         }
 
         return [microName, controller, action]
