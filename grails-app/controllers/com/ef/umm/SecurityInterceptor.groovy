@@ -172,7 +172,11 @@ class SecurityInterceptor {
             if(permFull && authorizationService.hasPermission(user, micro, permFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    render resp.json as JSON
+                    log.info("Response is: ${resp.json}")
+                    response.status = resp.responseEntity.statusCode.value
+                    if(resp.json)
+                        render resp.json as JSON
+
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")
@@ -182,7 +186,11 @@ class SecurityInterceptor {
             if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    render resp.json as JSON
+                    log.info("Response is: ${resp.json}")
+                    response.status = resp.responseEntity.statusCode.value
+                    if(resp.json)
+                        render resp.json as JSON
+
                     return false
                 }
                 log.info("Successfully Authorized. Forwarding request to: ${req}")

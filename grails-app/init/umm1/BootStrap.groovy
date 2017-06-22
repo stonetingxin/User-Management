@@ -15,6 +15,13 @@ class BootStrap {
                 roleAdmin.addToPermissions(name: "com.ef.umm.admin", expression: "*:*")
                 roleAdmin?.save(flush: true, failOnError: true)
 
+                def roleSupervisor = new Role(authority: "ROLE_SUPERVISOR", description: "Spervisor Role")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agent:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queue.*", expression: "queue:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*")
+                roleSupervisor?.save(flush: true, failOnError: true)
+
                 def roleUser = new Role(authority: "ROLE_USER", description: "User Role")
                 roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
                 roleUser?.save(flush: true, failOnError: true)
@@ -23,6 +30,9 @@ class BootStrap {
                     admin = new User(username: "adminDB", password: "admiN123!")
                     admin?.save(flush: true, failOnError: true)
                 }
+
+                User user = new User(username: "user", password: "user")
+                user?.save(flush: true, failOnError: true)
 
                 if(!Microservice.findByName("umm")){
                     umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9090", description: 'User Management MicroService')
@@ -34,8 +44,21 @@ class BootStrap {
                 efadminpanel.addToRoles(roleAdmin)
                 efadminpanel?.save(flush: true, failOnError: true)
 
+                def ecm = new Microservice(name: 'ecm', ipAddress: "http://192.168.1.92:8080", description: 'ECM')
+                ecm.addToRoles(roleAdmin)
+                ecm.addToRoles(roleUser)
+                ecm?.save(flush: true, failOnError: true)
+
                 UMR.create admin, roleAdmin, umm
+                UMR.create admin, roleSupervisor, umm
+                UMR.create admin, roleUser, umm
+                UMR.create admin, roleUser, efadminpanel
                 UMR.create admin, roleAdmin, efadminpanel
+                UMR.create admin, roleSupervisor, efadminpanel
+
+                UMR.create user, roleAdmin, umm
+                UMR.create user, roleSupervisor, efadminpanel
+                UMR.create user, roleAdmin, ecm
 
                 UMR.withSession {
                     it.flush()
