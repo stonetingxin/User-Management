@@ -27,7 +27,7 @@ class SecurityInterceptor {
         def rest = new RestBuilder()
         try{
             def req = request?.forwardURI - "/umm"
-            method = request?.method
+            method = request?.method.toLowerCase()
             jsonData = request.getJSON()
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
@@ -97,50 +97,56 @@ class SecurityInterceptor {
             }
 
             if(microName != "umm"){
-                switch (method){
-                    case 'GET':
-                        if(params){
-                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
-                        }
-                        else{
-                            resp = rest.get("${micro?.ipAddress}${req}")
-                        }
-                        break
-                    case 'POST':
-                        if(params){
-                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
-                        } else if(jsonData){
-                            resp = rest.post("${micro?.ipAddress}${req}"){
-                                json jsonData
-                            }
-                        } else{
-                            resp = rest.post("${micro?.ipAddress}${req}")
-                        }
-                        break
-                    case 'PUT':
-                        if(params){
-                            resp = rest.put("${micro?.ipAddress}${req}?$queryString")
-                        } else if(jsonData){
-                            resp = rest.put("${micro?.ipAddress}${req}"){
-                                json jsonData
-                            }
-                        } else{
-                            resp = rest.put("${micro?.ipAddress}${req}")
-                        }
-                        break
-                    case 'DELETE':
-                        if(params){
-                            resp = rest.delete("${micro?.ipAddress}${req}?$queryString")
-                        } else if(jsonData){
-                            resp = rest.delete("${micro?.ipAddress}${req}"){
-                                json jsonData
-                            }
-                        } else{
-                            resp = rest.delete("${micro?.ipAddress}${req}")
-                        }
-                        break
-                    default: resp = null
+                if(params){
+                    resp = rest."${method}"("${micro?.ipAddress}${req}?$queryString")
                 }
+                else{
+                    resp = rest."${method}"("${micro?.ipAddress}${req}")
+                }
+//                switch (method){
+//                    case 'GET':
+//                        if(params){
+//                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
+//                        }
+//                        else{
+//                            resp = rest.get("${micro?.ipAddress}${req}")
+//                        }
+//                        break
+//                    case 'POST':
+//                        if(params){
+//                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
+//                        } else if(jsonData){
+//                            resp = rest.post("${micro?.ipAddress}${req}"){
+//                                json jsonData
+//                            }
+//                        } else{
+//                            resp = rest.post("${micro?.ipAddress}${req}")
+//                        }
+//                        break
+//                    case 'PUT':
+//                        if(params){
+//                            resp = rest.put("${micro?.ipAddress}${req}?$queryString")
+//                        } else if(jsonData){
+//                            resp = rest.put("${micro?.ipAddress}${req}"){
+//                                json jsonData
+//                            }
+//                        } else{
+//                            resp = rest.put("${micro?.ipAddress}${req}")
+//                        }
+//                        break
+//                    case 'DELETE':
+//                        if(params){
+//                            resp = rest.delete("${micro?.ipAddress}${req}?$queryString")
+//                        } else if(jsonData){
+//                            resp = rest.delete("${micro?.ipAddress}${req}"){
+//                                json jsonData
+//                            }
+//                        } else{
+//                            resp = rest.delete("${micro?.ipAddress}${req}")
+//                        }
+//                        break
+//                    default: resp = null
+//                }
             }
 
             if(!UMR.findByUsersAndMicroservices(user, micro)){

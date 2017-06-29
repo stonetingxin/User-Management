@@ -1,7 +1,5 @@
 package com.ef.umm
 
-import grails.compiler.GrailsCompileStatic
-
 /**
  * Created by saqib ahmad on 6/6/2017.
  */
@@ -10,7 +8,6 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.rest.oauth.OauthUser
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.transaction.Transactional
-import groovy.json.JsonBuilder
 import groovy.util.logging.Slf4j
 import org.pac4j.core.profile.CommonProfile
 import org.springframework.security.core.userdetails.UserDetails
