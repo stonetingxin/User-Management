@@ -6,6 +6,7 @@ grails.plugin.springsecurity.userLookup.userDomainClassName = 'com.ef.umm.User'
 grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'com.ef.umm.UMR'
 grails.plugin.springsecurity.authority.className = 'com.ef.umm.Role'
 grails.plugin.springsecurity.securityConfigType = "InterceptUrlMap"
+grails.plugin.springsecurity.rest.token.storage.jwt.expiration = 36000
 grails.plugin.springsecurity.sch.strategyName = org.springframework.security.core.context.SecurityContextHolder.MODE_INHERITABLETHREADLOCAL
 grails.plugin.springsecurity.interceptUrlMap = [
         [pattern: '/',               access: ['permitAll']],

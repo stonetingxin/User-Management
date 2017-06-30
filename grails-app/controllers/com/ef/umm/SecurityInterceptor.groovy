@@ -25,6 +25,11 @@ class SecurityInterceptor {
         def action, micro, jsonData, resp
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
         def rest = new RestBuilder()
+//        queryString = queryString.replaceAll("\"", "%22")
+//        queryString = queryString.replaceAll(/[{]/, "%7B")
+//        queryString = queryString.replaceAll(/[}]/, "%7D")
+//        queryString = queryString.replaceAll(" ", "+")
+        def queryJson = params as JSON
         try{
             def req = request?.forwardURI - "/umm"
             method = request?.method.toLowerCase()
@@ -48,6 +53,7 @@ class SecurityInterceptor {
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
             log.info("Logged in user is " + userName)
+            log.info("Query translated to JSON: " + queryJson)
 
 //        To test the logging of various levels in the application. Uncomment following
 //        lines and each level of logging will invoke corresponding logback configuration.
@@ -97,56 +103,15 @@ class SecurityInterceptor {
             }
 
             if(microName != "umm"){
-                if(params){
-                    resp = rest."${method}"("${micro?.ipAddress}${req}?$queryString")
+                if(params || jsonData){
+                    resp = rest."${method}"("${micro?.ipAddress}${req}"){
+                        accept("application/json")
+                        body(queryJson)
+                    }
                 }
                 else{
                     resp = rest."${method}"("${micro?.ipAddress}${req}")
                 }
-//                switch (method){
-//                    case 'GET':
-//                        if(params){
-//                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
-//                        }
-//                        else{
-//                            resp = rest.get("${micro?.ipAddress}${req}")
-//                        }
-//                        break
-//                    case 'POST':
-//                        if(params){
-//                            resp = rest.post("${micro?.ipAddress}${req}?$queryString")
-//                        } else if(jsonData){
-//                            resp = rest.post("${micro?.ipAddress}${req}"){
-//                                json jsonData
-//                            }
-//                        } else{
-//                            resp = rest.post("${micro?.ipAddress}${req}")
-//                        }
-//                        break
-//                    case 'PUT':
-//                        if(params){
-//                            resp = rest.put("${micro?.ipAddress}${req}?$queryString")
-//                        } else if(jsonData){
-//                            resp = rest.put("${micro?.ipAddress}${req}"){
-//                                json jsonData
-//                            }
-//                        } else{
-//                            resp = rest.put("${micro?.ipAddress}${req}")
-//                        }
-//                        break
-//                    case 'DELETE':
-//                        if(params){
-//                            resp = rest.delete("${micro?.ipAddress}${req}?$queryString")
-//                        } else if(jsonData){
-//                            resp = rest.delete("${micro?.ipAddress}${req}"){
-//                                json jsonData
-//                            }
-//                        } else{
-//                            resp = rest.delete("${micro?.ipAddress}${req}")
-//                        }
-//                        break
-//                    default: resp = null
-//                }
             }
 
             if(!UMR.findByUsersAndMicroservices(user, micro)){
@@ -168,6 +133,8 @@ class SecurityInterceptor {
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else
+                        render resp
 
                     return false
                 }
@@ -182,6 +149,8 @@ class SecurityInterceptor {
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else
+                        render resp
 
                     return false
                 }
@@ -196,6 +165,8 @@ class SecurityInterceptor {
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else
+                        render resp
 
                     return false
                 }

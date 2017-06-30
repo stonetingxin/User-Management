@@ -26,8 +26,8 @@ class BootStrap {
                 roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
                 roleUser?.save(flush: true, failOnError: true)
 
-                if (!User.findByUsername("adminDB")) {
-                    admin = new User(username: "adminDB", password: "admiN123!")
+                if (!User.findByUsername("admin")) {
+                    admin = new User(username: "admin", password: "admiN123!")
                     admin?.save(flush: true, failOnError: true)
                 }
 
