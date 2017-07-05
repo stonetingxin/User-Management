@@ -24,6 +24,7 @@ class SecurityInterceptor {
         def user, microName, controller, method
         def action, micro, jsonData, resp
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
+        def jsonQuery = false
         def rest = new RestBuilder()
 //        queryString = queryString.replaceAll("\"", "%22")
 //        queryString = queryString.replaceAll(/[{]/, "%7B")
@@ -53,7 +54,7 @@ class SecurityInterceptor {
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
             log.info("Logged in user is " + userName)
-            log.info("Query translated to JSON: " + queryJson)
+//            log.info("Query translated to JSON: " + queryJson)
 
 //        To test the logging of various levels in the application. Uncomment following
 //        lines and each level of logging will invoke corresponding logback configuration.
@@ -103,10 +104,23 @@ class SecurityInterceptor {
             }
 
             if(microName != "umm"){
+                //Todo: Should be improved by adding all corner cases.
                 if(params || jsonData){
-                    resp = rest."${method}"("${micro?.ipAddress}${req}"){
-                        accept("application/json")
-                        body(queryJson)
+                    params.values().each{
+                        //Todo : Can be improved by converting to json...
+                        if(it.class == String){
+                            if(it.startsWith("{") && it.endsWith("}")){
+                                jsonQuery = true
+                            }
+                        }
+                    }
+                    if(jsonQuery){
+                        resp = rest."${method}"("${micro?.ipAddress}${req}"){
+                            json(queryJson)
+                        }
+                    }
+                    else{
+                        resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
                     }
                 }
                 else{
@@ -129,12 +143,14 @@ class SecurityInterceptor {
             if(permSuper && authorizationService.hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    log.info("Response is: ${resp.json}")
+                    log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else if(resp.responseEntity.body)
+                        render resp.responseEntity.body
                     else
-                        render resp
+                        render []
 
                     return false
                 }
@@ -145,7 +161,7 @@ class SecurityInterceptor {
             if(permFull && authorizationService.hasPermission(user, micro, permFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    log.info("Response is: ${resp.json}")
+                    log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
@@ -161,7 +177,7 @@ class SecurityInterceptor {
             if(permAction && authorizationService.hasPermission(user, micro, permAction)) {
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    log.info("Response is: ${resp.json}")
+                    log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON

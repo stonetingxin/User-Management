@@ -11,11 +11,11 @@ class BootStrap {
             try {
                 def admin
                 def umm
-                def roleAdmin = new Role(authority: "ROLE_ADMIN", description: "Administrator Role")
+                def roleAdmin = new Role(authority: "admin", description: "Administrator Role")
                 roleAdmin.addToPermissions(name: "com.ef.umm.admin", expression: "*:*")
                 roleAdmin?.save(flush: true, failOnError: true)
 
-                def roleSupervisor = new Role(authority: "ROLE_SUPERVISOR", description: "Spervisor Role")
+                def roleSupervisor = new Role(authority: "supervisor", description: "Spervisor Role")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agent:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queue.*", expression: "queue:*")
