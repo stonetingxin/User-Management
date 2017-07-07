@@ -2,6 +2,7 @@ package com.ef.umm
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 import static org.springframework.http.HttpStatus.*
 
@@ -24,7 +25,8 @@ class SecurityInterceptor {
         def user, microName, controller, method
         def action, micro, jsonData, resp
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
-        def jsonQuery = false
+        def jsonQuery
+        def fileQuery = false
         def rest = new RestBuilder()
 //        queryString = queryString.replaceAll("\"", "%22")
 //        queryString = queryString.replaceAll(/[{]/, "%7B")
@@ -77,7 +79,7 @@ class SecurityInterceptor {
                 log.info("If authorized, request will be forwarded to: ${micro?.ipAddress}${req}")
             }
 
-            if(!(springSecurityService?.principal?.username|| userName)){
+            if(!(springSecurityService?.principal?.username || userName)){
                 log.info("Access denied. Token not provided in the header.")
                 resultSet.put("message", "Access denied. Token not provided in the header.")
                 response.status = 403
@@ -105,25 +107,70 @@ class SecurityInterceptor {
 
             if(microName != "umm"){
                 //Todo: Should be improved by adding all corner cases.
-                if(params || jsonData){
-                    params.values().each{
-                        //Todo : Can be improved by converting to json...
-                        if(it.class == String){
-                            if(it.startsWith("{") && it.endsWith("}")){
+                if(params && jsonData){
+                    if(action == "save" || action == "create"){
+                        jsonData['createdBy'] = userName
+                        queryString = queryString + "&createdBy='${userName}'"
+                    } else {
+                        queryString = queryString + "&updatedBy='${userName}'"
+                        jsonData['updatedBy'] = userName
+                    }
+                    jsonData = jsonData as JSON
+                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
+                        json(jsonData)
+                    }
+                }else if(params){
+                    for(def val: params.values()){
+                        try{
+                            def parsed = JSON.parse(val)
+                            if(parsed){
                                 jsonQuery = true
+                                break
                             }
+                            else{
+                                jsonQuery = false
+                            }
+                        }catch (Exception ex){
+                            println ex
+                            jsonQuery = false
+                        }
+
+                        if(val.class == MultipartFile){
+                            fileQuery = true
                         }
                     }
-                    if(jsonQuery){
-                        resp = rest."${method}"("${micro?.ipAddress}${req}"){
+
+                    if(jsonQuery) {
+                        log.info("Sending JSON in the body: " + queryJson)
+                        resp = rest."${method}"("${micro?.ipAddress}${req}") {
                             json(queryJson)
                         }
                     }
+                    else if(fileQuery){
+                        resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                            body(params)
+                        }
+                    }
                     else{
+                        if(action == "save" || action == "create"){
+                            queryString = queryString + "&createdBy='${userName}'"
+                        } else {
+                            queryString = queryString + "&updatedBy='${userName}'"
+                        }
+                        log.info("Sending parameters as Query String: " + queryString)
                         resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
                     }
-                }
-                else{
+                } else if(jsonData){
+                    if(action == "save" || action == "create"){
+                        jsonData['createdBy'] = userName
+                    } else {
+                        jsonData['updatedBy'] = userName
+                    }
+                    jsonData = jsonData as JSON
+                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                        json(jsonData)
+                    }
+                } else{
                     resp = rest."${method}"("${micro?.ipAddress}${req}")
                 }
             }
@@ -150,7 +197,7 @@ class SecurityInterceptor {
                     else if(resp.responseEntity.body)
                         render resp.responseEntity.body
                     else
-                        render []
+                        render 0
 
                     return false
                 }
