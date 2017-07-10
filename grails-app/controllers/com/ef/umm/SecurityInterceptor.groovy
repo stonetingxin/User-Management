@@ -23,11 +23,12 @@ class SecurityInterceptor {
     boolean before() {
         def resultSet = [:]
         def user, microName, controller, method
-        def action, micro, jsonData, resp
+        def action, micro, resp
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
         def jsonQuery
         def fileQuery = false
         def rest = new RestBuilder()
+        def jsonData = [:]
 //        queryString = queryString.replaceAll("\"", "%22")
 //        queryString = queryString.replaceAll(/[{]/, "%7B")
 //        queryString = queryString.replaceAll(/[}]/, "%7D")
