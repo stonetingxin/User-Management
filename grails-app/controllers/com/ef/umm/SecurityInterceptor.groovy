@@ -6,13 +6,12 @@ import org.springframework.web.multipart.MultipartFile
 
 import static org.springframework.http.HttpStatus.*
 
-import grails.plugins.rest.client.RestBuilder
-
 class SecurityInterceptor {
     static transactional = false
     int order = HIGHEST_PRECEDENCE+100
     def springSecurityService
     def authorizationService
+    def restService
     public SecurityInterceptor(){
         match(uri: "/**")
                 .excludes(uri: "/umm/console/**")
@@ -22,22 +21,11 @@ class SecurityInterceptor {
     @Transactional
     boolean before() {
         def resultSet = [:]
-        def user, microName, controller, method
+        def user, microName, controller
         def action, micro, resp
-        def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
-        def jsonQuery
-        def fileQuery = false
-        def rest = new RestBuilder()
-        def jsonData = [:]
-//        queryString = queryString.replaceAll("\"", "%22")
-//        queryString = queryString.replaceAll(/[{]/, "%7B")
-//        queryString = queryString.replaceAll(/[}]/, "%7D")
-//        queryString = queryString.replaceAll(" ", "+")
-        def queryJson = params as JSON
+
         try{
             def req = request?.forwardURI - "/umm"
-            method = request?.method.toLowerCase()
-            jsonData = request.getJSON()
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
@@ -52,7 +40,6 @@ class SecurityInterceptor {
             def userName= authorizationService.extractUsername(request?.getHeader("Authorization"))
             (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
 
-            log.info("Request data is: " + (params? params : jsonData))
             log.info("Name of the microservice is: " + microName)
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
@@ -107,73 +94,7 @@ class SecurityInterceptor {
             }
 
             if(microName != "umm"){
-                //Todo: Should be improved by adding all corner cases.
-                if(params && jsonData){
-                    if(action == "save" || action == "create"){
-                        jsonData['createdBy'] = userName
-                        queryString = queryString + "&createdBy='${userName}'"
-                    } else {
-                        queryString = queryString + "&updatedBy='${userName}'"
-                        jsonData['updatedBy'] = userName
-                    }
-                    jsonData = jsonData as JSON
-                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
-                        json(jsonData)
-                    }
-                }else if(params){
-                    for(def val: params.values()){
-                        try{
-                            def parsed = JSON.parse(val)
-                            if(parsed){
-                                jsonQuery = true
-                                break
-                            }
-                            else{
-                                jsonQuery = false
-                            }
-                        }catch (Exception ex){
-                            println ex
-                            jsonQuery = false
-                        }
-
-                        if(val.class == MultipartFile){
-                            fileQuery = true
-                        }
-                    }
-
-                    if(jsonQuery) {
-                        log.info("Sending JSON in the body: " + queryJson)
-                        resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                            json(queryJson)
-                        }
-                    }
-                    else if(fileQuery){
-                        resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                            body(params)
-                        }
-                    }
-                    else{
-                        if(action == "save" || action == "create"){
-                            queryString = queryString + "&createdBy='${userName}'"
-                        } else {
-                            queryString = queryString + "&updatedBy='${userName}'"
-                        }
-                        log.info("Sending parameters as Query String: " + queryString)
-                        resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
-                    }
-                } else if(jsonData){
-                    if(action == "save" || action == "create"){
-                        jsonData['createdBy'] = userName
-                    } else {
-                        jsonData['updatedBy'] = userName
-                    }
-                    jsonData = jsonData as JSON
-                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                        json(jsonData)
-                    }
-                } else{
-                    resp = rest."${method}"("${micro?.ipAddress}${req}")
-                }
+                resp = restService.callAPI(params, request)
             }
 
             if(!UMR.findByUsersAndMicroservices(user, micro)){

@@ -1,5 +1,6 @@
 package com.ef.umm
 
+import grails.converters.JSON
 import grails.transaction.Transactional
 import org.apache.commons.codec.binary.Base64
 
