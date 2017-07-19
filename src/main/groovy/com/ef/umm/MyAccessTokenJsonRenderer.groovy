@@ -40,6 +40,9 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         result.put("token", accessToken.accessToken)
         result.put("expires_in" , accessToken.expiration)
         result.put("refresh_token" , accessToken.refreshToken)
+        if(!user.isActive){
+            result.put("status" , "isNotActive")
+        }
 
 
 
