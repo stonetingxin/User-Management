@@ -13,11 +13,11 @@ import org.pac4j.core.profile.CommonProfile
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.Assert
 import grails.plugin.springsecurity.rest.token.rendering.*
+import grails.plugins.rest.client.RestBuilder
 
 @Slf4j
 @Transactional
 class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
-
     String usernamePropertyName = "username"
     String authoritiesPropertyName = "role"
 
@@ -27,6 +27,13 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         def result = [:]
         def user
         user = User.findByUsername(userDetails.username)
+        if(user.type == "CC"){
+            def resp = getTeams(userDetails.username)
+            log.info("Got agent teams from ")
+            if(resp){
+                result.put("teams" , resp.json)
+            }
+        }
 
         result.put("userDetails" , user)
         result.put("token_type", 'Bearer')
@@ -47,5 +54,14 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         log.debug "Generated JSON:\n${jsonResult.toString(true)}"
 
         return jsonResult.toString()
+    }
+
+    def getTeams(String user){
+        def rest = new RestBuilder()
+        def resp
+        def serv = Microservice.findByName("efadminpanel")
+        if(serv)
+            resp = rest.get("${serv?.ipAddress}/${serv.name}/agent/getAgentTeam?id=${user}")
+        return resp
     }
 }

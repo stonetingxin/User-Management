@@ -14,9 +14,14 @@ class User implements Serializable {
     String username
     String password
     String email
-    String firstName
-    String lastName
-    boolean AD
+    String fullName
+    String type
+    String lastLogin
+    String dateCreated
+    String lastUpdated
+    User createdBy
+    User updatedBy
+    boolean isActive
     boolean enabled = true
     boolean accountExpired
     boolean accountLocked
@@ -52,8 +57,12 @@ class User implements Serializable {
         username blank: false, unique: true
         password blank: false
         email nullable: true, matches: /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
-        firstName nullable: true
-        lastName nullable: true
+        fullName(maxSize: 100, blank: true, nullable: true)
+        lastLogin(nullable: true)
+        createdBy(nullable: true)
+        updatedBy(nullable: true)
+        dateCreated(nullable: true)
+        lastUpdated(nullable: true)
     }
 
     static mapping = {

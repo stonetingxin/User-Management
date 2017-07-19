@@ -13,7 +13,7 @@ class UserController extends RestfulController<User> {
                              resetPassword: "PUT", usernameExists: "GET"]
 
     def springSecurityService
-
+    def restService
     def UserController(){
         super(User)
     }
@@ -27,11 +27,13 @@ class UserController extends RestfulController<User> {
     }
 
     def list(){
+        def respCode = restService.APUserSync()
         def resultSet = [:]
         try{
             def userList = User.list()
             resultSet.put("status", OK)
             resultSet.put("users", userList)
+            response.status = respCode
             render resultSet as JSON
         }catch (Exception ex){
             log.error("Couldn't retrieve the list of the users.")
@@ -201,7 +203,7 @@ class UserController extends RestfulController<User> {
             }
             newUser = new User(username: jsonObject?.username, firstName: jsonObject?.firstName,
                                password: jsonObject?.password, lastName: jsonObject?.lastName,
-                               email: jsonObject?.email)
+                               email: jsonObject?.email, type: "DB")
 
             newUser.validate()
             if (newUser.hasErrors()){

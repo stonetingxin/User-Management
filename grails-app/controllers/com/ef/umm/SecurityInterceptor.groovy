@@ -78,7 +78,7 @@ class SecurityInterceptor {
             try{
                 user = User.findByUsername(userName)
                 if(!user){
-                    new User(username: userName, password: authorizationService.maskIt(), AD: true)
+                    new User(username: userName, password: authorizationService.maskIt(), type: "AD")
                             .save(flush: true, failOnError: true)
                 }
             }catch (Exception ex){
@@ -134,8 +134,10 @@ class SecurityInterceptor {
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else if(resp.responseEntity.body)
+                        render resp.responseEntity.body
                     else
-                        render resp
+                        render 0
 
                     return false
                 }
@@ -150,8 +152,10 @@ class SecurityInterceptor {
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
                         render resp.json as JSON
+                    else if(resp.responseEntity.body)
+                        render resp.responseEntity.body
                     else
-                        render resp
+                        render 0
 
                     return false
                 }

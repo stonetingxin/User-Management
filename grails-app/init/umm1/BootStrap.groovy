@@ -16,22 +16,60 @@ class BootStrap {
                 roleAdmin?.save(flush: true, failOnError: true)
 
                 def roleSupervisor = new Role(authority: "supervisor", description: "Spervisor Role")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agents:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agent:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.skill.*", expression: "skill:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.group.*", expression: "group:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.index", expression: "team:index")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applications.*", expression: "applications:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.application.*", expression: "application:*")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queues.*", expression: "queues:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queue.*", expression: "queue:*")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompt.*", expression: "prompt:*")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.todo.*", expression: "todo:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.callerList.*", expression: "callerlist:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.caller.*", expression: "caller:*")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.scripts.*", expression: "scripts:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.script.*", expression: "script:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.callControlGroup.*", expression: "callControlGroup:*")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.trigger.*", expression: "trigger:*")
+
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.user.*", expression: "user:*")
+
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*")
                 roleSupervisor?.save(flush: true, failOnError: true)
+
+                def roleJunior = new Role(authority: "junior supervisor", description: "Junior Spervisor Role")
+                roleJunior.addToPermissions(Permission.findByExpression("agent:*"))
+                roleJunior.addToPermissions(Permission.findByExpression("queue:*"))
+                roleSupervisor.addToPermissions(Permission.findByExpression("user:*"))
+                roleJunior.addToPermissions(Permission.findByExpression("applicationSetting:*"))
+                roleJunior?.save(flush: true, failOnError: true)
 
                 def roleUser = new Role(authority: "ROLE_USER", description: "User Role")
                 roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
                 roleUser?.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
-                    admin = new User(username: "admin", password: "admiN123!")
+                    admin = new User(username: "admin", password: "admiN123!", isActive: true, type: "DB")
+                    admin.validate()
+                    if (admin.hasErrors()){
+                        println admin.errors
+                    }
                     admin?.save(flush: true, failOnError: true)
                 }
 
-                User user = new User(username: "user", password: "user")
+                User user = new User(username: "user", password: "user", isActive: true, type: "DB")
+                user.validate()
+                if (user.hasErrors()){
+                    println user.errors
+                }
                 user?.save(flush: true, failOnError: true)
 
                 if(!Microservice.findByName("umm")){
@@ -110,9 +148,8 @@ class BootStrap {
             output['id'] = it?.id
             output['username'] = it?.username
             output['email'] = it?.email
-            output['firstName'] = it?.firstName
-            output['lastName'] = it?.lastName
-            output['AD'] = it?.AD
+            output['fullName'] = it?.fullName
+            output['type'] = it?.type
             umr = UMR.findAllByUsers(it)
 
             def uniqueUmr = umr.unique { uniqueMicro ->

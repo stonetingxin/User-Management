@@ -15,6 +15,11 @@ spring:
     groovy:
         template:
             check-template-location: false
+    http:
+        multipart:
+            maxFileSize: 10MB
+            maxRequestSize: 10MB
+
 # Spring Actuator Endpoints are Disabled by Default
 endpoints:
     enabled: false
