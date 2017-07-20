@@ -21,6 +21,7 @@ class BootStrap {
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.skill.*", expression: "skill:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.group.*", expression: "group:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.index", expression: "team:index")
+                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.getTeam", expression: "team:getTeam")
 
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applications.*", expression: "applications:*")
                 roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.application.*", expression: "application:*")
@@ -150,6 +151,7 @@ class BootStrap {
             output['email'] = it?.email
             output['fullName'] = it?.fullName
             output['type'] = it?.type
+            output['isActive'] = it?.isActive
             umr = UMR.findAllByUsers(it)
 
             def uniqueUmr = umr.unique { uniqueMicro ->

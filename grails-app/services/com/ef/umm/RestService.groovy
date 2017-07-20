@@ -3,6 +3,7 @@ package com.ef.umm
 import grails.converters.JSON
 import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
+import groovy.json.JsonSlurper
 
 @Transactional
 class RestService {
@@ -40,7 +41,7 @@ class RestService {
 
         currentUserList?.each {
             try {
-                if (!userList?.findAll { u -> u?.get("username") == it.username } /*&& it.username != 'admin'*/)
+                if (!userList?.findAll { u -> u?.get("username") == it.username } )
                     it.delete(flush: true)
             } catch (Exception e) {
                 log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
@@ -63,17 +64,21 @@ class RestService {
         def micro = Microservice.findByName(microName)
         def jsonData = request.getJSON()
 
+        def jsonString = jsonData as JSON
+        def jsonSlurped= new JsonSlurper().parseText(jsonString as String)
+
         def resp
 
-        if(request.multipartFiles){
-            resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                contentType "multipart/form-data"
-                file = params.file
-//                setProperty "file", params.file
-//                setProperty "agentId", params.agentId
-            }
-            return resp
-        }
+//        if(request.multipartFiles){
+//            resp = rest."${method}"("${micro?.ipAddress}${req}") {
+//                contentType "multipart/form-data"
+//                file = params.file
+////                setProperty "file", params.file
+////                setProperty "agentId", params.agentId
+//            }
+//            return resp
+//        }
+
 
         if(params && jsonData){
             if(action == "save" || action == "create"){
@@ -82,17 +87,25 @@ class RestService {
                 queryString = queryString + "&updatedBy='${userName}'"
             }
 
-            if(validJson(params.values())){
-                resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                    json(queryJson)
-                }
-            }
-            else{
+            if(params?.keySet == jsonSlurped?.keySet){
                 jsonData = jsonData as JSON
-                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
+                resp = rest."${method}"("${micro?.ipAddress}${req}"){
                     json(jsonData)
                 }
+            } else{
+                if(validJson(params.values())){
+                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                        json(queryJson)
+                    }
+                }
+                else{
+                    jsonData = jsonData as JSON
+                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
+                        json(jsonData)
+                    }
+                }
             }
+
         }else if(params){
 
             if(validJson(params.values())) {
