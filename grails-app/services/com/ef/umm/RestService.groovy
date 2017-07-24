@@ -41,8 +41,14 @@ class RestService {
 
         currentUserList?.each {
             try {
-                if (!userList?.findAll { u -> u?.get("username") == it.username } )
+                if (!userList?.findAll { u -> u?.get("username") == it.username } ){
+                    def umr = UMR.findAllByUsers(it)
+                    umr.each{um->
+                        um?.delete(flush: true, failOnErrors:true)
+                    }
                     it.delete(flush: true)
+                }
+
             } catch (Exception e) {
                 log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
             }
