@@ -255,6 +255,7 @@ class UserController extends RestfulController<User> {
 //            userInstance.fullName = jsonObject?.fullName
 //            userInstance.lastName = jsonObject?.lastName
             userInstance.email = jsonObject?.email
+            userInstance.isActive = jsonObject?.isActive
 
             userInstance.validate()
             if (userInstance.hasErrors()){

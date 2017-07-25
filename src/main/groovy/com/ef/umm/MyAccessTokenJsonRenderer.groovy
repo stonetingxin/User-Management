@@ -29,7 +29,6 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         user = User.findByUsername(userDetails.username)
         if(user.type == "CC"){
             def resp = getTeams(userDetails.username)
-            log.info("Got agent teams from ")
             if(resp){
                 result.put("teams" , resp.json)
             }
@@ -40,8 +39,12 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         result.put("token", accessToken.accessToken)
         result.put("expires_in" , accessToken.expiration)
         result.put("refresh_token" , accessToken.refreshToken)
+
         if(!user.isActive){
             result.put("status" , "isNotActive")
+        } else {
+            user.lastLogin = new Date()
+            user.save(flush:true)
         }
 
 
