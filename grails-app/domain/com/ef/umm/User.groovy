@@ -26,6 +26,7 @@ class User implements Serializable {
     boolean accountExpired
     boolean accountLocked
     boolean passwordExpired
+    boolean profileExists
 
     User(String username, String password) {
         this()

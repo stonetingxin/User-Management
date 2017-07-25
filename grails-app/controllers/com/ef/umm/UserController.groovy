@@ -252,8 +252,8 @@ class UserController extends RestfulController<User> {
                 render resultSet as JSON
                 return
             }
-            userInstance.firstName = jsonObject?.firstName
-            userInstance.lastName = jsonObject?.lastName
+//            userInstance.fullName = jsonObject?.fullName
+//            userInstance.lastName = jsonObject?.lastName
             userInstance.email = jsonObject?.email
 
             userInstance.validate()
@@ -265,9 +265,11 @@ class UserController extends RestfulController<User> {
                 return
             }
             userInstance.save(flush: true, failOnError: true)
-            resultSet.put("status", OK)
-            resultSet.put("message", "User with username: '${userInstance.username}' has been updated successfully.")
-            render resultSet as JSON
+//            resultSet.put("status", OK)
+//            resultSet.put("username", userInstance.username)
+//            resultSet.put("message", "User with username: '${userInstance.username}' has been updated successfully.")
+            response.status = 200
+            render userInstance as JSON
             return
 
         }catch (Exception ex){

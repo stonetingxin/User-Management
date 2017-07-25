@@ -26,6 +26,7 @@ class RestService {
                     user = new User(username: it?.username, password: "123456!", isActive: true, fullName: it?.fullName,
                             dateCreated: it?.dateCreated, lastUpdated: it?.lastUpdated, lastLogin: it?.lastLogin,
                             email: it?.email, type: "CC")
+                    user?.profileExists = it?.profileExists
                     user.save(flush: true, failOnError: true)
 
                     UMR.create user, supervisor, AP, true
@@ -36,6 +37,9 @@ class RestService {
                     log.error(ex.getMessage())
                     log.error("_____________________________________")
                 }
+            } else {
+                user?.profileExists = it?.profileExists
+                user.save(flush: true, failOnError: true)
             }
         }
 
