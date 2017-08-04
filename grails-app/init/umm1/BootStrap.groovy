@@ -9,55 +9,93 @@ class BootStrap {
     def init = { servletContext ->
         if (Role.count() == 0) {
             try {
+
+                /*Permissions for Admin Panel Supervisor*/
+                def permSupervisor = [
+                        // Agent related permissions for Admin Panel
+                        [name: "com.ef.efadminpanel.agents.*", expression: "agents:*"],
+                        [name: "com.ef.efadminpanel.agent.*", expression: "agent:*"],
+                        [name: "com.ef.efadminpanel.skill.*", expression: "skill:*"],
+                        [name: "com.ef.efadminpanel.group.*", expression: "group:*"],
+                        [name: "com.ef.efadminpanel.team.index", expression: "team:index"],
+                        [name: "com.ef.efadminpanel.team.getTeam", expression: "team:getTeam"],
+                        [name: "com.ef.efadminpanel.team.update", expression: "team:update"],
+
+                        // Application related permissions in Admin Panel
+                        [name: "com.ef.efadminpanel.applications.*", expression: "applications:*"],
+                        [name: "com.ef.efadminpanel.application.*", expression: "application:*"],
+
+                        // Permissions related to EasyAnnouncements
+                        [name: "com.ef.easyannouncement.easyAnnouncement.*", expression: "easyAnnouncement:*"],
+                        [name: "com.ef.easyannouncement.generalAnnouncement.*", expression: "generalAnnouncement:*"],
+                        [name: "com.ef.efadminpanel.service.*", expression: "service:*"],
+                        [name: "com.ef.efadminpanel.region.*", expression: "region:*"],
+
+                        // Permissions related to business calendar
+                        [name: "com.ef.businessCalendar.businessCalendar.*", expression: "businessCalendar:*"],
+                        [name: "com.ef.businessCalendar.workingEvents.*", expression: "workingEvents:*"],
+                        [name: "com.ef.businessCalendar.holidayProfile.*", expression: "holidayProfile:*"],
+                        [name: "com.ef.efadminpanel.agency.*", expression: "agency:*"],
+                        [name: "com.ef.efadminpanel.businessCalendarService.*", expression: "businessCalendarService:*"],
+
+                        // Queue related permissions in Admin Panel
+                        [name: "com.ef.efadminpanel.queues.*", expression: "queues:*"],
+                        [name: "com.ef.efadminpanel.queue.*", expression: "queue:*"],
+
+                        // Permissions related to prompt in Admin Panel
+                        [name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*"],
+                        [name: "com.ef.efadminpanel.prompt.*", expression: "prompt:*"],
+
+                        // CallerList related permissions for adminpanel
+                        [name: "com.ef.efadminpanel.todo.*", expression: "todo:*"],
+                        [name: "com.ef.efadminpanel.callerList.*", expression: "callerlist:*"],
+                        [name: "com.ef.efadminpanel.caller.*", expression: "caller:*"],
+
+                        // Script related permissions
+                        [name: "com.ef.efadminpanel.scripts.*", expression: "scripts:*"],
+                        [name: "com.ef.efadminpanel.script.*", expression: "script:*"],
+                        [name: "com.ef.efadminpanel.callControlGroup.*", expression: "callControlGroup:*"],
+                        [name: "com.ef.efadminpanel.trigger.*", expression: "trigger:*"],
+
+                        // Permission for user validation API in admin panel
+                        [name: "com.ef.efadminpanel.user.*", expression: "user:*"],
+
+                        // Permission to perform application settings
+                        [name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*"]
+                ]
+
                 def admin
                 def umm
+
+                // Microservices
+                if(!Microservice.findByName("umm")){
+                    umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9090", description: 'User Management MicroService')
+                    umm?.save(flush: true, failOnError: true)
+                }
+
+                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
+                efadminpanel?.save(flush: true, failOnError: true)
+
+                def ecm = new Microservice(name: 'ecm', ipAddress: "http://192.168.1.92:8080", description: 'ECM')
+                ecm?.save(flush: true, failOnError: true)
+
+
+                // Roles
+
                 def roleAdmin = new Role(authority: "admin", description: "Administrator Role")
                 roleAdmin.addToPermissions(name: "com.ef.umm.admin", expression: "*:*")
                 roleAdmin?.save(flush: true, failOnError: true)
 
-                def roleSupervisor = new Role(authority: "supervisor", description: "Spervisor Role")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agents:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agent.*", expression: "agent:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.skill.*", expression: "skill:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.group.*", expression: "group:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.index", expression: "team:index")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.getTeam", expression: "team:getTeam")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.team.update", expression: "team:update")
+                def roleSupervisor = new Role(authority: "supervisor", description: "Supervisor Role")
 
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applications.*", expression: "applications:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.application.*", expression: "application:*")
+                permSupervisor.each{
+                    def perm = new Permission(it)
+                    roleSupervisor.addToPermissions(perm)
+                    efadminpanel.addToPermissions(perm)
+                }
 
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.easyAnnouncement.*", expression: "easyAnnouncement:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.generalAnnouncement.*", expression: "generalAnnouncement:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.serviceStatus.*", expression: "serviceStatus:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.service.*", expression: "service:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.region.*", expression: "region:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.*", expression: "businessCalendar:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.workingEvents.*", expression: "workingEvents:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.holidayProfile.*", expression: "holidayProfile:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.agency.*", expression: "agency:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.businessCalendarService.*", expression: "businessCalendarService:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queues.*", expression: "queues:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.queue.*", expression: "queue:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.prompt.*", expression: "prompt:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.todo.*", expression: "todo:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.callerList.*", expression: "callerlist:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.caller.*", expression: "caller:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.scripts.*", expression: "scripts:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.script.*", expression: "script:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.callControlGroup.*", expression: "callControlGroup:*")
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.trigger.*", expression: "trigger:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.user.*", expression: "user:*")
-
-                roleSupervisor.addToPermissions(name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*")
                 roleSupervisor?.save(flush: true, failOnError: true)
+                efadminpanel?.save(flush: true, failOnError: true)
 
                 def roleJunior = new Role(authority: "junior supervisor", description: "Junior Spervisor Role")
                 roleJunior.addToPermissions(Permission.findByExpression("agent:*"))
@@ -66,9 +104,6 @@ class BootStrap {
                 roleJunior.addToPermissions(Permission.findByExpression("applicationSetting:*"))
                 roleJunior?.save(flush: true, failOnError: true)
 
-                def roleUser = new Role(authority: "ROLE_USER", description: "User Role")
-                roleUser.addToPermissions(name: "com.ef.efadminpanel.businessCalendar.list", expression: "businessCalendar:list")
-                roleUser?.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
                     admin = new User(username: "admin", password: "admiN123!", isActive: true, type: "DB")
@@ -80,28 +115,9 @@ class BootStrap {
                 }
 
 
-                if(!Microservice.findByName("umm")){
-                    umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9090", description: 'User Management MicroService')
-                    umm.addToRoles(roleAdmin)
-                    umm?.save(flush: true, failOnError: true)
-                }
-
-                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
-                efadminpanel.addToRoles(roleAdmin)
-                efadminpanel?.save(flush: true, failOnError: true)
-
-                def ecm = new Microservice(name: 'ecm', ipAddress: "http://192.168.1.92:8080", description: 'ECM')
-                ecm.addToRoles(roleAdmin)
-                ecm.addToRoles(roleUser)
-                ecm?.save(flush: true, failOnError: true)
-
                 UMR.create admin, roleAdmin, umm
-                UMR.create admin, roleSupervisor, umm
-                UMR.create admin, roleUser, umm
-                UMR.create admin, roleUser, efadminpanel
                 UMR.create admin, roleAdmin, efadminpanel
-                UMR.create admin, roleSupervisor, efadminpanel
-
+                UMR.create admin, roleAdmin, ecm
 
                 UMR.withSession {
                     it.flush()
@@ -139,7 +155,7 @@ class BootStrap {
             output['name'] = it?.name
             output['ipAddress'] = it?.ipAddress
             output['description'] = it?.description
-            output['roles'] = it?.roles
+            output['permissions'] = it?.permissions
             return output
         }
 

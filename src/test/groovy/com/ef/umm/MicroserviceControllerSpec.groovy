@@ -243,10 +243,10 @@ class MicroserviceControllerSpec extends Specification {
 
     @Unroll
     void "test add Roles api"() {
-        when: 'addRemoveRoles is called with add functionality'
+        when: 'addRemovePermissions is called with add functionality'
         request?.method = "PUT"
         request?.json = input
-        controller?.addRemoveRoles()
+        controller?.addRemovePermissions()
 
         then: 'the corresponding permission should be added for the role'
         response?.status == status
@@ -281,10 +281,10 @@ class MicroserviceControllerSpec extends Specification {
 
     @Unroll
     void "test remove Roles api"() {
-        when: 'addRemoveRoles is called'
+        when: 'addRemovePermissions is called'
         request?.method = "PUT"
         request?.json = input
-        controller?.addRemoveRoles()
+        controller?.addRemovePermissions()
 
         then: 'the corresponding roles should be removed from the microservice'
         response?.status == status

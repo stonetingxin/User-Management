@@ -165,12 +165,12 @@ class MicroserviceController {
     }
 
     @Transactional
-    def addRemoveRoles(){
+    def addRemovePermissions(){
         def resultSet = [:]
         def message = []
         try{
             def jsonObject = request.getJSON()
-            if(!jsonObject?.id || !jsonObject?.roles || !jsonObject?.addRemove){
+            if(!jsonObject?.id || !jsonObject?.permissions || !jsonObject?.addRemove){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
                 response.status = 406
@@ -197,10 +197,10 @@ class MicroserviceController {
             }
 
             def addRemove = jsonObject?.addRemove
-            def roles = jsonObject?.roles
+            def permissions = jsonObject?.permissions
 
-            def role
-            roles?.each{
+            def permission
+            permissions?.each{
                 if(!it?.id){
                     resultSet.put("status", NOT_ACCEPTABLE)
                     resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
@@ -208,36 +208,36 @@ class MicroserviceController {
                     render resultSet as JSON
                     return
                 }
-                role = Role.findById(it?.id as Long)
-                if(role){
+                permission = Permission.findById(it?.id as Long)
+                if(permission){
                     if(addRemove == 'add'){
-                        if(!microInstance.roles.contains(role)){
-                            microInstance.addToRoles(role)
-                            message.add("Role: ${role.authority} has been successfully added.")
+                        if(!microInstance.permissions.contains(permission)){
+                            microInstance.addToPermissions(permission)
+                            message.add("Permission: ${permission?.expression} has been successfully added.")
                         }
                         else{
-                            message.add("Role: ${role.authority} has already been assigned in the microservice.")
+                            message.add("Permission: ${permission?.expression} has already been assigned in the microservice.")
                         }
                     }
                     if(addRemove == 'remove'){
-                        if(microInstance.name == "umm" && role.authority == "ROLE_ADMIN"){
+                        if(microInstance.name == "umm" && permission?.expression == "ROLE_ADMIN"){
                             resultSet.put("status", NOT_ACCEPTABLE)
                             resultSet.put("message", "Admin role cannot be removed from umm.")
                             response.status = 406
                             render resultSet as JSON
                             return
                         }
-                        if(microInstance.roles.contains(role)){
-                            microInstance.removeFromRoles(role)
-                            message.add("Role: ${role.authority} has been successfully removed.")
+                        if(microInstance.permissions.contains(permission)){
+                            microInstance.removeFromPermissions(permission)
+                            message.add("Permission: ${permission?.expression} has been successfully removed.")
                         }
                         else{
-                            message.add("Role: ${role.authority} cannot be removed since it's not been assigned.")
+                            message.add("Permission: ${permission?.expression} cannot be removed since it's not been assigned.")
                         }
                     }
                 }
                 else{
-                    message.add("Role with id: ${it?.id} not found.")
+                    message.add("Permission with id: ${it?.id} not found.")
                 }
             }
 
@@ -258,7 +258,7 @@ class MicroserviceController {
             return
 
         }catch (Exception ex){
-            log.error("Exception occured while add/remove roles in microservice: ", ex)
+            log.error("Exception occured while add/remove permissions in microservice: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
