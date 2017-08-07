@@ -176,6 +176,8 @@ class BootStrap {
             output['lastLogin']=it?.lastLogin
             output['lastUpdated'] = it?.lastUpdated
             output['dateCreated'] = it?.dateCreated
+            output['createdBy']= it?.createdBy?.id
+            output['updatedBy']= it?.updatedBy?.id
             umr = UMR.findAllByUsers(it)
 
             def uniqueUmr = umr.unique { uniqueMicro ->
