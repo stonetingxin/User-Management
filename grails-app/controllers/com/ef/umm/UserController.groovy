@@ -201,9 +201,9 @@ class UserController extends RestfulController<User> {
                 render resultSet as JSON
                 return
             }
-            newUser = new User(username: jsonObject?.username, firstName: jsonObject?.firstName,
-                               password: jsonObject?.password, lastName: jsonObject?.lastName,
-                               email: jsonObject?.email, type: "DB")
+            newUser = new User(username: jsonObject?.username, fullName: jsonObject?.fullName,
+                               password: jsonObject?.password, email: jsonObject?.email,
+                               type: "DB", isActive: jsonObject?.isActive )
 
             newUser.validate()
             if (newUser.hasErrors()){
@@ -215,9 +215,14 @@ class UserController extends RestfulController<User> {
             }
 
             newUser.save(flush: true, failOnError: true)
+            def roleDefault= Role.findByAuthority("default")
+            def AP = Microservice.findByName("efadminpanel")
+
+            UMR.create newUser, roleDefault, AP, true
 
             resultSet.put("status", OK)
             resultSet.put("message", "New user: '${newUser.username}' has been created successfully.")
+            resultSet.put("user", newUser)
             render resultSet as JSON
             return
 

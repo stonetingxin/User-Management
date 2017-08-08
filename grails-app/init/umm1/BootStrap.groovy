@@ -64,6 +64,14 @@ class BootStrap {
                         [name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*"]
                 ]
 
+                def permDefaultAP= [
+                    // Permission for user validation API in admin panel
+                    [name: "com.ef.efadminpanel.user.*", expression: "user:*"],
+
+                    // Permission to perform application settings
+                    [name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*"]
+                ]
+
                 def admin
                 def umm
 
@@ -103,6 +111,19 @@ class BootStrap {
                 roleSupervisor.addToPermissions(Permission.findByExpression("user:*"))
                 roleJunior.addToPermissions(Permission.findByExpression("applicationSetting:*"))
                 roleJunior?.save(flush: true, failOnError: true)
+
+                def roleDefaultAP = new Role(authority: "default", description: "Default role for admin panel")
+                permDefaultAP.each{
+                    def perm = Permission.findByExpression(it?.expression)
+                    if(perm){
+                        roleDefaultAP.addToPermissions(perm)
+                        efadminpanel.addToPermissions(perm)
+                    } else {
+                        def perm2 = new Permission(it)
+                        roleDefaultAP.addToPermissions(perm2)
+                        efadminpanel.addToPermissions(perm2)
+                    }
+                }
 
 
                 if (!User.findByUsername("admin")) {
