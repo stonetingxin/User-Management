@@ -2,6 +2,7 @@ package com.ef.umm
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import groovy.json.JsonBuilder
 
 import static org.springframework.http.HttpStatus.*
 
@@ -283,7 +284,7 @@ class RoleController {
                 render resultSet as JSON
                 return
             }
-            if(roleInstance.authority == "ROLE_ADMIN"){
+            if(roleInstance.authority == "admin"){
                 resultSet.put("status", NOT_ACCEPTABLE)
                 resultSet.put("message", "Cannot delete the admin role.")
                 response.status = 406
@@ -314,6 +315,92 @@ class RoleController {
             response.status = 500
             render resultSet as JSON
             return
+        }
+    }
+
+    def roleUser(){
+        def resultSet = [:]
+        def userArr = []
+        try{
+            def roleInstance = Role.get(params?.id)
+            if (!roleInstance) {
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "Role not found.")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+            def users = UMR.findAllByRoles(roleInstance).users
+            resultSet.put("status", OK)
+            JsonBuilder json = new JsonBuilder()
+            users.each{value ->
+                def map = json {
+                    id value?.id
+                    username value?.username
+                    email value?.email
+                    fullName value?.fullName
+                    type value?.type
+                    isActive value?.isActive
+                    profileExists value?.profileExists
+                    lastLogin value?.lastLogin
+                    lastUpdated value?.lastUpdated
+                    dateCreated value?.dateCreated
+                    createdBy value?.createdBy?.id
+                    updatedBy value?.updatedBy?.id
+                }
+                userArr.add(map)
+            }
+            resultSet.put("users", userArr)
+            render resultSet as JSON
+            return
+        }catch (Exception ex){
+            log.error("Couldn't retrieve the role.")
+            log.error("Following is the stack trace along with the error message: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def deleteMulti(){
+        def resultSet = [:]
+        def jsonObject = request.getJSON()
+        def message = []
+        try {
+            jsonObject.each{
+                def roleInstance = Role.findById(it?.id)
+                if (!roleInstance) {
+                    message.add("Role with ID: ${it?.id} not found. Provide a valid role id.")
+                } else{
+                    if(roleInstance.authority == "admin"){
+                        message.add("Role: ${roleInstance.authority} cannot be deleted. Permission denied.")
+                    } else {
+                        def umr = UMR.findAllByRoles(roleInstance)
+                        if(umr){
+                            message.add("Cannot delete the role. Role is assigned to following user(s): ${umr*.toString()}")
+                        } else{
+                            def role = roleInstance.authority
+                            roleInstance?.delete(flush: true, failOnErrors:true)
+                            message.add("Successfully deleted role: ${role}")
+                        }
+                    }
+                }
+
+            }
+
+            resultSet.put("status", OK)
+            resultSet.put("message", message)
+            render resultSet as JSON
+            return
+        }
+        catch (Exception ex) {
+            log.error("Exception occurred while deleting multiple role instances: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
         }
     }
 }

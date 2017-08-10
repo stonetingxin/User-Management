@@ -444,7 +444,47 @@ class UserController extends RestfulController<User> {
             return
         }
         catch (Exception ex) {
-            log.error("Exception occurred while deleting Instance: ", ex)
+            log.error("Exception occurred while deleting user instance: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def deleteMulti(){
+        def resultSet = [:]
+        def jsonObject = request.getJSON()
+        def message = []
+        try {
+            jsonObject.each{
+                def userInstance = User.findById(it?.id)
+                if (!userInstance) {
+                    message.add("User with ID: ${it?.id} not found. Provide a valid user id.")
+                } else{
+                    if(userInstance.username == 'admin'){
+                        message.add("User: ${userInstance.username} cannot be deleted. Permission denied.")
+                    } else {
+                        def umr = UMR.findAllByUsers(userInstance)
+                        umr.each{ value->
+                            value?.delete(flush: true, failOnErrors:true)
+                        }
+                        def username = userInstance.username
+                        userInstance?.delete(flush: true, failOnErrors:true)
+                        message.add("Successfully deleted user: ${username}")
+                    }
+                }
+
+            }
+
+            resultSet.put("status", OK)
+            resultSet.put("message", message)
+            render resultSet as JSON
+            return
+        }
+        catch (Exception ex) {
+            log.error("Exception occurred while deleting multiple user instances: ", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
