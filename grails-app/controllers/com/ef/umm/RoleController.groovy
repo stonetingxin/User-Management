@@ -330,7 +330,7 @@ class RoleController {
                 render resultSet as JSON
                 return
             }
-            def users = UMR.findAllByRoles(roleInstance).users
+            def users = UMR.findAllByRoles(roleInstance).users.unique{user-> user.id}
             resultSet.put("status", OK)
             JsonBuilder json = new JsonBuilder()
             users.each{value ->
@@ -379,7 +379,7 @@ class RoleController {
                     } else {
                         def umr = UMR.findAllByRoles(roleInstance)
                         if(umr){
-                            message.add("Cannot delete the role. Role is assigned to following user(s): ${umr*.toString()}")
+                            message.add("Cannot delete role: ${roleInstance.authority}. It is assigned to following user(s): ${umr*.toString()}")
                         } else{
                             def role = roleInstance.authority
                             roleInstance?.delete(flush: true, failOnErrors:true)
