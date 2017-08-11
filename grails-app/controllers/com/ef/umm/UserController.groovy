@@ -10,7 +10,7 @@ class UserController extends RestfulController<User> {
 
     static allowedMethods = [create: "POST", update: "PUT", delete: "DELETE", show: "GET",
                              updatePassword: "PUT", addRevokeMicroserviceRoles: "PUT", changePassword: "PUT",
-                             resetPassword: "PUT", usernameExists: "GET"]
+                             resetPassword: "PUT", usernameExists: "GET", deleteMulti: "DELETE"]
 
     def springSecurityService
     def restService

@@ -211,6 +211,18 @@ class UserControllerSpec extends Specification {
                   406]
     }
 
+    void "test deleteMulti api"() {
+        when: 'delete is called with an array of valid user ids'
+        request?.method = "DELETE"
+        request?.json = $/[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"}]/$
+        controller?.deleteMulti()
+
+        then: 'user having that id should be deleted decrementing the user count by 1'
+        response?.status == status
+        response?.json.message == "[abc]"
+
+    }
+
     void "test update api"() {
         when: 'update is called with existing user-microservice association'
         request?.method = "PUT"
