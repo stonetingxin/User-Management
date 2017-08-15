@@ -14,12 +14,14 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.util.Assert
 import grails.plugin.springsecurity.rest.token.rendering.*
 import grails.plugins.rest.client.RestBuilder
+import grails.core.GrailsApplication
 
 @Slf4j
 @Transactional
 class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     String usernamePropertyName = "username"
     String authoritiesPropertyName = "role"
+    GrailsApplication grailsApplication
 
     String generateJson(AccessToken accessToken) {
         Assert.isInstanceOf(UserDetails, accessToken.principal, "A UserDetails implementation is required")
@@ -65,7 +67,8 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     def getTeams(String user){
         def rest = new RestBuilder()
         def resp
-        def serv = Microservice.findByName("efadminpanel")
+        def adminPanel = grailsApplication.config.getProperty('names.adminPanel')
+        def serv = Microservice.findByName(adminPanel)
         if(serv)
             resp = rest.get("${serv?.ipAddress}/${serv.name}/agent/getAgentTeam?id=${user}")
         return resp

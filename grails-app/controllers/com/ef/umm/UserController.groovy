@@ -1,6 +1,7 @@
 package com.ef.umm
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import grails.rest.RestfulController
 import grails.transaction.Transactional
 
@@ -14,6 +15,8 @@ class UserController extends RestfulController<User> {
 
     def springSecurityService
     def restService
+    GrailsApplication grailsApplication
+
     def UserController(){
         super(User)
     }
@@ -216,7 +219,8 @@ class UserController extends RestfulController<User> {
 
             newUser.save(flush: true, failOnError: true)
             def roleDefault= Role.findByAuthority("default")
-            def AP = Microservice.findByName("efadminpanel")
+            def adminpanel = grailsApplication.config.getProperty('names.adminPanel')
+            def AP = Microservice.findByName(adminpanel)
 
             UMR.create newUser, roleDefault, AP, true
 

@@ -1,5 +1,5 @@
 package com.ef.umm
-
+import grails.core.GrailsApplication
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -12,6 +12,7 @@ class SecurityInterceptor {
     def springSecurityService
     def authorizationService
     def restService
+    GrailsApplication grailsApplication
     public SecurityInterceptor(){
         match(uri: "/**")
                 .excludes(uri: "/umm/console/**")
@@ -23,7 +24,7 @@ class SecurityInterceptor {
         def resultSet = [:]
         def user, microName, controller
         def action, micro, resp
-
+        println grailsApplication.config.getProperty('names.adminPanel')
         try{
             def req = request?.forwardURI - "/umm"
             resultSet.put("status", FORBIDDEN)

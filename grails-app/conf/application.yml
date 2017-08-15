@@ -191,3 +191,7 @@ grails:
                searchSubtree: true
             auth:
                hideUserNotFoundExceptions: false
+
+---
+names:
+    adminPanel: "efadminpanel"

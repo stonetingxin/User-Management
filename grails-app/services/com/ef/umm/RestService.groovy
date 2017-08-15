@@ -1,6 +1,7 @@
 package com.ef.umm
 
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
@@ -8,17 +9,19 @@ import groovy.json.JsonSlurper
 @Transactional
 class RestService {
     def authorizationService
+    GrailsApplication grailsApplication
 
     def APUserSync(){
         User user
         def rest = new RestBuilder()
-        def micro = Microservice.findByName("efadminpanel")
+        def adminPanel = grailsApplication.config.getProperty('names.adminPanel')
+        def micro = Microservice.findByName(adminPanel)
         def resp = rest.get("${micro?.ipAddress}/${micro.name}/user/list")
         log.info("Response for CCX user Sync is: ${resp.responseEntity.statusCode.value}:${resp.json}")
         def currentUserList = User.findAllByType("CC")
         def userList = resp?.json
         def supervisor = Role.findByAuthority("supervisor")
-        def AP = Microservice.findByName("efadminpanel")
+        def AP = Microservice.findByName(adminPanel)
         userList.each {
             user = User.findByUsername(it?.username)
             if (!user) {
