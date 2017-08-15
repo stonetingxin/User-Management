@@ -15,27 +15,26 @@ class RoleControllerSpec extends Specification {
 
     def setup() {
         try {
-            def ahmed = new User(username: "ahmed", password: "admin")
-            def hamid = new User(username: "hamid", password: "nothing")
-            def userAdmin = new User(username: "admin", password: "admin")
-            ahmed?.save()
-            hamid?.save()
-            userAdmin.save()
+            def ahmed = new User(username: "ahmed", password: "admin", type: "DB")
+            def hamid = new User(username: "hamid", password: "nothing", type: "DB")
+            def userAdmin = new User(username: "admin", password: "admin", type: "DB")
+            ahmed?.save(failOnError: true)
+            hamid?.save(failOnError: true)
+            userAdmin.save(failOnError: true)
 
             def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
-            admin?.save()
+            admin?.save(failOnError: true)
 
             def role = new Role(authority: "Supervisor", description: "Supervisor role")
             role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
-            role?.save()
+            role.addToPermissions(name: "com.app.ef.update", expression: "update:*")
+            role?.save(failOnError: true)
 
-            def pcs = new Microservice(name: 'PCS', ipAddress: "192.168.1.79:8080",description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', ipAddress: "192.168.1.79:8080",description: 'Caller Based Routing')
-            pcs.addToRoles(admin)
-            pcs?.save()
-            cbr.addToRoles(admin)
-            cbr?.save()
+            def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080",description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080",description: 'Caller Based Routing')
+            pcs?.save(failOnError: true)
+            cbr?.save(failOnError: true)
 
 
             UMR.create ahmed, admin, pcs, true
@@ -72,7 +71,7 @@ class RoleControllerSpec extends Specification {
             output['id'] = it?.id
             output['name'] = it?.name
             output['description'] = it?.description
-            output['roles'] = it?.roles
+            output['permissions'] = it?.permissions
             return output
         }
 
@@ -189,7 +188,7 @@ class RoleControllerSpec extends Specification {
                  "2",
                  "3"]
 
-        output<< ["Cannot delete the admin role.",
+        output<< ["Cannot delete the role. Role is assigned to following user(s):",
                   "Successfully deleted role: Supervisor",
                   "Role not found. Provide a valid role instance."]
 
@@ -202,6 +201,22 @@ class RoleControllerSpec extends Specification {
                   404]
     }
 
+
+    void "test deleteMulti api"() {
+        when: 'delete is called with an array of valid role ids'
+        request?.method = "DELETE"
+        request?.json = $/[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"}]/$
+        controller?.deleteMulti()
+
+        then: 'role having that id should be deleted if it is not assigned to any user'
+        response?.status == status
+        response?.json.message.toString() == "[\"Cannot delete role: ROLE_ADMIN. It is assigned to following user(s): " +
+                "[ahmed as ROLE_ADMIN in PCS, hamid as ROLE_ADMIN in CBR]\"," +
+                "\"Successfully deleted role: Supervisor\"," +
+                "\"Role with ID: 3 not found. Provide a valid role id.\"," +
+                "\"Role with ID: 4 not found. Provide a valid role id.\"]"
+
+    }
 
     @Unroll
     void "test update role api"() {

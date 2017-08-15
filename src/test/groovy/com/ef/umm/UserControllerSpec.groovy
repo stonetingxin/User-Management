@@ -12,28 +12,26 @@ class UserControllerSpec extends Specification {
 
     def setup() {
         try {
-            def ahmed = new User(username: "ahmed", password: "admin")
-            def hamid = new User(username: "hamid", password: "nothing")
-            def userAdmin = new User(username: "admin", password: "admin")
-            ahmed?.save()
-            hamid?.save()
-            userAdmin.save()
+            def ahmed = new User(username: "ahmed", password: "admin", type: "DB")
+            def hamid = new User(username: "hamid", password: "nothing", type: "DB")
+            def userAdmin = new User(username: "admin", password: "admin", type: "DB")
+            ahmed?.save(failOnError: true)
+            hamid?.save(failOnError: true)
+            userAdmin.save(failOnError: true)
 
             def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
-            admin?.save()
+            admin?.save(failOnError: true)
 
             def role = new Role(authority: "Supervisor", description: "Supervisor role")
             role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
             role.addToPermissions(name: "com.app.ef.update", expression: "update:*")
-            role?.save()
+            role?.save(failOnError: true)
 
             def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080",description: 'Post Call Survey')
             def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080",description: 'Caller Based Routing')
-            pcs.addToRoles(admin)
-            pcs?.save()
-            cbr.addToRoles(admin)
-            cbr?.save()
+            pcs?.save(failOnError: true)
+            cbr?.save(failOnError: true)
 
 
             UMR.create ahmed, admin, pcs, true
@@ -53,6 +51,7 @@ class UserControllerSpec extends Specification {
             output['id'] = it?.id
             output['name'] = it?.name
             output['expression'] = it?.expression
+            output['description'] = it?.description
             return output
         }
 
@@ -69,8 +68,9 @@ class UserControllerSpec extends Specification {
             def output = [:]
             output['id'] = it?.id
             output['name'] = it?.name
+            output['ipAddress'] = it?.ipAddress
             output['description'] = it?.description
-            output['roles'] = it?.roles
+            output['permissions'] = it?.permissions
             return output
         }
 
@@ -84,9 +84,13 @@ class UserControllerSpec extends Specification {
             output['id'] = it?.id
             output['username'] = it?.username
             output['email'] = it?.email
-            output['firstName'] = it?.firstName
-            output['lastName'] = it?.lastName
-
+            output['fullName'] = it?.fullName
+            output['type'] = it?.type
+            output['isActive'] = it?.isActive
+            output['profileExists']= it?.profileExists
+            output['lastLogin']=it?.lastLogin
+            output['createdBy']= it?.createdBy?.id
+            output['updatedBy']= it?.updatedBy?.id
             umr = UMR.findAllByUsers(it)
 
             def uniqueUmr = umr.unique { uniqueMicro ->
@@ -97,6 +101,7 @@ class UserControllerSpec extends Specification {
                 def map = json {
                     id value?.microservices?.id
                     name value?.microservices?.name
+                    ipAddress value?.microservices?.ipAddress
                     description value?.microservices?.description
                     roles umr1*.roles
                 }
@@ -121,12 +126,12 @@ class UserControllerSpec extends Specification {
 
         then: 'a new user should be created incrementing the total user count by 1'
         response?.status == status
-        User.count() == count
         response?.json.message == output
+        User.count() == count
 
         where:
-        input << [$/{"username":"asif","password":"blahblah"}/$,
-                  $/{"username":"ahmed", "password":"asdasd"}/$,
+        input << [$/{"username":"asif","password":"blahblah", "isActive":true, "type": "DB"}/$,
+                  $/{"username":"ahmed", "password":"asdasd", "isActive":true, "type": "DB"}/$,
                   $/{"usernam":"asif"}/$]
 
         output<< ["New user: 'asif' has been created successfully.",
@@ -172,12 +177,13 @@ class UserControllerSpec extends Specification {
                 'corresponding microservices, roles and permissions'
         response?.status == 200
         response?.json?.user?.microservices[0]?.name == 'PCS'
-        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus" +
-                "\",\"name\":\"OK\"},\"user\":{\"id\":1,\"username\":\"ahmed\",\"email\"" +
-                ":null,\"firstName\":null,\"lastName\":null,\"microservices\":[{\"id\":1,\"" +
-                "name\":\"PCS\",\"description\":\"Post Call Survey\",\"roles\":[{\"id\":1,\"" +
-                "name\":\"ROLE_ADMIN\",\"description\":\"Administrator\",\"permissions\":[{\"id" +
-                "\":1,\"name\":\"com.app.ef.admin\",\"expression\":\"*:*\"}]}]}]}}"
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"name\":\"OK\"}," +
+                "\"user\":{\"id\":1,\"username\":\"ahmed\",\"email\":null,\"fullName\":null,\"type\":\"DB\"," +
+                "\"isActive\":false,\"profileExists\":false,\"lastLogin\":null,\"createdBy\":null,\"updatedBy" +
+                "\":null,\"microservices\":[{\"id\":1,\"name\":\"PCS\",\"ipAddress\":\"https://192.168.1.79:8080" +
+                "\",\"description\":\"Post Call Survey\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\",\"description" +
+                "\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com.app.ef.admin\",\"expression\":" +
+                "\"*:*\",\"description\":null}]}]}]}}"
     }
 
     @Unroll
@@ -219,23 +225,48 @@ class UserControllerSpec extends Specification {
 
         then: 'user having that id should be deleted decrementing the user count by 1'
         response?.status == status
-        response?.json.message == "[abc]"
+        response?.json.message.toString() == "[\"Successfully deleted user: ahmed\",\"Successfully " +
+                "deleted user: hamid\",\"User: admin cannot be deleted. Permission denied.\",\"User" +
+                " with ID: 4 not found. Provide a valid user id.\"]"
 
     }
 
+    @Unroll
     void "test update api"() {
-        when: 'update is called with existing user-microservice association'
+
+        when: 'update is called for an existing user'
         request?.method = "PUT"
-        request?.json = $/{"id":"1", "firstName":"Ahmed", "lastName":"Khan", "email":"ahmed_khan@ahmed.com"}/$
-        def ahmed = User.findByUsername("ahmed")
+        request?.json = input
         controller?.update()
 
-        then: 'the role of user for corresponding microservice should be updated as provided in the request json'
-        response?.status == 200
-        ahmed.firstName == "Ahmed"
-        ahmed.lastName == "Khan"
-        ahmed.email == "ahmed_khan@ahmed.com"
-        response?.json.message == "User with username: 'ahmed' has been updated successfully."
+        then: 'User information should be updated according to the given JSON'
+        response?.status == status
+        response?.json.toString() == output
+
+        where:
+        input << [$/{"id":"2","fullName":"blahblah", "description":"bleh blehbleh"}/$,
+                  $/{"id":"1","fullName":"blahblah", "isActive":true}/$,
+                  $/{"id":"4"}/$]
+
+        output << ["{\"lastLogin\":null,\"updatedBy\":null,\"createdBy\":null,\"fullName\":\"blahblah\"" +
+                           ",\"id\":2,\"type\":\"DB\",\"isActive\":false,\"email\":null,\"profileExists" +
+                           "\":false,\"username\":\"hamid\",\"microservices\":[{\"roles\":[{\"permissions" +
+                           "\":[{\"expression\":\"*:*\",\"name\":\"com.app.ef.admin\",\"description\":null," +
+                           "\"id\":1}],\"name\":\"ROLE_ADMIN\",\"description\":\"Administrator\",\"id\":1}]," +
+                           "\"name\":\"CBR\",\"ipAddress\":\"http://192.168.1.79:8080\",\"description\":" +
+                           "\"Caller Based Routing\",\"id\":2}]}",
+                   "{\"lastLogin\":null,\"updatedBy\":null,\"createdBy\":null,\"fullName\":\"blahblah\"," +
+                           "\"id\":1,\"type\":\"DB\",\"isActive\":true,\"email\":null,\"profileExists\":false," +
+                           "\"username\":\"ahmed\",\"microservices\":[{\"roles\":[{\"permissions\":[{\"expression" +
+                           "\":\"*:*\",\"name\":\"com.app.ef.admin\",\"description\":null,\"id\":1}],\"name\":" +
+                           "\"ROLE_ADMIN\",\"description\":\"Administrator\",\"id\":1}],\"name\":\"PCS\",\"ipAddress" +
+                           "\":\"https://192.168.1.79:8080\",\"description\":\"Post Call Survey\",\"id\":1}]}",
+                   "{\"message\":\"User not found. Invalid update request. Call create API to create a new user.\"," +
+                           "\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"name\":\"NOT_FOUND\"}}"]
+
+        status << [200,
+                   200,
+                   404]
 
     }
 

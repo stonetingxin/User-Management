@@ -15,29 +15,26 @@ class MicroserviceControllerSpec extends Specification {
 
     def setup() {
         try {
-            def ahmed = new User(username: "ahmed", password: "admin")
-            def hamid = new User(username: "hamid", password: "nothing")
-            def userAdmin = new User(username: "admin", password: "admin")
-            ahmed?.save()
-            hamid?.save()
-            userAdmin.save()
+            def ahmed = new User(username: "ahmed", password: "admin", type: "DB")
+            def hamid = new User(username: "hamid", password: "nothing", type: "DB")
+            def userAdmin = new User(username: "admin", password: "admin", type: "DB")
+            ahmed?.save(failOnError: true)
+            hamid?.save(failOnError: true)
+            userAdmin.save(failOnError: true)
 
             def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
             admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
-            admin?.save()
+            admin?.save(failOnError: true)
 
             def role = new Role(authority: "Supervisor", description: "Supervisor role")
             role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
             role.addToPermissions(name: "com.app.ef.update", expression: "update:*")
-            role?.save()
+            role?.save(failOnError: true)
 
-
-            def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080", description: 'Post Call Survey')
-            def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080", description: 'Caller Based Routing')
-            pcs.addToRoles(admin)
-            pcs?.save()
-            cbr.addToRoles(admin)
-            cbr?.save()
+            def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080",description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080",description: 'Caller Based Routing')
+            pcs?.save(failOnError: true)
+            cbr?.save(failOnError: true)
 
 
             UMR.create ahmed, admin, pcs, true
@@ -74,7 +71,7 @@ class MicroserviceControllerSpec extends Specification {
             output['id'] = it?.id
             output['name'] = it?.name
             output['description'] = it?.description
-            output['roles'] = it?.roles
+            output['permissions'] = it?.permissions
             return output
         }
 
@@ -123,7 +120,7 @@ class MicroserviceControllerSpec extends Specification {
         request?.json = input
         controller?.create()
 
-        then: 'a new user should be created incrementing the total user count by 1'
+        then: 'a new microservice should be created incrementing the total microservice count by 1'
         response?.status == status
         Microservice.count() == count
         response?.json.message == output
@@ -207,7 +204,7 @@ class MicroserviceControllerSpec extends Specification {
 
         count <<[1,
                  2,
-                 0]
+                 1]
 
         status <<[200,
                   404,
@@ -259,9 +256,9 @@ class MicroserviceControllerSpec extends Specification {
         out == umrOutput
 
         where:
-        input << [$/{"id":"1","roles":[{"id":"1"}, {"id":"2"}], "addRemove":"add"}/$,
-                  $/{"id":"2","roles":[{"id":"2"}], "addRemove":"add"}/$,
-                  $/{"id":"2","roles":[{"id":"3"}], "addRemove":"add"}/$]
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRemove":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRemove":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"3"}], "addRemove":"add"}/$]
 
         output << ["[\"Role: ROLE_ADMIN has already been assigned in the microservice." +
                            "\",\"Role: Supervisor has been successfully added.\"]",
@@ -298,10 +295,10 @@ class MicroserviceControllerSpec extends Specification {
 
 
         where:
-        input << [$/{"id":"1","roles":[{"id":"1"}, {"id":"2"}], "addRemove":"remove"}/$,
-                  $/{"id":"2","roles":[{"id":"1"}], "addRemove":"remove"}/$,
-                  $/{"id":"2","roles":[{"id":"2"}], "addRemove":"asdf"}/$,
-                  $/{"id":"1","roles":[{"id":"2"}], "addRemove":"remove"}/$]
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRemove":"remove"}/$,
+                  $/{"id":"2","permissions":[{"id":"1"}], "addRemove":"remove"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRemove":"asdf"}/$,
+                  $/{"id":"1","permissions":[{"id":"2"}], "addRemove":"remove"}/$]
 
         output << ["[\"Role: ROLE_ADMIN has been successfully removed.\",\"" +
                            "Role: Supervisor cannot be removed since it's not been assigned.\"]",
@@ -325,6 +322,6 @@ class MicroserviceControllerSpec extends Specification {
 
     private findRoles(String id){
         def micro = Microservice.findById(id)
-        return micro.roles.sort{it?.authority}
+        return micro.permissions.sort{it?.name}
     }
 }
