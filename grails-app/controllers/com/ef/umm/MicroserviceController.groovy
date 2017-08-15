@@ -99,6 +99,7 @@ class MicroserviceController {
 
             resultSet.put("status", OK)
             resultSet.put("message", "New Microservice: '${newMicro.name}' has been created successfully.")
+            resultSet.put("microservice", newMicro)
             render resultSet as JSON
             return
 
@@ -151,6 +152,7 @@ class MicroserviceController {
 
             resultSet.put("status", OK)
             resultSet.put("message", "${microInstance.name} has been updated successfully.")
+            resultSet.put("microservice", microInstance)
             render resultSet as JSON
             return
 
@@ -254,6 +256,7 @@ class MicroserviceController {
 
             resultSet.put("status", OK)
             resultSet.put("message", message)
+            resultSet.put("microservice", microInstance)
             render resultSet as JSON
             return
 
