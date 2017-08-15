@@ -400,6 +400,7 @@ class UserController extends RestfulController<User> {
 
             resultSet.put("status", OK)
             resultSet.put("message", message)
+            resultSet.put("user", userInstance)
             render resultSet as JSON
             return
 

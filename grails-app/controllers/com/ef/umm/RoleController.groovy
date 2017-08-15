@@ -100,6 +100,7 @@ class RoleController {
 
             resultSet.put("status", OK)
             resultSet.put("message", "New Role: '${newRole.authority}' has been created successfully. ")
+            resultSet.put("role", newRole)
             render resultSet as JSON
             return
 
@@ -204,6 +205,7 @@ class RoleController {
 
             resultSet.put("status", OK)
             resultSet.put("message", message)
+            resultSet.put("role", roleInstance)
             render resultSet as JSON
             return
 
@@ -257,6 +259,7 @@ class RoleController {
 
             resultSet.put("status", OK)
             resultSet.put("message", "Role has been updated successfully.")
+            resultSet.put("role", roleInstance)
             render resultSet as JSON
             return
 

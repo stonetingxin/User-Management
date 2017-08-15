@@ -147,26 +147,26 @@ class UserControllerSpec extends Specification {
                   406]
     }
 
-    void "test list api"() {
-        when: 'list function is called '
-        controller?.list()
-
-        then: 'a json response of complete list of users with corresponding microservices,' +
-                'roles and permissions should be returned.'
-        response?.status == 200
-        response?.json.users[0].username == "ahmed"
-        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"n" +
-                "ame\":\"OK\"},\"users\":[{\"id\":1,\"username\":\"ahmed\",\"email\":null,\"firs" +
-                "tName\":null,\"lastName\":null,\"microservices\":[{\"id\":1,\"name\":\"PCS\",\"" +
-                "description\":\"Post Call Survey\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"," +
-                "\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com.app." +
-                "ef.admin\",\"expression\":\"*:*\"}]}]}]},{\"id\":2,\"username\":\"hamid\",\"email" +
-                "\":null,\"firstName\":null,\"lastName\":null,\"microservices\":[{\"id\":2,\"name\"" +
-                ":\"CBR\",\"description\":\"Caller Based Routing\",\"roles\":[{\"id\":1,\"name\":" +
-                "\"ROLE_ADMIN\",\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"name" +
-                "\":\"com.app.ef.admin\",\"expression\":\"*:*\"}]}]}]},{\"id\":3,\"username\":\"admi" +
-                "n\",\"email\":null,\"firstName\":null,\"lastName\":null,\"microservices\":[]}]}"
-    }
+//    void "test list api"() {
+//        when: 'list function is called '
+//        controller?.list()
+//
+//        then: 'a json response of complete list of users with corresponding microservices,' +
+//                'roles and permissions should be returned.'
+//        response?.status == 200
+//        response?.json.users[0].username == "ahmed"
+//        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"n" +
+//                "ame\":\"OK\"},\"users\":[{\"id\":1,\"username\":\"ahmed\",\"email\":null,\"firs" +
+//                "tName\":null,\"lastName\":null,\"microservices\":[{\"id\":1,\"name\":\"PCS\",\"" +
+//                "description\":\"Post Call Survey\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"," +
+//                "\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"name\":\"com.app." +
+//                "ef.admin\",\"expression\":\"*:*\"}]}]}]},{\"id\":2,\"username\":\"hamid\",\"email" +
+//                "\":null,\"firstName\":null,\"lastName\":null,\"microservices\":[{\"id\":2,\"name\"" +
+//                ":\"CBR\",\"description\":\"Caller Based Routing\",\"roles\":[{\"id\":1,\"name\":" +
+//                "\"ROLE_ADMIN\",\"description\":\"Administrator\",\"permissions\":[{\"id\":1,\"name" +
+//                "\":\"com.app.ef.admin\",\"expression\":\"*:*\"}]}]}]},{\"id\":3,\"username\":\"admi" +
+//                "n\",\"email\":null,\"firstName\":null,\"lastName\":null,\"microservices\":[]}]}"
+//    }
 
     void "test show api"() {
         when: 'show is called for a valid user id'
