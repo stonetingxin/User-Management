@@ -114,13 +114,13 @@ class AuthorizationServiceSpec extends Specification {
 
     @Unroll
     void "test hasPermission method" (){
-        when: 'extract URI from the input'
+        when: 'check permission of a user'
         def user = User.findById(userID)
         def micro = Microservice.findById(microID)
         def permission = Permission.findById(permissionID)
         def abc = service?.hasPermission(user, micro, permission)
 
-        then: 'Value of the username extracted'
+        then: 'Whether the user has required permission in said microservice'
         abc == output
 
         where:

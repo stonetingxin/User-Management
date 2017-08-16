@@ -2,10 +2,11 @@ package umm1
 
 import com.ef.umm.*
 import grails.converters.JSON
+import grails.core.GrailsApplication
 import groovy.json.JsonBuilder
 
 class BootStrap {
-
+    GrailsApplication grailsApplication
     def init = { servletContext ->
         if (Role.count() == 0) {
             try {
@@ -81,7 +82,8 @@ class BootStrap {
                     umm?.save(flush: true, failOnError: true)
                 }
 
-                def efadminpanel = new Microservice(name: 'efadminpanel', ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
+                def adminPanel = grailsApplication.config.getProperty('names.adminPanel')
+                def efadminpanel = new Microservice(name: adminPanel, ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
                 efadminpanel?.save(flush: true, failOnError: true)
 
                 def ecm = new Microservice(name: 'ecm', ipAddress: "http://192.168.1.92:8080", description: 'ECM')
