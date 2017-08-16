@@ -22,7 +22,7 @@ class AuthorizationService {
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
-            if(!request?.getHeader("Authorization")){
+            if(!authToken(request)){
                 log.info("Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
                 resultSet.put("message", "Access denied. Token not provided in the header.")
                 response.status = 403
@@ -31,7 +31,7 @@ class AuthorizationService {
                 return response
             }
 
-            def userName= extractUsername(request?.getHeader("Authorization"))
+            def userName= extractUsername(authToken(request))
             (microName, controller, action) = extractURI(request.forwardURI)
 
             log.info("Name of the microservice is: " + microName)
@@ -61,7 +61,7 @@ class AuthorizationService {
                 log.info("If authorized, request will be forwarded to: ${micro?.ipAddress}${req}")
             }
 
-            if(!(springSecurityService?.principal?.username || userName)){
+            if(!(getUsernameFromSpring() || userName)){
                 log.info("Access denied. Token not provided in the header.")
                 resultSet.put("message", "Access denied. Token not provided in the header.")
                 response.status = 403
@@ -175,6 +175,16 @@ class AuthorizationService {
             response.ex= true
             return response
         }
+    }
+
+    def getUsernameFromSpring(){
+        return springSecurityService?.principal?.username
+    }
+    def authToken(def req){
+        if(req?.getHeader("Authorization"))
+            return req?.getHeader("Authorization")
+        else
+            return false
     }
 
     def hasRole(User user, Microservice micro, Role role) {
