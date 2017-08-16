@@ -61,9 +61,7 @@ class AuthorizationServiceSpec extends Specification {
     @Unroll
     void "test authIntercept method"(){
         given:
-        RestService restService = Mock()
-        service.restService = restService
-        restService.metaClass.callAPI{def p, def r -> return apiResp()}
+        service.metaClass.makeRestCall{def p, def r -> return apiResp()}
         service.metaClass.authToken{def abc -> return token()}
         service.metaClass.getUsernameFromSpring{return null}
 
@@ -75,7 +73,6 @@ class AuthorizationServiceSpec extends Specification {
         def abc = service?.authIntercept(request, params)
 
         then: 'Value of the username extracted'
-//        1 * restService.callAPI()
         abc.toString() == output
 
         where:
@@ -85,9 +82,16 @@ class AuthorizationServiceSpec extends Specification {
                 "/umm/CBR/user/list"]
 
         output<< ["[auth:true]",
+
                   "[status:403, resultSet:[status:403, message:Microservice: 'efadminpanel' " +
                           "does not exist. Contact system admin.], auth:false]",
-                  "[BS]",
+
+                  "[status:200, resultSetJSON:[self:http://192.168.1.100/adminapi/application/workspace_application" +
+                          ", ScriptApplication:[script:SCRIPT[sss/service_status.aef], scriptParams:" +
+                          "[[name:AppServerIP, value:\"192.168.1.88\", type:java.lang.String]]], id:1551, " +
+                          "applicationName:workspace_application, type:Cisco Script Application, description:" +
+                          "workspace_application, maxsession:2345, enabled:true], auth:false]",
+
                   "[status:403, resultSet:[status:403, message:Access forbidden. User not " +
                           "authorized to request this resource.], auth:false]"]
     }

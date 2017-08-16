@@ -90,7 +90,7 @@ class AuthorizationService {
             }
 
             if(microName != "umm"){
-                resp = restService.callAPI(params, request)
+                resp = makeRestCall(params, request)
             }
 
             if(!UMR.findByUsersAndMicroservices(user, micro)){
@@ -177,6 +177,9 @@ class AuthorizationService {
         }
     }
 
+    def makeRestCall(def p, def r){
+        return restService.callAPI(p, r)
+    }
     def getUsernameFromSpring(){
         return springSecurityService?.principal?.username
     }
