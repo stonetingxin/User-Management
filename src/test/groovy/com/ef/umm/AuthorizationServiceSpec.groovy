@@ -175,7 +175,7 @@ class AuthorizationServiceSpec extends Specification {
         output<< [true,false,false,false,false,false,false,false,false,false,true,true]
     }
 
-    def token(){
+    private token(){
         return "Bearer eyJhbGciOiJIUzI1NiJ9.eyJwcmluY2lwYWwiOiJINHNJQUFBQUFBQUFBSlZTUDBcL2JRQlJc" +
                 "L0RvbEFRbENvVkNRR3VoUzJ5cEhhTVZOQmdJU3NwR3FhQlNUUXhYNjRCK2M3OSs0TXlZSXl3Y0FBb2tXc" +
                 "TJxXC9BTjRHRkQxQ1ZnWldabFhlRzRNQ0Nlb3V0ZHpcL1wvXC9qMmYzVURGYVBnWWE4YUY4Vk9SeFZ6Nk" +
@@ -190,7 +190,7 @@ class AuthorizationServiceSpec extends Specification {
                 "T0iLCJzdWIiOiJhZG1pbiIsInJvbGVzIjpbIlJPTEVfTk9fUk9MRVMiXSwiZXhwIjoxNTAyOTA4MTE1LCJ" +
                 "pYXQiOjE1MDI4NzIxMTV9.88nQZf9TgeSDtY2i_hpkx7eFdF-nNLHcUMTCvx2dElM"
     }
-    def apiResp(){
+    private apiResp(){
         def resp = [:]
         resp.responseEntity= [statusCode:[value:200], body:["abc": "def"]]
         resp.json = ["self":"http://192.168.1.100/adminapi/application/workspace_application",

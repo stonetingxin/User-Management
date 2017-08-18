@@ -13,10 +13,9 @@ class RestService {
 
     def APUserSync(){
         User user
-        def rest = new RestBuilder()
-        def adminPanel = grailsApplication.config.getProperty('names.adminPanel')
+        def adminPanel = getAPName()
         def micro = Microservice.findByName(adminPanel)
-        def resp = rest.get("${micro?.ipAddress}/${micro.name}/user/list")
+        def resp = getCCXUserList(micro)
         log.info("Response for CCX user Sync is: ${resp.responseEntity.statusCode.value}:${resp.json}")
         def currentUserList = User.findAllByType("CC")
         def userList = resp?.json
@@ -67,13 +66,13 @@ class RestService {
     def callAPI(def params, def request){
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
         def queryJson = params as JSON
-        def rest = new RestBuilder()
+//        def rest = new RestBuilder()
         def microName, controller, action
         def req = request?.forwardURI - "/umm"
 
         def method = request?.method.toLowerCase()
-        def userName= authorizationService.extractUsername(request?.getHeader("Authorization"))
-        (microName, controller, action) = authorizationService.extractURI(request.forwardURI)
+        def userName= extractUsername(request)
+        (microName, controller, action) = extractUri(request)
         def micro = Microservice.findByName(microName)
         def jsonData = request.getJSON()
 
@@ -81,17 +80,6 @@ class RestService {
         def jsonSlurped= new JsonSlurper().parseText(jsonString as String)
 
         def resp
-
-//        if(request.multipartFiles){
-//            resp = rest."${method}"("${micro?.ipAddress}${req}") {
-//                contentType "multipart/form-data"
-//                file = params.file
-////                setProperty "file", params.file
-////                setProperty "agentId", params.agentId
-//            }
-//            return resp
-//        }
-
 
         if(params && jsonData){
             if(action == "save" || action == "create"){
@@ -102,20 +90,23 @@ class RestService {
 
             if(params?.keySet == jsonSlurped?.keySet){
                 jsonData = jsonData as JSON
-                resp = rest."${method}"("${micro?.ipAddress}${req}"){
-                    json(jsonData)
-                }
+                resp = makeRestCall(1, method, micro, req, jsonData, null, null)
+//                resp = rest."${method}"("${micro?.ipAddress}${req}"){
+//                    json(jsonData)
+//                }
             } else{
                 if(validJson(params.values())){
-                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                        json(queryJson)
-                    }
+                    resp =makeRestCall(2, method, micro, req, null, queryJson, null)
+//                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
+//                        json(queryJson)
+//                    }
                 }
                 else{
                     jsonData = jsonData as JSON
-                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
-                        json(jsonData)
-                    }
+                    resp =makeRestCall(3, method, micro, req, jsonData, null, queryString)
+//                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
+//                        json(jsonData)
+//                    }
                 }
             }
 
@@ -123,9 +114,10 @@ class RestService {
 
             if(validJson(params.values())) {
                 log.info("Sending JSON in the body: " + queryJson)
-                resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                    json(queryJson)
-                }
+                resp =makeRestCall(4, method, micro, req, null, queryJson, null)
+//                resp = rest."${method}"("${micro?.ipAddress}${req}") {
+//                    json(queryJson)
+//                }
             } else{
                 if(action == "save" || action == "create"){
                     queryString = queryString + "&createdBy='${userName}'"
@@ -133,7 +125,8 @@ class RestService {
                     queryString = queryString + "&updatedBy='${userName}'"
                 }
                 log.info("Sending parameters as Query String: " + queryString)
-                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
+                resp = makeRestCall(5, method, micro, req, null, null, queryString)
+//                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
             }
         } else if(jsonData){
             if(action == "save" || action == "create"){
@@ -142,14 +135,72 @@ class RestService {
                 jsonData['updatedBy'] = userName
             }
             jsonData = jsonData as JSON
-            resp = rest."${method}"("${micro?.ipAddress}${req}") {
-                json(jsonData)
-            }
+            resp =makeRestCall(6, method, micro, req, jsonData, null, null)
+//            resp = rest."${method}"("${micro?.ipAddress}${req}") {
+//                json(jsonData)
+//            }
         } else{
-            resp = rest."${method}"("${micro?.ipAddress}${req}")
+            resp = makeRestCall(7, method, micro, req, null, null, null)
+//            resp = rest."${method}"("${micro?.ipAddress}${req}")
         }
 
         return resp
+    }
+
+    private makeRestCall(def type, def method, def micro, def req, def jsonData, def queryJson, def queryString){
+        def rest = new RestBuilder()
+        def resp
+        switch(type){
+            case 1:
+                resp = rest."${method}"("${micro?.ipAddress}${req}"){
+                    json(jsonData)
+                }
+                break
+            case 2:
+                resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                    json(queryJson)
+                }
+                break
+            case 3:
+                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
+                    json(jsonData)
+                }
+                break
+            case 4:
+                resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                    json(queryJson)
+                }
+                break
+            case 5:
+                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
+                break
+            case 6:
+                resp = rest."${method}"("${micro?.ipAddress}${req}") {
+                    json(jsonData)
+                }
+                break
+            case 7:
+                resp = rest."${method}"("${micro?.ipAddress}${req}")
+                break
+        }
+        return resp
+    }
+
+    private extractUsername(def req){
+        return authorizationService.extractUsername(req?.getHeader("Authorization"))
+    }
+
+    private extractUri(def req){
+        return authorizationService.extractURI(req.forwardURI)
+    }
+
+    private getAPName(){
+        return grailsApplication.config.getProperty('names.adminPanel')
+    }
+
+    private getCCXUserList(def micro){
+        def rest = new RestBuilder()
+        return rest.get("${micro?.ipAddress}/${micro.name}/user/list")
     }
 
     def validJson(def value){

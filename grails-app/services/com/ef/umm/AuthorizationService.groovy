@@ -1,6 +1,5 @@
 package com.ef.umm
 
-import grails.converters.JSON
 import grails.transaction.Transactional
 import org.apache.commons.codec.binary.Base64
 
@@ -22,7 +21,7 @@ class AuthorizationService {
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
-            if(!authToken(request)){
+            if(!getAuthToken(request)){
                 log.info("Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
                 resultSet.put("message", "Access denied. Token not provided in the header.")
                 response.status = 403
@@ -31,7 +30,7 @@ class AuthorizationService {
                 return response
             }
 
-            def userName= extractUsername(authToken(request))
+            def userName= extractUsername(getAuthToken(request))
             (microName, controller, action) = extractURI(request.forwardURI)
 
             log.info("Name of the microservice is: " + microName)
@@ -183,7 +182,7 @@ class AuthorizationService {
     def getUsernameFromSpring(){
         return springSecurityService?.principal?.username
     }
-    def authToken(def req){
+    def getAuthToken(def req){
         if(req?.getHeader("Authorization"))
             return req?.getHeader("Authorization")
         else
