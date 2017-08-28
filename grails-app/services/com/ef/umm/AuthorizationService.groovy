@@ -108,11 +108,11 @@ class AuthorizationService {
             if(permSuper && hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
-                    log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
-                    if(resp.json)
+                    if(resp?.json){
+                        log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                         response.resultSetJSON= resp.json
-                    else if(resp.responseEntity.body)
+                    } else if(resp.responseEntity.body)
                         response.resultSetBody = resp.responseEntity.body
                     else
                         response.resultSetZero = 0

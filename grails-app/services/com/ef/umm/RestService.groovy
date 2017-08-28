@@ -64,9 +64,9 @@ class RestService {
     }
 
     def callAPI(def params, def request){
+        params = purgeParams(params)
         def queryString = params.collect { k, v -> "$k=$v" }.join(/&/)
         def queryJson = params as JSON
-//        def rest = new RestBuilder()
         def microName, controller, action
         def req = request?.forwardURI - "/umm"
 
@@ -78,7 +78,6 @@ class RestService {
 
         def jsonString = jsonData as JSON
         def jsonSlurped= new JsonSlurper().parseText(jsonString as String)
-
         def resp
 
         if(params && jsonData){
@@ -186,6 +185,15 @@ class RestService {
         return resp
     }
 
+    private purgeParams(def params){
+        if(params.containsKey('format'))
+            params.remove("format")
+        if(params.containsKey('controller'))
+            params.remove("controller")
+        if(params.containsKey('action'))
+            params.remove("action")
+        return params
+    }
     private extractUsername(def req){
         return authorizationService.extractUsername(req?.getHeader("Authorization"))
     }
