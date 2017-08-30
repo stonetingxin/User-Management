@@ -1,9 +1,8 @@
 package com.ef.umm
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.springframework.web.multipart.MultipartFile
 
-import static org.springframework.http.HttpStatus.*
+import org.grails.web.util.WebUtils
 
 class SecurityInterceptor {
     static transactional = false
@@ -17,6 +16,8 @@ class SecurityInterceptor {
 
     @Transactional
     boolean before() {
+        def wu = new WebUtils()
+        def req = wu.retrieveGrailsWebRequest()
         def resp = authorizationService.authIntercept(request, params)
 
         // In case of exception, return status with termination of execution

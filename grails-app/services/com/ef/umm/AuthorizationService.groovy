@@ -37,7 +37,6 @@ class AuthorizationService {
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
             log.info("Logged in user is " + userName)
-//            log.info("Query translated to JSON: " + queryJson)
 
 //        To test the logging of various levels in the application. Uncomment following
 //        lines and each level of logging will invoke corresponding logback configuration.
