@@ -6,6 +6,7 @@ import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
 
+
 @Transactional
 class RestService {
     def authorizationService

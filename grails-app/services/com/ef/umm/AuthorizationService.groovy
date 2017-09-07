@@ -75,7 +75,7 @@ class AuthorizationService {
                             .save(flush: true, failOnError: true)
                 }
             }catch (Exception ex){
-                log.error("Exception occured while retrieving username in the AuthorizationService.", ex)
+                log.error("Exception occured while saving active directory user in DB.", ex)
             }
 
             if(!micro){

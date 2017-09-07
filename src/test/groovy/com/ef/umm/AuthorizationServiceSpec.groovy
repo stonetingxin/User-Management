@@ -149,9 +149,9 @@ class AuthorizationServiceSpec extends Specification {
                   "/umm/abc/def/eiq/2"]
 
         output<< ["[umm, user, list]",
-                  "[efadminpanel, user, isAuthentic]",
-                  "[abc, def, eiq]"
-                 ]
+                "[efadminpanel, user, isAuthentic]",
+                "[abc, def, eiq]"
+                ]
     }
 
     @Unroll

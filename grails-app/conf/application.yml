@@ -181,7 +181,7 @@ grails:
             context:
                managerDn: 'uid=admin,ou=system'
                managerPassword: 'c12h22o11'
-               server: 'ldap://localhost:10389'
+               server: 'ldap://192.168.1.92:10389'
             authorities:
                groupSearchBase: 'dc=expertflow,dc=com'
                retrieveDatabaseRoles: true
