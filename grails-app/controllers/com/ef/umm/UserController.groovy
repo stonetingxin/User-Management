@@ -5,6 +5,9 @@ import grails.core.GrailsApplication
 import grails.rest.RestfulController
 import grails.transaction.Transactional
 
+import groovyx.net.http.HTTPBuilder
+import static groovyx.net.http.Method.GET
+
 import static org.springframework.http.HttpStatus.*
 
 class UserController extends RestfulController<User> {
@@ -264,8 +267,9 @@ class UserController extends RestfulController<User> {
 
             userInstance.fullName = jsonObject?.fullName
             userInstance.email = jsonObject?.email
-            if(jsonObject?.isActive)
+            if(jsonObject.containsKey('isActive'))
                 userInstance.isActive = jsonObject?.isActive
+            userInstance.updatedBy = User.findById(jsonObject?.updatedBy?.id as Long)
 
             userInstance.validate()
             if (userInstance.hasErrors()){
@@ -495,6 +499,19 @@ class UserController extends RestfulController<User> {
             resultSet.put("message", ex.getMessage())
             response.status = 500
             render resultSet as JSON
+        }
+    }
+
+    def downloadScript(){
+        def http = new HTTPBuilder('https://192.168.1.100')
+        http.ignoreSSLIssues()
+        http.headers.Accept = 'application/json'
+        http.headers.Authorization = 'Basic YWRtaW5pc3RyYXRvcjpFeHBlcnRmbG93NDY0'
+        try{
+            def resp = http.get(path: '/adminapi/script/download//default/Agent1.aef')
+            println resp
+        }catch (Exception e){
+            println e.getMessage()
         }
     }
 }

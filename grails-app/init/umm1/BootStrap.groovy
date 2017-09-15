@@ -141,6 +141,7 @@ class BootStrap {
 
                 UMR.create admin, roleAdmin, umm
                 UMR.create admin, roleAdmin, efadminpanel
+                UMR.create admin, roleDefaultAP, efadminpanel
                 UMR.create admin, roleAdmin, ecm
 
                 UMR.withSession {
@@ -203,6 +204,16 @@ class BootStrap {
             output['createdBy']= it?.createdBy?.id
             output['updatedBy']= it?.updatedBy?.id
             umr = UMR.findAllByUsers(it)
+
+            def uniqueRoles = umr.unique { uniqueRole ->
+                uniqueRole.roles.authority
+            }
+
+            def arr=[]
+            uniqueRoles.each{
+                arr.add(it.roles.authority)
+            }
+            output['roles'] = arr
 
             def uniqueUmr = umr.unique { uniqueMicro ->
                 uniqueMicro.microservices
