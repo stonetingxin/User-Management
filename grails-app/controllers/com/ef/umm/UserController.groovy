@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.core.GrailsApplication
 import grails.rest.RestfulController
 import grails.transaction.Transactional
-
+import groovy.json.JsonSlurper
 import groovyx.net.http.HTTPBuilder
 import static groovyx.net.http.Method.GET
 
@@ -465,25 +465,21 @@ class UserController extends RestfulController<User> {
     @Transactional
     def deleteMulti(){
         def resultSet = [:]
-        def jsonObject = request.getJSON()
+
+        def jsonObject = params?.ids
         def message = []
         try {
             jsonObject.each{
-                def userInstance = User.findById(it?.id)
-                if (!userInstance) {
-                    message.add("User with ID: ${it?.id} not found. Provide a valid user id.")
-                } else{
-                    if(userInstance.username == 'admin'){
-                        message.add("User: ${userInstance.username} cannot be deleted. Permission denied.")
-                    } else {
-                        def umr = UMR.findAllByUsers(userInstance)
-                        umr.each{ value->
-                            value?.delete(flush: true, failOnErrors:true)
-                        }
-                        def username = userInstance.username
-                        userInstance?.delete(flush: true, failOnErrors:true)
-                        message.add("Successfully deleted user: ${username}")
+                def json = new JsonSlurper().parseText(it)
+                def userInstance = User.findById(json?.id)
+                if(userInstance && userInstance.username != 'admin'){
+                    def umr = UMR.findAllByUsers(userInstance)
+                    umr.each{ value->
+                        value?.delete(flush: true, failOnErrors:true)
                     }
+                    def id = userInstance.id
+                    userInstance?.delete(flush: true, failOnErrors:true)
+                    message.add(id)
                 }
 
             }

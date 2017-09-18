@@ -129,7 +129,7 @@ class BootStrap {
                 roleDefaultAP.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
-                    admin = new User(username: "admin", password: "admiN123!", isActive: true, type: "DB",
+                    admin = new User(username: "admin", fullName: "Administrator", password: "admiN123!", isActive: true, type: "DB",
                             dateCreated: new Date(), lastUpdated: new Date())
                     admin.validate()
                     if (admin.hasErrors()){
