@@ -52,11 +52,11 @@ dependencies {
 
     compile 'org.grails.plugins:spring-security-core:3.1.2'
     compile 'org.grails.plugins:spring-security-rest:2.0.0.M2'
-    compile 'org.grails.plugins:spring-security-ldap:3.0.2'
+//    compile 'org.grails.plugins:spring-security-ldap:3.0.2'
     compile 'org.grails:grails-datastore-rest-client:5.0.0.RC2'
 
     compile group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
-
+    assets 'com.bertramlabs.plugins:sass-asset-pipeline:2.13.1'
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
     runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.11.1"

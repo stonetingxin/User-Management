@@ -1,0 +1,336 @@
+<div id="contacts" class="page-layout simple left-sidenav inner-sidenav">
+
+  <!-- HEADER -->
+  <div class="header md-accent-bg" layout="row" layout-align="space-between center">
+
+    <!-- APP TITLE -->
+    <div layout="row" layout-align="start center">
+      <md-button class="md-icon-button sidenav-toggle" hide-gt-md ng-click="vm.toggleSidenav('sidenav')"
+                 aria-label="Toggle sidenav" translate translate-attr-aria-label="CONTACTS.TOGGLE_SIDENAV">
+        <md-icon md-font-icon="icon-menu" class="icon"></md-icon>
+      </md-button>
+
+      <div class="logo" layout="row" layout-align="start center">
+                <span class="logo-icon">
+                    <md-icon md-font-icon="icon-account-circle" class="s24"></md-icon>
+                </span>
+        <!-- <span class="logo-text" translate="CONTACTS.CONTACTS">User Management</span> -->
+        <span class="logo-text">User Management</span>
+      </div>
+    </div>
+    <!-- / APP TITLE -->
+
+    <!-- SEARCH -->
+    <div class="search-input-wrapper" layout="row" layout-align="start center">
+      <label for="search">
+        <md-icon md-font-icon="icon-magnify"></md-icon>
+      </label>
+      <md-input-container md-no-float class="m-0">
+        <!-- <input id="search" placeholder="Search Users" type="text" ng-model="vm.search" translate
+               translate-attr-placeholder="CONTACTS.SEARCH_FOR_ANYONE"> -->
+        <input id="search" placeholder="Search Users" type="text" ng-model="vm.search">
+      </md-input-container>
+    </div>
+    <!-- / SEARCH -->
+
+  </div>
+  <!-- / HEADER -->
+
+  <!-- SELECTED BAR -->
+  <div ng-show="vm.selectedContacts.length > 0" class="selected-bar header animate-slide-down md-accent-bg"
+       layout="row" layout-align="start center">
+
+    <div class="close-button-wrapper" ng-click="vm.selectedContacts =[]">
+      <md-button layout="row" layout-align="start center">
+        <md-icon md-font-icon="icon-arrow-left" class="mr-8"></md-icon>
+        <span translate="CONTACTS.BACK">Back</span>
+      </md-button>
+    </div>
+
+    <div flex layout="row" layout-align="start center">
+
+      <div flex="20">
+                <span class="selected-contacts-count">
+                    <span>{{vm.selectedContacts.length}}</span>
+                    <span translate="CONTACTS.SELECTED">selected</span>
+                </span>
+
+        <md-menu class="select-menu" ng-if="!vm.currentThread">
+          <md-button class="md-icon-button"
+                     ng-click="$mdOpenMenu($event)"
+                     aria-label="multi select toggle"
+                     translate translate-attr-aria-label="CONTACTS.MULTI_SELECT_TOGGLE">
+            <md-icon md-font-icon="icon-menu-down"></md-icon>
+          </md-button>
+          <md-menu-content width="3">
+            <md-menu-item>
+              <md-button ng-click="vm.selectAllContacts()" translate="CONTACTS.SELECT_ALL">
+                Select all
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button ng-click="vm.deselectContacts()" translate="CONTACTS.SELECT_NONE">
+                Select none
+              </md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+
+      </div>
+
+      <div flex="20">
+                <span class="selected-contacts-count">
+                    <span>Actions</span>
+                </span>
+
+        <md-menu class="select-menu" ng-if="!vm.currentThread">
+          <md-button class="md-icon-button"
+                     ng-click="$mdOpenMenu($event)"
+                     aria-label="multi select toggle"
+                     translate translate-attr-aria-label="CONTACTS.MULTI_SELECT_TOGGLE">
+            <md-icon md-font-icon="icon-menu-down"></md-icon>
+          </md-button>
+          <md-menu-content width="3">
+            <md-menu-item>
+              <md-button ng-click="vm.deleteSelectedContacts($event)" translate="CONTACTS.deleteSelected">
+                Delete Selected
+              </md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+
+      </div>
+
+      <div class="multi-select-actions" flex="60">
+        <md-button class="md-icon-button" ng-click="vm.deleteSelectedContacts($event)"
+                   aria-label="delete selected" translate translate-attr-label="CONTACTS.DELETE_SELECTED">
+          <md-icon md-font-icon="icon-delete"></md-icon>
+        </md-button>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- / SELECTED BAR -->
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <md-tabs md-dynamic-height>
+      <md-tab label="Users">
+
+        <div class="main">
+
+          <md-list class="contacts-list">
+
+              <!-- CONTACT LIST HEADER -->
+              <md-subheader class="md-no-sticky md-white-bg">
+
+                <div layout="row" layout-align="start start">
+
+                  <div class="list-title" layout="row" layout-align="start start"
+                       ng-hide="editGroupForm.$visible">
+                    <span ng-if="vm.listType === 'all'" translate="CONTACTS.ALL_CONTACTS">All contacts</span>
+										<span ng-if="vm.listType === 'frequent'" translate="CONTACTS.FREQUENTLY_CONTACTED">Frequnetly
+											contacted</span>
+										<span ng-if="vm.listType === 'starred'" translate="CONTACTS.STARRED_CONTACTS">Starred
+											contacts</span>
+                    <span ng-if="vm.listType.name">{{vm.listType.name}}</span>
+
+										<span ng-if="filteredContacts.length" class="secondary-text contacts-count">
+											({{filteredContacts.length}})
+										</span>
+                  </div>
+
+                  <div class="edit-group-form" ng-show="vm.listType.name" layout="row"
+                       layout-align="start center">
+										<span ng-show="editGroupForm.$visible"
+                          editable-text="vm.listType.name"
+                          e-form="editGroupForm"
+                          onaftersave="vm.editGroup()">
+										</span>
+
+                    <md-button class="md-icon-button edit-group-button" ng-click="editGroupForm.$show()"
+                               ng-hide="editGroupForm.$visible" aria-label="edit group name" translate
+                               translate-attr-label="CONTACTS.EDIT_GROUP_NAME">
+                      <md-icon md-font-icon="icon-pencil s18"></md-icon>
+                    </md-button>
+
+                    <md-button class="md-icon-button edit-group-button" ng-click="vm.deleteGroup($event)"
+                               ng-hide="editGroupForm.$visible" aria-label="delete group" translate
+                               translate-attr-label="CONTACTS.DELETE_GROUP">
+                      <md-icon md-font-icon="icon-delete s18"></md-icon>
+                    </md-button>
+                  </div>
+
+
+
+                  <md-menu>
+
+                    <md-button class="md-icon-button" aria-label="Sort" translate
+                               translate-attr-aria-label="CONTACTS.SORT">
+                      <md-icon md-font-icon="icon-sort-alphabetical"
+                               ng-click="$mdOpenMenu($event)"></md-icon>
+                    </md-button>
+
+                    <md-menu-content width="3">
+
+                      <md-menu-item>
+                        <md-button ng-click="vm.listOrder = 'fullName';vm.listOrderAsc = false"
+                                   ng-style="vm.listOrder === 'name' && vm.listOrderAsc=== false && {'font-weight':'500'}">
+                          <span translate="CONTACTS.FIRST_NAME">First Name</span>
+                          <small translate="CONTACTS.A_TO_Z">(A to Z)</small>
+                        </md-button>
+                      </md-menu-item>
+
+                      <md-menu-item>
+                        <md-button ng-click="vm.listOrder = 'fullName'; vm.listOrderAsc = true"
+                                   ng-style="vm.listOrder === 'name' && vm.listOrderAsc=== true && {'font-weight':'500'}">
+                          <span translate="CONTACTS.FIRST_NAME">First Name</span>
+                          <small translate="CONTACTS.Z_TO_A">(Z to A)</small>
+                        </md-button>
+                      </md-menu-item>
+
+                    </md-menu-content>
+
+                  </md-menu>
+
+                </div>
+
+              </md-subheader>
+              <!-- / CONTACT LIST HEADER -->
+
+            <!-- CONTACT ITEM -->
+            <!--| filterByIds:vm.filterIds-->
+
+              <md-list-item class="contact-item md-white-bg" md-ink-ripple
+                            ng-repeat="contact in vm.contacts  | filter: vm.searchF |  orderBy: vm.listOrder :vm.listOrderAsc "
+
+                            ng-style="{'transform': 'translate3d(0px, '+$index * 100+'%, 0px)', 'z-index': filteredContacts.length - $index}"
+                            ng-class="{'selected': vm.isSelected(contact)}">
+
+                <md-checkbox ng-checked="vm.exists(contact, vm.selectedContacts)"
+                             ng-click="vm.toggleSelectContact(contact, $event)"
+                             aria-label="{{vm.exists(contact, vm.selectedContacts) ? 'Deselect' : 'Select'}}">
+                </md-checkbox>
+
+                <img ng-click="vm.openContactDialog($event, contact)" class="md-avatar" ng-if="contact.avatar"
+                     alt="{{contact.username}}"
+                     ng-src="{{contact.avatar}}"/>
+
+                <p ng-click="vm.openContactDialog($event, contact)" class="text-truncate font-weight-600">
+                  {{contact.fullName? contact.fullName: contact.username}}</p>
+
+
+                <p class="email text-truncate hide show-gt-sm">
+                  <md-chips ng-model="contact.roles" readonly="vm.readonly" md-removable="vm.removable">role-name
+                  </md-chips>
+                </p>
+
+                <div layout="row">
+                  <md-button class="md-icon-button" ng-if="!vm.newContact" ng-click="vm.deleteContactConfirm(contact, $event)" aria-label="Delete"
+                             translate translate-attr-aria-label="CONTACTS.DELETE">
+                    <md-icon md-font-icon="icon-delete"></md-icon>
+                    <md-tooltip><span translate="CONTACTS.DELETE">DELETE</span></md-tooltip>
+                  </md-button>
+                </div>
+
+
+              </md-list-item>
+
+
+              <!-- CONTACT ITEM -->
+
+            </md-list>
+
+        </div>
+
+      </md-tab>
+
+      <!-- Roles Tab-->
+      <md-tab label="Roles">
+
+          <div class="md-title mb-32">Roles</div>
+          <div class="white-bg md-whiteframe-4dp">
+            <table class="dataTable row-border hover" datatable="ng" dt-options="vm.widget11.dtOptions">
+              <thead>
+              <tr>
+                <th class="secondary-text">
+                  <div class="table-header">
+                    <span class="column-title">Name</span>
+                  </div>
+                </th>
+                <th class="secondary-text">
+                  <div class="table-header">
+                    <span class="column-title">Permissions</span>
+                  </div>
+                </th>
+                <th class="secondary-text">
+                  <div class="table-header">
+                    <span class="column-title">Description</span>
+                  </div>
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr md-row ng-repeat="row in vm.widget11.table.rows">
+                <td md-cell ng-repeat="cell in row">
+                  <span ng-if="$index==1">
+                    <p class="email text-truncate hide show-gt-sm">
+                      <md-chips ng-model="cell" readonly="vm.readonly" md-removable="vm.removable">
+                        <md-chip-template>
+                          <span>{{$chip.name}}({{$chip.expression}})</span>
+                        </md-chip-template>
+                      </md-chips>
+                    </p>
+                  </span>
+                  <span ng-if="$index != 1">{{cell}}</span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+      </md-tab>
+    </md-tabs>
+
+  </div>
+  <!-- / CONTENT -->
+  <!-- Roles' Tab ends here-->
+
+  <md-fab-speed-dial ng-hide="vm.hidden" md-direction="up" md-open="vm.isOpen" class="md-scale new-multiple"
+                     ng-class="{ 'md-hover-full': vm.hover }" ng-mouseenter="vm.isOpen=true"
+                     ng-mouseleave="vm.isOpen=false">
+    <md-fab-trigger>
+      <md-button aria-label="menu" class="md-fab md-warn">
+        <md-tooltip md-direction="left" md-visible="tooltipVisible"><span
+          translate="generic.create"></span></md-tooltip>
+        <md-icon md-font-icon="icon-plus"></md-icon>
+      </md-button>
+    </md-fab-trigger>
+    <md-fab-actions>
+
+      <md-button aria-label="" class="md-fab md-accent md-raised md-mini"
+                 ng-click="vm.openContactDialog($event, contact)">
+        <md-tooltip md-direction="left" md-visible="tooltipVisible" md-autohide="false"><span
+          translate="CONTACTS.newUser"></span></md-tooltip>
+        <md-icon md-font-icon="icon-account" aria-label=""></md-icon>
+      </md-button>
+
+      <md-button aria-label="AddFile" ng-click="vm.showAdvanced($event)" class="md-fab md-accent md-raised md-mini">
+        <md-tooltip md-direction="left" md-visible="tooltipVisible" md-autohide="false"><span
+          translate="CONTACTS.newRole"></span></md-tooltip>
+        <md-icon md-font-icon="icon-key" aria-label=""></md-icon>
+      </md-button>
+
+      <!--
+                  <md-button aria-label="AddFolder"  ng-click="vm.showFolderDialog($event)" class="md-fab md-raised md-accent md-mini">
+                      <md-tooltip md-direction="left" md-visible="tooltipVisible" md-autohide="false"><span translate="">New Assignment</span></md-tooltip>
+                      <md-icon md-font-icon class="icon-account-key" aria-label=""></md-icon>
+                  </md-button>
+      -->
+
+    </md-fab-actions>
+  </md-fab-speed-dial>
+
+</div>

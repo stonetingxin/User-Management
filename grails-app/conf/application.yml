@@ -10,9 +10,9 @@ grails:
         pattern : '/**'
 info:
     app:
-        name: '@info.app.name@'
-        version: '@info.app.version@'
-        grailsVersion: '@info.app.grailsVersion@'
+        name: '@info.app.umm@'
+        version: '@info.umm.1.0@'
+        grailsVersion: '@info.umm.3.2.2@'
 spring:
     groovy:
         template:
@@ -174,25 +174,27 @@ environments:
                 testOnReturn: false
                 jdbcInterceptors: ConnectionState
                 defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
-grails:
-   plugin:
-      springsecurity:
-         ldap:
-            context:
-               managerDn: 'uid=admin,ou=system'
-               managerPassword: 'c12h22o11'
-               server: 'ldap://192.168.1.92:10389'
-            authorities:
-               groupSearchBase: 'dc=expertflow,dc=com'
-               retrieveDatabaseRoles: true
-               retrieveGroupRoles: false
-            useRememberMe: false
-            search:
-               base: 'ou=people,dc=expertflow,dc=com'
-               filter: 'uid={0}' # for Active Directory you need this
-               searchSubtree: true
-            auth:
-               hideUserNotFoundExceptions: false
+
+
+#grails:
+#   plugin:
+#      springsecurity:
+#         ldap:
+#            context:
+#               managerDn: 'uid=admin,ou=system'
+#               managerPassword: 'c12h22o11'
+#               server: 'ldap://localhost:10389'
+#            authorities:
+#               groupSearchBase: 'dc=expertflow,dc=com'
+#               retrieveDatabaseRoles: true
+#               retrieveGroupRoles: false
+#            useRememberMe: false
+#            search:
+#               base: 'ou=people,dc=expertflow,dc=com'
+#               filter: 'uid={0}' # for Active Directory you need this
+#               searchSubtree: true
+#            auth:
+#               hideUserNotFoundExceptions: false
 
 ---
 names:

@@ -1,0 +1,65 @@
+<md-dialog class="md-default-theme role-dialog" aria-label="New Role" flex="50">
+  <form ng-cloak>
+    <md-toolbar class="md-accent">
+      <div class="md-toolbar-tools">
+        <h2>New Role</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+      <div class="md-dialog-content">
+        
+         <div layout="row">
+         	 <div flex>
+				<md-input-container class="md-block">
+					<label>Name</label>
+					<input ng-model="user.firstName">
+				</md-input-container>
+			 </div>
+        </div><!--/row-->
+        
+        <div layout="row">
+			 <div flex>
+				<md-input-container class="md-block">
+					<label>Description</label>
+					<textarea ng-model="user.biography" md-maxlength="150" rows="5" md-select-on-focus></textarea>
+				</md-input-container>
+			 </div>
+        </div><!--/row-->
+        
+        <div layout="row">
+        	<div flex="100" layout-align="start start">
+				<md-input-container>
+				<label>Search</label>
+				<input ng-model="vm.search">
+				</md-input-container>
+				<md-list ng-cloak ms-scroll class="scrollable" style="max-height:200px">
+					<md-list-item ng-repeat="topping in vm.toppings | filter:vm.name:vm.search">
+						<p> {{ topping.name }} </p>
+						<md-checkbox class="md-secondary" ng-model="topping.wanted"></md-checkbox>
+				  	</md-list-item>
+			  	</md-list>
+			 </div>
+       	</div><!--/row-->
+        
+		</div>
+   
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <md-button ng-click="" class="save-button md-accent md-raised" aria-label="SAVE">
+        <span translate="">Save</span>
+      </md-button>
+
+      <md-button ng-click="" class="md-icon-button" aria-label="Delete">
+        <md-icon md-font-icon="icon-delete"></md-icon>
+        <md-tooltip><span translate="">Delete</span></md-tooltip>
+      </md-button>
+    </md-dialog-actions>
+    
+  </form>
+</md-dialog>

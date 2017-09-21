@@ -209,7 +209,7 @@ class UserController extends RestfulController<User> {
             }
             newUser = new User(username: jsonObject?.username, fullName: jsonObject?.fullName,
                                password: jsonObject?.password, email: jsonObject?.email,
-                               type: "DB", isActive: jsonObject?.isActive )
+                               type: "DB", isActive: jsonObject?.isActive, profileExists: jsonObject?.profileExists )
 
             newUser.validate()
             if (newUser.hasErrors()){
@@ -269,6 +269,10 @@ class UserController extends RestfulController<User> {
             userInstance.email = jsonObject?.email
             if(jsonObject.containsKey('isActive'))
                 userInstance.isActive = jsonObject?.isActive
+
+            if(jsonObject.containsKey('profileExists'))
+                userInstance.profileExists = jsonObject?.profileExists
+
             userInstance.updatedBy = User.findById(jsonObject?.updatedBy?.id as Long)
 
             userInstance.validate()

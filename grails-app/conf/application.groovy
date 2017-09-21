@@ -12,6 +12,7 @@ grails.plugin.springsecurity.interceptUrlMap = [
         [pattern: '/',               access: ['permitAll']],
         [pattern: '/error',          access: ['permitAll']],
         [pattern: '/index',          access: ['permitAll']],
+        [pattern: '/index.html',     access: ['permitAll']],
         [pattern: '/index.gsp',      access: ['permitAll']],
         [pattern: '/shutdown',       access: ['permitAll']],
         [pattern: '/assets/**',      access: ['permitAll']],
@@ -23,21 +24,33 @@ grails.plugin.springsecurity.interceptUrlMap = [
         [pattern: '/login/**',       access: ['permitAll']],
         [pattern: '/logout',         access: ['permitAll']],
         [pattern: '/logout/**',      access: ['permitAll']],
-        [pattern: '/console/**',     access: ["hasIpAddress(\'127.0.0.1\') || hasIpAddress(\'::1\')"]],
+
+        [pattern: '/base/**',           access: ['permitAll']],
+        [pattern: '/base',              access: ['permitAll']],
+        [pattern: '/',                  access: ['permitAll']],
+
+        [pattern: '/console/**',        access: ["hasIpAddress(\'127.0.0.1\') || hasIpAddress(\'::1\')"]],
         [pattern: '/static/console/**', access: ["hasIpAddress(\'127.0.0.1\') || hasIpAddress(\'::1\')"]],
-        [pattern: '/**',             access: ['ROLE_NO_ROLES']]
+        [pattern: '/**',                access: ['ROLE_NO_ROLES']]
 ]
 
 
 grails.plugin.springsecurity.filterChain.chainMap = [
         [pattern: '/assets/**',      filters: 'none'],
+        [pattern: '/index.html',      filters: 'none'],
         [pattern: '/**/js/**',       filters: 'none'],
         [pattern: '/**/css/**',      filters: 'none'],
         [pattern: '/**/images/**',   filters: 'none'],
         [pattern: '/**/**/images/**',   filters: 'none'],
         [pattern: '/**/favicon.ico', filters: 'none'],
         [pattern: '/console/**',     filters: 'none'],
+
+        [pattern: '/base/**',       filters: 'none'],
+        [pattern: '/base',          filters: 'none'],
+        [pattern: '/',              filters: 'none'],
+
         [pattern: '/static/console/**', filters: 'none'],
+        [pattern: '/home/**',           filters: 'none'],
         [pattern: '/**',             filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,' +
                                     '-exceptionTranslationFilter,-authenticationProcessingFilter,' +
                                     '-securityContextPersistenceFilter,-rememberMeAuthenticationFilter']

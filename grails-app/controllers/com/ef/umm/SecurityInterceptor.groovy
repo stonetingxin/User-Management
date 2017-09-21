@@ -12,6 +12,9 @@ class SecurityInterceptor {
         match(uri: "/**")
                 .excludes(uri: "/umm/console/**")
                 .excludes(uri: "/umm/static/console/**")
+                .excludes(uri: "/umm/base/**")
+                .excludes(uri: "/umm/")
+
     }
 
     @Transactional
