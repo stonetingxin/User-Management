@@ -7,8 +7,6 @@
 //
 //= require jquery-2.2.0.min
 //= require bootstrap
-//= require user/users.module.js
-//= require_tree user
 //= require_self
 
 

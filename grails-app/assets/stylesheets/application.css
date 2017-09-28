@@ -12,9 +12,4 @@
 *= require main
 *= require mobile
 *= require_self
-*= require angular-material
-*= require vendor-main
-*= require app-main
-*= require role
-*= require users
 */

@@ -92,9 +92,12 @@ class BootStrap {
 
                 // Roles
 
+                def permAdmin = new Permission(name: "com.ef.umm.admin", expression: "*:*")
                 def roleAdmin = new Role(authority: "admin", description: "Administrator Role")
-                roleAdmin.addToPermissions(name: "com.ef.umm.admin", expression: "*:*")
+                roleAdmin.addToPermissions(permAdmin)
+                umm.addToPermissions(permAdmin)
                 roleAdmin?.save(flush: true, failOnError: true)
+//                umm?.save(flush: true, failOnError: true)
 
                 def roleSupervisor = new Role(authority: "supervisor", description: "Supervisor Role")
 
@@ -162,6 +165,7 @@ class BootStrap {
             output['name'] = it?.name
             output['expression'] = it?.expression
             output['description'] = it?.description
+            output['microservice'] = it.micro?.id
             return output
         }
 
@@ -206,12 +210,17 @@ class BootStrap {
             umr = UMR.findAllByUsers(it)
 
             def uniqueRoles = umr.unique { uniqueRole ->
-                uniqueRole.roles.authority
+                uniqueRole.roles
             }
 
             def arr=[]
-            uniqueRoles.each{
-                arr.add(it.roles.authority)
+            uniqueRoles.each{value->
+                def map = json {
+                    id value?.roles.id
+                    name value?.roles.authority
+                    description value?.roles.description
+                }
+                arr.add(map)
             }
             output['roles'] = arr
 

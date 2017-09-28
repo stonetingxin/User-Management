@@ -10,6 +10,7 @@ class Role {
     String description
 
     static hasMany = [permissions:Permission]
+
     static constraints = {
         authority(maxSize: 20, nullable: false, blank: false, unique: true)
         description(blank: true, maxSize: 1000, nullable: true)

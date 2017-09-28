@@ -5,6 +5,7 @@ class Permission {
     String expression
     String description
 
+    static hasOne = [micro: Microservice]
     static hasMany = [roles: Role]
     static belongsTo = [Role]
     static constraints = {
