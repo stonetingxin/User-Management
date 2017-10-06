@@ -339,17 +339,17 @@ class RoleController {
             users.each{value ->
                 def map = json {
                     id value?.id
-                    username value?.username
-                    email value?.email
-                    fullName value?.fullName
-                    type value?.type
-                    isActive value?.isActive
-                    profileExists value?.profileExists
-                    lastLogin value?.lastLogin
-                    lastUpdated value?.lastUpdated
-                    dateCreated value?.dateCreated
-                    createdBy value?.createdBy?.id
-                    updatedBy value?.updatedBy?.id
+//                    username value?.username
+//                    email value?.email
+//                    fullName value?.fullName
+//                    type value?.type
+//                    isActive value?.isActive
+//                    profileExists value?.profileExists
+//                    lastLogin value?.lastLogin
+//                    lastUpdated value?.lastUpdated
+//                    dateCreated value?.dateCreated
+//                    createdBy value?.createdBy?.id
+//                    updatedBy value?.updatedBy?.id
                 }
                 userArr.add(map)
             }
@@ -366,6 +366,58 @@ class RoleController {
         }
     }
 
+    @Transactional
+    def userAssign(){
+        def resultSet = [:]
+        def jsonObject = request.getJSON()
+        def message= []
+        try {
+
+            def roleInstance = Role.findById(jsonObject?.role)
+            def userInstance = User.findById(jsonObject?.user)
+            if (!roleInstance) {
+                message.add("Role with ID: ${jsonObject?.role} not found. Provide a valid role id.")
+            } else{
+                if (!userInstance) {
+                    message.add("User with ID: ${jsonObject?.user} not found. Provide a valid user id.")
+                }else{
+                    jsonObject.microservices.each{
+                        def micro = Microservice.findById(it?.id)
+                        if(!micro){
+                            message.add("Microservice with ID: ${it?.id} not found. Provide a valid microservice id.")
+                        }else {
+                            if(jsonObject?.addRevoke == "add"){
+                                UMR.create userInstance, roleInstance, micro, true
+                                message.add("Successfully added ${roleInstance.authority} role for user: ${userInstance.username}")
+                            } else if(jsonObject?.addRevoke == "revoke"){
+                                def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance,micro, roleInstance)
+                                if(umr){
+                                    umr.delete(flush:true,failOnErrors:true)
+                                    message.add("Successfully revoked ${roleInstance.authority} role for user: ${userInstance.username}")
+                                } else {
+                                    message.add("${roleInstance.authority} role has not assigned to user: ${userInstance.username}")
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            resultSet.put("status", OK)
+            resultSet.put("message", message)
+            resultSet.put("user", userInstance)
+            render resultSet as JSON
+            return
+        }
+        catch (Exception ex) {
+            log.error("Exception occurred while assigning users to the role: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
     @Transactional
     def deleteMulti(){
         def resultSet = [:]

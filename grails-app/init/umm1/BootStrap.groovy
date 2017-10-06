@@ -14,63 +14,63 @@ class BootStrap {
                 /*Permissions for Admin Panel Supervisor*/
                 def permSupervisor = [
                         // Agent related permissions for Admin Panel
-                        [name: "com.ef.efadminpanel.agents.*", expression: "agents:*"],
-                        [name: "com.ef.efadminpanel.agent.*", expression: "agent:*"],
-                        [name: "com.ef.efadminpanel.skill.*", expression: "skill:*"],
-                        [name: "com.ef.efadminpanel.group.*", expression: "group:*"],
-                        [name: "com.ef.efadminpanel.team.index", expression: "team:index"],
-                        [name: "com.ef.efadminpanel.team.getTeam", expression: "team:getTeam"],
-                        [name: "com.ef.efadminpanel.team.update", expression: "team:update"],
+                        [name: "Agent(Side Menu)", expression: "agents:*"],
+                        [name: "Full Access: Agent", expression: "agent:*"],
+                        [name: "Full Access: Skill", expression: "skill:*"],
+                        [name: "Full Access: Group", expression: "group:*"],
+                        [name: "List Access: Team", expression: "team:index"],
+                        [name: "GetTeam Access: Team", expression: "team:getTeam"],
+                        [name: "Update Access: Team", expression: "team:update"],
 
                         // Application related permissions in Admin Panel
-                        [name: "com.ef.efadminpanel.applications.*", expression: "applications:*"],
-                        [name: "com.ef.efadminpanel.application.*", expression: "application:*"],
+                        [name: "Application(Side Menu)", expression: "applications:*"],
+                        [name: "Full Access: Application", expression: "application:*"],
 
                         // Permissions related to EasyAnnouncements
-                        [name: "com.ef.easyannouncement.easyAnnouncement.*", expression: "easyAnnouncement:*"],
-                        [name: "com.ef.easyannouncement.generalAnnouncement.*", expression: "generalAnnouncement:*"],
-                        [name: "com.ef.efadminpanel.service.*", expression: "service:*"],
-                        [name: "com.ef.efadminpanel.region.*", expression: "region:*"],
+                        [name: "Full Access: Easy Announcement", expression: "easyAnnouncement:*"],
+                        [name: "Full Access: General Announcement", expression: "generalAnnouncement:*"],
+                        [name: "Full Access: Service", expression: "service:*"],
+                        [name: "Full Access: Region", expression: "region:*"],
 
                         // Permissions related to business calendar
-                        [name: "com.ef.businessCalendar.businessCalendar.*", expression: "businessCalendar:*"],
-                        [name: "com.ef.businessCalendar.workingEvents.*", expression: "workingEvents:*"],
-                        [name: "com.ef.businessCalendar.holidayProfile.*", expression: "holidayProfile:*"],
-                        [name: "com.ef.efadminpanel.agency.*", expression: "agency:*"],
-                        [name: "com.ef.efadminpanel.businessCalendarService.*", expression: "businessCalendarService:*"],
+                        [name: "Full Access: Business Calendar", expression: "businessCalendar:*"],
+                        [name: "Full Access: Working Events(BC)", expression: "workingEvents:*"],
+                        [name: "Full Access: Holiday Profile(BC)", expression: "holidayProfile:*"],
+                        [name: "Full Access: Agency(BC)", expression: "agency:*"],
+                        [name: "Full Access: BC Service", expression: "businessCalendarService:*"],
 
                         // Queue related permissions in Admin Panel
-                        [name: "com.ef.efadminpanel.queues.*", expression: "queues:*"],
-                        [name: "com.ef.efadminpanel.queue.*", expression: "queue:*"],
+                        [name: "Queue(Side Menu)", expression: "queues:*"],
+                        [name: "Full Access: Queue", expression: "queue:*"],
 
                         // Permissions related to prompt in Admin Panel
-                        [name: "com.ef.efadminpanel.prompts.*", expression: "prompts:*"],
-                        [name: "com.ef.efadminpanel.prompt.*", expression: "prompt:*"],
+                        [name: "Prompts(Side Menu)", expression: "prompts:*"],
+                        [name: "Full Access: Prompt", expression: "prompt:*"],
 
                         // CallerList related permissions for adminpanel
-                        [name: "com.ef.efadminpanel.todo.*", expression: "todo:*"],
-                        [name: "com.ef.efadminpanel.callerList.*", expression: "callerlist:*"],
-                        [name: "com.ef.efadminpanel.caller.*", expression: "caller:*"],
+                        [name: "Full Access: Caller List", expression: "todo:*"],
+                        [name: "CallerList(Side Menu)", expression: "callerlist:*"],
+                        [name: "Full Access: Caller", expression: "caller:*"],
 
                         // Script related permissions
-                        [name: "com.ef.efadminpanel.scripts.*", expression: "scripts:*"],
-                        [name: "com.ef.efadminpanel.script.*", expression: "script:*"],
-                        [name: "com.ef.efadminpanel.callControlGroup.*", expression: "callControlGroup:*"],
-                        [name: "com.ef.efadminpanel.trigger.*", expression: "trigger:*"],
+                        [name: "Scripts(Side Menu)", expression: "scripts:*"],
+                        [name: "Full Access: Script", expression: "script:*"],
+                        [name: "Full Access: callControlGroup", expression: "callControlGroup:*"],
+                        [name: "Full Access: Trigger", expression: "trigger:*"],
 
                         // Permission for user validation API in admin panel
-                        [name: "com.ef.efadminpanel.user.*", expression: "user:*"],
+                        [name: "Full Access: User", expression: "user:*"],
 
                         // Permission to perform application settings
-                        [name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*"]
+                        [name: "Full Access: Application Setting", expression: "applicationSetting:*"]
                 ]
 
                 def permDefaultAP= [
                     // Permission for user validation API in admin panel
-                    [name: "com.ef.efadminpanel.user.*", expression: "user:*"],
+                    [name: "Full Access: User", expression: "user:*"],
 
                     // Permission to perform application settings
-                    [name: "com.ef.efadminpanel.applicationSetting.*", expression: "applicationSetting:*"]
+                    [name: "Full Access: Application Setting", expression: "applicationSetting:*"]
                 ]
 
                 def admin
@@ -92,7 +92,7 @@ class BootStrap {
 
                 // Roles
 
-                def permAdmin = new Permission(name: "com.ef.umm.admin", expression: "*:*")
+                def permAdmin = new Permission(name: "Super User Access(Admin)", expression: "*:*")
                 def roleAdmin = new Role(authority: "admin", description: "Administrator Role")
                 roleAdmin.addToPermissions(permAdmin)
                 umm.addToPermissions(permAdmin)
@@ -219,6 +219,7 @@ class BootStrap {
                     id value?.roles.id
                     name value?.roles.authority
                     description value?.roles.description
+                    permissions value?.roles.permissions
                 }
                 arr.add(map)
             }
