@@ -27,17 +27,17 @@ class BootStrap {
                         [name: "Full Access: Application", expression: "application:*"],
 
                         // Permissions related to EasyAnnouncements
-                        [name: "Full Access: Easy Announcement", expression: "easyAnnouncement:*"],
-                        [name: "Full Access: General Announcement", expression: "generalAnnouncement:*"],
-                        [name: "Full Access: Service", expression: "service:*"],
-                        [name: "Full Access: Region", expression: "region:*"],
+//                        [name: "Full Access: Easy Announcement", expression: "easyAnnouncement:*"],
+//                        [name: "Full Access: General Announcement", expression: "generalAnnouncement:*"],
+//                        [name: "Full Access: Service", expression: "service:*"],
+//                        [name: "Full Access: Region", expression: "region:*"],
 
                         // Permissions related to business calendar
-                        [name: "Full Access: Business Calendar", expression: "businessCalendar:*"],
-                        [name: "Full Access: Working Events(BC)", expression: "workingEvents:*"],
-                        [name: "Full Access: Holiday Profile(BC)", expression: "holidayProfile:*"],
-                        [name: "Full Access: Agency(BC)", expression: "agency:*"],
-                        [name: "Full Access: BC Service", expression: "businessCalendarService:*"],
+//                        [name: "Full Access: Business Calendar", expression: "businessCalendar:*"],
+//                        [name: "Full Access: Working Events(BC)", expression: "workingEvents:*"],
+//                        [name: "Full Access: Holiday Profile(BC)", expression: "holidayProfile:*"],
+//                        [name: "Full Access: Agency(BC)", expression: "agency:*"],
+//                        [name: "Full Access: BC Service", expression: "businessCalendarService:*"],
 
                         // Queue related permissions in Admin Panel
                         [name: "Queue(Side Menu)", expression: "queues:*"],
@@ -48,9 +48,9 @@ class BootStrap {
                         [name: "Full Access: Prompt", expression: "prompt:*"],
 
                         // CallerList related permissions for adminpanel
-                        [name: "Full Access: Caller List", expression: "todo:*"],
-                        [name: "CallerList(Side Menu)", expression: "callerlist:*"],
-                        [name: "Full Access: Caller", expression: "caller:*"],
+//                        [name: "Full Access: Caller List", expression: "todo:*"],
+//                        [name: "CallerList(Side Menu)", expression: "callerlist:*"],
+//                        [name: "Full Access: Caller", expression: "caller:*"],
 
                         // Script related permissions
                         [name: "Scripts(Side Menu)", expression: "scripts:*"],
