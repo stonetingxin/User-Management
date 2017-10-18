@@ -225,6 +225,8 @@ class BootStrap {
             }
             output['roles'] = arr
 
+            umr = UMR.findAllByUsers(it)
+
             def uniqueUmr = umr.unique { uniqueMicro ->
                 uniqueMicro.microservices
             }

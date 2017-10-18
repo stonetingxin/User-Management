@@ -23,11 +23,21 @@ apply plugin: "war"
 apply plugin: "org.grails.grails-web"
 apply plugin: "org.grails.grails-gsp"
 apply plugin: "asset-pipeline"
+apply from: 'gradle/docker.gradle'
 
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core"}
 }
+
+
+//Uncomment to run with jetty
+
+//configurations {
+//    compile.exclude module: "tomcat-juli"
+//    compile.exclude module: "spring-boot-starter-tomcat"
+//    compile.exclude group: "com.google.guava", module: "guava-jdk5"
+//}
 
 dependencyManagement {
     imports {
@@ -41,7 +51,14 @@ dependencies {
     compile "org.springframework.boot:spring-boot-autoconfigure"
     compile "org.grails:grails-core"
     compile "org.springframework.boot:spring-boot-starter-actuator"
+
+    //Comment next line to run with jetty
     compile "org.springframework.boot:spring-boot-starter-tomcat"
+
+    //Uncomment to run with jetty
+//    provided("org.springframework.boot:spring-boot-starter-web:1.5.7.RELEASE")
+//    provided("org.springframework.boot:spring-boot-starter-jetty:1.5.7.RELEASE")
+
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
     compile "org.grails.plugins:cache"

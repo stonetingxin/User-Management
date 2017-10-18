@@ -6,7 +6,7 @@ import grails.rest.RestfulController
 import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 import groovyx.net.http.HTTPBuilder
-import static groovyx.net.http.Method.GET
+//import static groovyx.net.http.Method.GET
 
 import static org.springframework.http.HttpStatus.*
 
@@ -18,6 +18,7 @@ class UserController extends RestfulController<User> {
 
     def springSecurityService
     def restService
+    def userService
     GrailsApplication grailsApplication
 
     def UserController(){
@@ -502,6 +503,48 @@ class UserController extends RestfulController<User> {
         }
     }
 
+
+    @Transactional
+    def updateProfilePic() {
+        def file = params.file
+        def agentId = params.agentId
+        def response = userService.updateProfilePic(agentId, file)
+
+        parseResponse(response)
+    }
+
+    def deleteProfilePic() {
+        def response
+        def agentId
+        def params = request.getJSON()
+        try {
+            agentId = params.agentId
+            response = userService.deleteProfilePic(agentId)
+        } catch (Exception e) {
+            log.error("Error occurred while deleting profile picture for agent ${agentId}")
+            render status: 500
+        }
+        parseResponse(response)
+    }
+
+    def getProfilePic() {
+        log.debug("Going to upload profile picture")
+        try {
+            def agentId = params?.id
+            def response = userService.getProfilePic(agentId)
+            if (response)
+                render status: OK
+            else
+                render status: NOT_ACCEPTABLE
+
+        } catch (Exception e) {
+            log.error("Error occurred while uploading profile picture.." + e.getMessage())
+
+        }
+
+
+    }
+
     def downloadScript(){
         def http = new HTTPBuilder('https://192.168.1.100')
         http.ignoreSSLIssues()
@@ -513,5 +556,12 @@ class UserController extends RestfulController<User> {
         }catch (Exception e){
             println e.getMessage()
         }
+    }
+
+    def parseResponse(response) {
+        if (response?.status)
+            render response as JSON
+        else
+            respond response
     }
 }
