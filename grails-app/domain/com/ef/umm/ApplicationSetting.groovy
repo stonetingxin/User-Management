@@ -4,7 +4,7 @@ class ApplicationSetting {
     static int CISCO_UCCX = 0
     static int CISCO_UCCE = 1
 
-    Integer ciscoType
+    Integer ccType
 //    String applicationName // adminpanel, ecm, both
 
     // setting for the ucce prompt network
@@ -34,6 +34,7 @@ class ApplicationSetting {
         secondaryUsername nullable: true, blank: true
         secondaryPassword nullable: true, blank: true
         webRequest nullable: true, blank: true
+        ccType nullable: true, blank: true
     }
 
 }

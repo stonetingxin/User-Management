@@ -7,7 +7,9 @@ import groovy.json.JsonBuilder
 
 class BootStrap {
     GrailsApplication grailsApplication
+    def CCSettingsService
     def init = { servletContext ->
+        CCSettingsService.initialize()
         if (Role.count() == 0) {
             try {
 

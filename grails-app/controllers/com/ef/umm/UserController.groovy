@@ -34,13 +34,13 @@ class UserController extends RestfulController<User> {
     }
 
     def list(){
-        def respCode = restService.APUserSync()
+        restService.syncAgents()
         def resultSet = [:]
         try{
             def userList = User.list()
             resultSet.put("status", OK)
             resultSet.put("users", userList)
-            response.status = respCode
+            response.status = 200
             render resultSet as JSON
         }catch (Exception ex){
             log.error("Couldn't retrieve the list of the users.")

@@ -1,12 +1,16 @@
 package com.ef.umm
 
 import grails.transaction.Transactional
-/*
-* This service is to serve the contact center settings in application wherever needed
-* Settings will be saved by Base Application in the variables of of this service and as Services are singleton
-* settings will be there for always.
-* Settings can be set by calling 'setSettings()' and can be obtained calling 'getSettings()'
-* */
+import jcifs.smb.NtlmPasswordAuthentication
+import jcifs.smb.SmbFile
+import org.apache.commons.httpclient.HttpException
+import org.apache.commons.httpclient.methods.DeleteMethod
+import org.apache.commons.httpclient.methods.GetMethod
+import org.apache.commons.httpclient.methods.PostMethod
+import org.apache.commons.httpclient.methods.PutMethod
+
+import static org.springframework.http.HttpStatus.*
+
 @Transactional
 class CCSettingsService {
     int ccType //0 for CCE, 1 for CCX
@@ -17,18 +21,47 @@ class CCSettingsService {
     //Secondary and primary UCCX server
     String secondaryIp,secondaryUsername,secondaryPassword
     String primaryIp,primaryUsername,primaryPassword
+    String webRequest
+
+    def utilityService
+
+    def initialize(){
+        if(ApplicationSetting.count > 0){
+            def applicationSetting = ApplicationSetting.first()
+
+            primaryIp = applicationSetting?.primaryIp;
+            primaryUsername = applicationSetting?.primaryUsername
+            primaryPassword = applicationSetting?.primaryPassword
+            secondaryIp = applicationSetting?.secondaryIp
+            secondaryPassword = applicationSetting?.secondaryPassword
+            secondaryUsername = applicationSetting?.secondaryUsername
+            webRequest = applicationSetting?.webRequest
+            domain = applicationSetting?.domain
+            username = applicationSetting?.username
+            password = applicationSetting?.password
+            machineIp = applicationSetting?.machineIp
+            sharedFolder = applicationSetting?.sharedFolder
+            databaseMachineIp = applicationSetting?.databaseMachineIp
+            databaseName = applicationSetting?.databaseName
+            databasePassword = applicationSetting?.databasePassword
+            databaseUsername = applicationSetting?.databaseUsername
+
+//            checkUccxStatusService.initializeBeans()
+        }
+    }
 
     def setSettings(settings){
         ccType = settings.ccType
-        if(ccType ==1){ // Contact Center is of CCX type
+        if(ccType ==0){ // Contact Center is of CCX type
             primaryIp = settings?.primaryIp;
             primaryUsername = settings?.primaryUsername
             primaryPassword = settings?.primaryPassword
             secondaryIp = settings?.secondaryIp
             secondaryPassword = settings?.secondaryPassword
             secondaryUsername = settings?.secondaryUsername
+            webRequest = settings?.webRequest
         }
-        if(ccType == 0){ // Contact Center is of CCE type
+        if(ccType == 1){ // Contact Center is of CCE type
             domain = settings?.domain
             username = settings?.username
             password = settings?.password
@@ -43,13 +76,14 @@ class CCSettingsService {
     }
     def getSettings(){
         def renderJson = [:]
-        if(ccType == 1){
+        if(ccType == 0){
             renderJson.put("primaryIp", primaryIp)
             renderJson.put("primaryUsername", primaryUsername)
             renderJson.put("primaryPassword", primaryPassword)
             renderJson.put("secondaryIp", secondaryIp)
             renderJson.put("secondaryPassword", secondaryPassword)
             renderJson.put("secondaryUsername", secondaryUsername)
+            renderJson.put("webRequest", webRequest)
         }
         else{
             renderJson.put("domain", domain)
@@ -64,4 +98,151 @@ class CCSettingsService {
         }
         return renderJson
     }
+
+    def flushSettings(){
+        ccType = null
+        primaryIp = null
+        primaryUsername = null
+        primaryPassword = null
+        secondaryIp = null
+        secondaryPassword = null
+        secondaryUsername = null
+        webRequest = null
+        domain = null
+        username = null
+        password = null
+        machineIp = null
+        sharedFolder =null
+        databaseMachineIp = null
+        databaseName = null
+        databasePassword = null
+        databaseUsername = null
+    }
+
+    def verifySetting(paramsConfig) {
+        def resultSet = [:]
+        try {
+
+            log.info "Going to verify the config Setting  for these parameters " + paramsConfig
+            if (!paramsConfig.machineIp || !paramsConfig.sharedFolder || !paramsConfig.username || !paramsConfig.password) {
+                resultSet = ["message": "error", "errorMessage": "Configurations not been defined "]
+                return resultSet
+            }
+
+            def se = paramsConfig.domain + ";" + paramsConfig.username + ":" + paramsConfig.password
+            log.info("Get property value ....................${se}")
+
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication("${se}");
+
+            //log.info("SERVER:::::::::::::: ${settings.promptLocation}")
+            SmbFile folder = new SmbFile("smb://" + paramsConfig.machineIp + "/" + paramsConfig.sharedFolder + "/", auth);
+
+
+            if (folder.exists()) {
+                resultSet = ["message": "OK"]
+            } else {
+                resultSet = ["message": "NOExist"]
+            }
+
+
+        } catch (MalformedURLException mFEx) {
+            log.info "Error while fetching file from the server. and error is " + mFEx.getMessage()
+            log.error "Error while fetching file from the server. and error is " + mFEx.getMessage()
+            resultSet = ["message": "errorUrl", "errorMessage": mFEx.getMessage(), status: NOT_FOUND]
+        } catch (Exception ex) {
+            log.info "Error while fetching file from the server. and error is " + ex.getMessage()
+            log.error "Error while fetching file from the server. and error is " + ex.getMessage()
+            resultSet = ["message": "error", "errorMessage": ex.getMessage(), status: NOT_FOUND]
+        }
+
+        return resultSet
+    }
+
+    def checkAuthenticationForOne(jsonData) {
+        AuthenticationBean authenticationBean = new AuthenticationBean()
+        authenticationBean?.setUsername(jsonData?.username)
+        authenticationBean?.setPassword(jsonData?.password)
+        authenticationBean?.setBaseUrl(jsonData?.webBase+"://"+jsonData?.ip+"/adminapi")
+        try {
+            def result = callAPI(authenticationBean, "GET", "/skill/", null, null, null)
+            def checkingStatus = result?.get("data")
+            if (checkingStatus?.containsKey("apiError")) {
+                if (checkingStatus?.get("apiError")?.get('errorType')?.equals("Unauthorized")) {
+
+                    return  ["message":"error","errorMessage":"Credentials are not correct","status":NOT_FOUND]
+
+                }else{
+                    return  ["message":"error","errorMessage":checkingStatus?.get("apiError")?.get('errorMessage'),"status":NOT_FOUND]
+                }
+            }
+            else if(checkingStatus?.size()==0){
+                return ["message":"error","errorMessage":"Server Not found","status":NOT_FOUND]
+            }
+            else return ["message":"OK"]
+
+        }catch (Exception ex){
+            log.error("Exception while authenticate user in uccx and exception is " + ex.getMessage())
+            return   ["message":"error","errorMessage":ex.getMessage(),"status":NOT_FOUND]
+        }
+
+
+    }
+
+    def callAPI( bean, method, url, String jsonString, file, download) {
+        def httpMethod
+        try {
+            def urlToCall
+            urlToCall = bean.getBaseUrl() + url.replace('//', '/')
+            log.info("Sending request to UCCX: ${method}, ${urlToCall} with JSON: \n ${jsonString}")
+            switch (method) {
+                case "GET":
+                    httpMethod = new GetMethod(urlToCall)
+                    break
+                case "PUT":
+                    httpMethod = new PutMethod(urlToCall)
+                    break
+                case "POST":
+                    httpMethod = new PostMethod(urlToCall)
+                    break
+                case "DELETE":
+                    httpMethod = new DeleteMethod(urlToCall)
+                    break
+                default:
+                    httpMethod = new GetMethod(urlToCall)
+            }
+            def result = utilityService.callApi(bean, httpMethod, jsonString, file, download)
+            return [available: true, data: result]
+        } catch (HttpException e) {
+            log.error("UnknownHostException occurred while executing http method for url ${method?.getPath()}")
+            log.error "Exception is " + e.getMessage()
+            return [status:BAD_REQUEST, available: false]
+        } catch (UnknownHostException e) {
+            log.error("UnknownHostException occurred while executing http method for url ${method?.getPath()}, invalid host url")
+            log.error "Exception is " + e.getMessage()
+            return [status: BAD_REQUEST, available: false]
+        } catch (ConnectException e) {
+            log.error("ConnectException occurred while executing http method for url ${method?.getPath()}, CCX is not accessible, most probably it is down")
+            log.error "Exception is " + e.getMessage()
+            return [status: BAD_REQUEST, available: false]//service unavailable
+        } catch (SocketException sc) {
+            log.error("Exception while calling UCCX API")
+            log.error "Exception is " + sc.getMessage()
+            return [status: BAD_REQUEST, available: false]
+        } catch (SocketTimeoutException sc) {
+            log.error("SocketTimeoutException while calling UCCX API")
+            log.error "SocketTimeoutException is " + sc.getMessage()
+            return [status: BAD_REQUEST, available: false]
+        }
+        catch (Exception ex) {
+            log.error("Exception while calling UCCX API")
+            log.error "Exception is " + ex.getMessage()
+            return [status: BAD_REQUEST, available: false]//service unavailable
+        }
+
+        finally {
+            httpMethod?.releaseConnection()
+        }
+    }
+
+
 }

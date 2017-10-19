@@ -65,23 +65,13 @@ class ApplicationSettingController {
         }
 
         applicationSettingInstance.delete flush: true
+        CCSettingsService.flushSettings()
         render status: NO_CONTENT
     }
 
 
     def verifyTheNetworkSetting(){
-        def result = UCCEPromptService.verifySetting(request.getJSON())
-        if(result?.status){
-            response.status = 406
-        }
-        respond result
-    }
-
-    def verifyTheDatabaseSetting() {
-        def result = ucceFetchCampaignService.getConnection(request.getJSON())
-        if(result?.get("message")?.equals("OK")){
-            result = ["message":"OK"]
-        }
+        def result = CCSettingsService.verifySetting(request.getJSON())
         if(result?.status){
             response.status = 406
         }
@@ -89,8 +79,8 @@ class ApplicationSettingController {
     }
 
     def verifyTheUCCXSetting() {
-        def jsonData = request.getJSON()
-        def result = checkUccxStatusService.checkAuthenticationForOne(jsonData)
+        def jsonData = params
+        def result = CCSettingsService.checkAuthenticationForOne(jsonData)
         if(result?.status){
             response.status = 406
         }

@@ -222,7 +222,8 @@ class AuthorizationService {
         strippedURI = uri - "/umm"
         def tokens = strippedURI.tokenize("/")
 
-        if(tokens[0]== 'user' ||tokens[0]== 'microservice' ||tokens[0]== 'role' ||tokens[0]== 'permission'){
+        if(tokens[0]== 'user' ||tokens[0]== 'microservice'
+                ||tokens[0]== 'role' ||tokens[0]== 'permission' ||tokens[0]== 'applicationSetting'){
             microName = "umm"
             controller = tokens[0]
             action = tokens[1]

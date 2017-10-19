@@ -5,13 +5,106 @@ import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
+import static org.springframework.http.HttpStatus.*
 
 
 @Transactional
 class RestService {
     def authorizationService
     GrailsApplication grailsApplication
+    def CCSettingsService
+    UCCXServiceStatusBean uccxServiceStatusBean = new UCCXServiceStatusBean()
 
+    def syncAgents() {
+        User user
+        def agentsJson
+        def agentsList = []
+        def supers =[]
+        def adminPanel
+        def currentUserList
+        def supervisor
+        def AP
+
+        try {
+            runAsync {
+                adminPanel = getAPName()
+                currentUserList = User.findAllByType("CC")
+                supervisor = Role.findByAuthority("supervisor")
+                AP = Microservice.findByName(adminPanel)
+                agentsJson = fetchAgents()
+                agentsList = agentsJson?.resource
+
+                agentsList.each {
+                    user = User.findByUsername(it?.userID)
+                    if (it.get("type") == 2) {
+                        supers.push(it)
+                        if (!user) {
+                            try {
+                                user = new User(username: it?.userID, password: "123456!", isActive: true, fullName: it?.firstName + ' ' + it?.lastName,
+                                        dateCreated: new Date(), email: it?.email, type: "CC")
+                                user.save(flush: true, failOnError: true)
+                                UMR.create user, supervisor, AP, true
+                                println "creating new user"
+                            } catch (Exception ex) {
+                                log.error("Error while Syncing user and Error is ")
+                                log.error("_____________________________________")
+                                log.error(ex.getMessage())
+                                log.error("_____________________________________")
+                            }
+                        }
+                    } else {
+
+                        if (user)
+                            user.delete(flush: true)
+                    }
+                }
+                println "Super Size is: ${supers.size()}"
+                currentUserList?.each {
+                    try {
+                        if (!supers?.findAll { u -> u?.userID == it.username } ){
+                            def umr = UMR.findAllByUsers(it)
+                            umr.each{um->
+                                um?.delete(flush: true, failOnErrors:true)
+                            }
+                            it.delete(flush: true)
+                        }
+
+                    } catch (Exception e) {
+                        log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            log.error "Error " + e.getMessage()
+        }
+    }
+
+    def fetchAgents(){
+        AuthenticationBean authenticationBean = new AuthenticationBean()
+        authenticationBean?.setUsername(CCSettingsService?.primaryUsername)
+        authenticationBean?.setPassword(CCSettingsService?.primaryPassword)
+        authenticationBean?.setBaseUrl(CCSettingsService?.webRequest+"://"+CCSettingsService?.primaryIp+"/adminapi")
+
+        def result = CCSettingsService.callAPI(authenticationBean, "GET", "/resource/", null, null, null)
+        if(result.available){
+            uccxServiceStatusBean.setPrimaryServerStatus(true)
+            return result.data
+        }else{
+            uccxServiceStatusBean.setPrimaryServerStatus(false)
+            authenticationBean?.setUsername(CCSettingsService?.secondaryUsername)
+            authenticationBean?.setPassword(CCSettingsService?.secondaryPassword)
+            authenticationBean?.setBaseUrl(CCSettingsService?.webRequest+"://"+CCSettingsService?.secondaryIp+"/adminapi")
+            if (result.available) {
+                uccxServiceStatusBean.setSecondaryServerStatus(true)
+                return result.data
+            } else {
+                uccxServiceStatusBean.setPrimaryServerStatus(true)
+                uccxServiceStatusBean.setSecondaryServerStatus(false)
+                return [status: SERVICE_UNAVAILABLE]
+            }
+        }
+    }
     def APUserSync(){
         User user
         def adminPanel = getAPName()
