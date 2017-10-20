@@ -34,7 +34,31 @@ class UserController extends RestfulController<User> {
     }
 
     def list(){
+        //for benchmarking the time of synchronization
+//        long t1, t2
+//        t1 = System.currentTimeMillis();
         restService.syncAgents()
+
+        //for benchmarking the time of synchronization
+//        t2 = System.currentTimeMillis();
+//        def d = (t2-t1)/1000.0d
+//        File file = new File("F:\\userList.txt")
+//        // if file doesnt exists, then create it
+//        if (!file.exists()) {
+//            file.createNewFile();
+//        }
+//
+//        // true = append file
+//        FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
+//        BufferedWriter bw = new BufferedWriter(fw);
+//
+//        bw.write("${d}\n");
+//
+//        if (bw != null)
+//            bw.close();
+//
+//        if (fw != null)
+//            fw.close();
         def resultSet = [:]
         try{
             def userList = User.list()

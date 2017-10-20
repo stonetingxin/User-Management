@@ -5,6 +5,8 @@ import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
+
+import static grails.async.Promises.*
 import static org.springframework.http.HttpStatus.*
 
 
@@ -13,73 +15,97 @@ class RestService {
     def authorizationService
     GrailsApplication grailsApplication
     def CCSettingsService
+    def executorService
     UCCXServiceStatusBean uccxServiceStatusBean = new UCCXServiceStatusBean()
 
     def syncAgents() {
-        User user
-        def agentsJson
-        def agentsList = []
-        def supers =[]
         def adminPanel
         def currentUserList
         def supervisor
         def AP
+        def agentsCollate = []
+        adminPanel = getAPName()
+        currentUserList = User.findAllByType("CC")
+        supervisor = Role.findByAuthority("supervisor")
+        AP = Microservice.findByName(adminPanel)
+        def supers = []
+        def agentsJson
+        def agentsList = []
+        agentsJson = fetchAgents()
+        agentsList = agentsJson?.resource
 
         try {
-            runAsync {
-                adminPanel = getAPName()
-                currentUserList = User.findAllByType("CC")
-                supervisor = Role.findByAuthority("supervisor")
-                AP = Microservice.findByName(adminPanel)
-                agentsJson = fetchAgents()
-                agentsList = agentsJson?.resource
+            if(agentsList){
+                //Made 8 sub-lists of the agent list using collate()
+                agentsCollate = agentsList.collate(Math.ceil(agentsList.size()/8) as Integer)
 
-                agentsList.each {
-                    user = User.findByUsername(it?.userID)
-                    if (it.get("type") == 2) {
-                        supers.push(it)
-                        if (!user) {
-                            try {
-                                user = new User(username: it?.userID, password: "123456!", isActive: true, fullName: it?.firstName + ' ' + it?.lastName,
-                                        dateCreated: new Date(), email: it?.email, type: "CC")
-                                user.save(flush: true, failOnError: true)
-                                UMR.create user, supervisor, AP, true
-                                println "creating new user"
-                            } catch (Exception ex) {
-                                log.error("Error while Syncing user and Error is ")
-                                log.error("_____________________________________")
-                                log.error(ex.getMessage())
-                                log.error("_____________________________________")
-                            }
-                        }
-                    } else {
-
-                        if (user)
-                            user.delete(flush: true)
+                //Spawned new tasks for each sub-list. Each task will have its own thread.
+                //Documentation for tasks is given at https://async.grails.org/latest/guide/index.html#promises
+                def p1 =task {syncUsers(agentsCollate[0], AP, supervisor)}
+                def p2 =task {syncUsers(agentsCollate[1], AP, supervisor)}
+                def p3 =task {syncUsers(agentsCollate[2], AP, supervisor)}
+                def p4 =task {syncUsers(agentsCollate[3], AP, supervisor)}
+                def p5 =task {syncUsers(agentsCollate[4], AP, supervisor)}
+                def p6 =task {syncUsers(agentsCollate[5], AP, supervisor)}
+                def p7 =task {syncUsers(agentsCollate[6], AP, supervisor)}
+                def p8 =task {syncUsers(agentsCollate[7], AP, supervisor)}
+                def result = waitAll(p1, p2, p3, p4, p5, p6, p7, p8)
+                result.each{
+                    if(it.size()>0){
+                        supers+=it
                     }
                 }
-                println "Super Size is: ${supers.size()}"
-                currentUserList?.each {
-                    try {
-                        if (!supers?.findAll { u -> u?.userID == it.username } ){
-                            def umr = UMR.findAllByUsers(it)
-                            umr.each{um->
-                                um?.delete(flush: true, failOnErrors:true)
-                            }
-                            it.delete(flush: true)
-                        }
-
-                    } catch (Exception e) {
-                        log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
-                    }
-                }
-
+                purgeUsers(currentUserList, supers)
             }
         } catch (Exception e) {
             log.error "Error " + e.getMessage()
         }
     }
 
+    def syncUsers(agentsList, AP, supervisor){
+        User user
+        def supers =[]
+        agentsList.each {
+            user = User.findByUsername(it?.userID)
+            if (it.get("type") == 2) {
+                supers.push(it)
+                if (!user) {
+                    try {
+                        user = new User(username: it?.userID, password: "123456!", isActive: true, fullName: it?.firstName + ' ' + it?.lastName,
+                                dateCreated: new Date(), email: it?.email, type: "CC")
+                        user.save(flush: true, failOnError: true)
+                        UMR.create user, supervisor, AP, true
+
+                    } catch (Exception ex) {
+                        log.error("Error while Syncing user and Error is ")
+                        log.error("_____________________________________")
+                        log.error(ex.getMessage())
+                        log.error("_____________________________________")
+                    }
+                }
+            } else {
+                if (user)
+                    user.delete(flush: true)
+            }
+        }
+        return supers
+    }
+    def purgeUsers(currentUserList, supers){
+        currentUserList?.each {
+            try {
+                if (!supers?.findAll { u -> u?.userID == it.username } ){
+                    def umr = UMR.findAllByUsers(it)
+                    umr.each{um->
+                        um?.delete(flush: true, failOnErrors:true)
+                    }
+                    it.delete(flush: true)
+                }
+
+            } catch (Exception e) {
+                log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
+            }
+        }
+    }
     def fetchAgents(){
         AuthenticationBean authenticationBean = new AuthenticationBean()
         authenticationBean?.setUsername(CCSettingsService?.primaryUsername)

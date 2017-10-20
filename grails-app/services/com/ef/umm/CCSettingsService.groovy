@@ -1,5 +1,7 @@
 package com.ef.umm
 
+import grails.converters.JSON
+import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
@@ -8,6 +10,8 @@ import org.apache.commons.httpclient.methods.DeleteMethod
 import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.methods.PutMethod
+import org.apache.http.client.utils.URLEncodedUtils
+import org.apache.http.message.BasicNameValuePair;
 
 import static org.springframework.http.HttpStatus.*
 
@@ -119,6 +123,45 @@ class CCSettingsService {
         databaseUsername = null
     }
 
+    def publish(applicationSetting){
+        def micros = Microservice.list()
+        def result = []
+        def resp
+        micros.each{
+            if(it?.name!= "umm"){
+                resp = updateMicro("post", it?.ipAddress,
+                        "/${it?.name}/applicationSetting/SetCCSettings",applicationSetting)
+                result.push("Publish response for ${it?.name} is: ${resp.responseEntity.statusCode.value}")
+            }
+        }
+        return result
+    }
+
+    def updateMicro(method, ip, req, apInstance){
+        def rest = new RestBuilder()
+        def result = [
+                value: true,
+                *:extractProperties(apInstance)
+        ]
+        List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>()
+        result.each{k, v->
+            params.add(new BasicNameValuePair(k as String, v as String))
+        }
+        params.subList(20, params.size()).clear();
+        def qp= URLEncodedUtils.format(params, "UTF-8")
+        def resp = rest."${method}"("${ip}${req}?${qp}")
+        return resp
+    }
+
+    //Method to convert an object into a map
+    def extractProperties(obj) {
+        obj.getClass()
+                .declaredFields
+                .findAll { !it.synthetic }
+                .collectEntries { field ->
+            [field.name, obj."$field.name"]
+        }
+    }
     def verifySetting(paramsConfig) {
         def resultSet = [:]
         try {

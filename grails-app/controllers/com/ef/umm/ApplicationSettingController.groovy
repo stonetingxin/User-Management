@@ -32,6 +32,7 @@ class ApplicationSettingController {
 
         applicationSettingInstance.save flush: true
         CCSettingsService.setSettings(applicationSettingInstance)
+        def pubStatus = CCSettingsService.publish(applicationSettingInstance)
 
         respond applicationSettingInstance, [status: CREATED]
     }
@@ -51,6 +52,7 @@ class ApplicationSettingController {
 
         applicationSettingInstance.save flush: true
         CCSettingsService.setSettings(applicationSettingInstance)
+        def pubStatus = CCSettingsService.publish(applicationSettingInstance)
 //        UCCEPromptService.initializeBeans()
 
         respond applicationSettingInstance, [status: OK]
