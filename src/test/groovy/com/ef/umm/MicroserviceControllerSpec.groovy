@@ -1,0 +1,321 @@
+package com.ef.umm
+
+import grails.converters.JSON
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
+import groovy.json.JsonBuilder
+import spock.lang.*
+
+/**
+ * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
+ */
+@TestFor(MicroserviceController)
+@Mock([User, Role, Permission, UMR, Microservice])
+class MicroserviceControllerSpec extends Specification {
+
+    def setup() {
+        try {
+            def ahmed = new User(username: "ahmed", password: "admin", type: "DB")
+            def hamid = new User(username: "hamid", password: "nothing", type: "DB")
+            def userAdmin = new User(username: "admin", password: "admin", type: "DB")
+            ahmed?.save(failOnError: true)
+            hamid?.save(failOnError: true)
+            userAdmin.save(failOnError: true)
+
+            def admin = new Role(authority: "ROLE_ADMIN", description: "Administrator")
+            admin.addToPermissions(name: "com.app.ef.admin", expression: "*:*")
+            admin?.save(failOnError: true)
+
+            def role = new Role(authority: "Supervisor", description: "Supervisor role")
+            role.addToPermissions(name: "com.app.ef.show", expression: "show:*")
+            role.addToPermissions(name: "com.app.ef.update", expression: "update:*")
+            role?.save(failOnError: true)
+
+            def pcs = new Microservice(name: 'PCS', ipAddress: "https://192.168.1.79:8080",description: 'Post Call Survey')
+            def cbr = new Microservice(name: 'CBR', ipAddress: "http://192.168.1.79:8080",description: 'Caller Based Routing')
+            pcs?.save(failOnError: true)
+            cbr.addToPermissions(Permission.findById("3"))
+            cbr?.save(failOnError: true)
+
+
+            UMR.create ahmed, admin, pcs, true
+            UMR.create hamid, admin, cbr, true
+
+            UMR.withSession {
+                it.flush()
+                it.clear()
+            }
+        }
+        catch (Exception ex){
+            println ex.getMessage()
+        }
+
+        JSON.registerObjectMarshaller(Permission){
+            def output = [:]
+            output['id'] = it?.id
+            output['name'] = it?.name
+            output['expression'] = it?.expression
+            return output
+        }
+
+        JSON.registerObjectMarshaller(Role){
+            def output = [:]
+            output['id'] = it?.id
+            output['name'] = it?.authority
+            output['description'] = it?.description
+            output['permissions'] = it?.permissions
+            return output
+        }
+
+        JSON.registerObjectMarshaller(Microservice){
+            def output = [:]
+            output['id'] = it?.id
+            output['name'] = it?.name
+            output['description'] = it?.description
+            output['permissions'] = it?.permissions
+            return output
+        }
+
+        JSON.registerObjectMarshaller(User) {
+            def output = [:]
+            def umr
+            def umr1
+            def micro = []
+            JsonBuilder json = new JsonBuilder()
+
+            output['id'] = it?.id
+            output['username'] = it?.username
+            output['email'] = it?.email
+            output['firstName'] = it?.firstName
+            output['lastName'] = it?.lastName
+
+            umr = UMR.findAllByUsers(it)
+
+            def uniqueUmr = umr.unique { uniqueMicro ->
+                uniqueMicro.microservices
+            }
+            uniqueUmr.each{value ->
+                umr1=UMR.findAllByUsersAndMicroservices(it, value?.microservices)
+                def map = json {
+                    id value?.microservices?.id
+                    name value?.microservices?.name
+                    description value?.microservices?.description
+                    roles umr1*.roles
+                }
+                micro.add(map)
+            }
+
+            output['microservices'] = micro
+            return output
+        }
+    }
+
+    def cleanup() {
+    }
+
+
+    @Unroll
+    void "test create api"() {
+        when: 'create method is called with a json containing microservice details'
+        request?.method = "POST"
+        request?.json = input
+        controller?.create()
+
+        then: 'a new microservice should be created incrementing the total microservice count by 1'
+        response?.status == status
+        Microservice.count() == count
+        response?.json.message == output
+
+        where:
+        input << [$/{"name":"UMM", "ipAddress":"http://127.0.0.1:8080","description":"User Management Microservice"}/$,
+                  $/{"name":"CBR", "ipAddress":"http://192.168.1.79:8080", "password":"asdasd"}/$,
+                  $/{"nam":"asif"}/$]
+
+        output<< ["New Microservice: 'UMM' has been created successfully.",
+                  "Microservice: CBR already exists.Kindly provide either a new name, or call update API.",
+                  "Invalid JSON provided. Please read the API specifications."]
+
+        count <<[3,
+                 2,
+                 2]
+
+        status <<[200,
+                  406,
+                  406]
+    }
+
+    void "test list api"() {
+        when: 'list function is called '
+        controller?.list()
+
+        then: 'a json response of complete list of users with corresponding microservices,' +
+                'roles and permissions should be returned.'
+        response?.status == 200
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"name\":\"OK\"}," +
+                "\"microservices\":[{\"id\":1,\"name\":\"PCS\",\"description\":\"Post Call Survey\",\"permissions\"" +
+                ":[]},{\"id\":2,\"name\":\"CBR\",\"description\":\"Caller Based Routing\",\"permissions\":" +
+                "[{\"id\":3,\"name\":\"com.app.ef.update\",\"expression\":\"update:*\"}]}]}"
+    }
+
+    void "test show api"() {
+        when: 'show is called for a valid microservice id'
+        request?.setParameter("id", "1")
+        controller?.show()
+
+        then: 'a json should be returned with microservice having that id along with the ' +
+                'corresponding roles and permissions'
+        response?.status == 200
+        response?.text == "{\"status\":{\"enumType\":\"org.springframework.http.HttpStatus\",\"name\":\"OK\"}," +
+                "\"microservice\":{\"id\":1,\"name\":\"PCS\",\"description\":\"Post Call Survey\",\"permissions\":[]}}"
+    }
+
+    @Unroll
+    void "test delete api"() {
+        when: 'delete is called with a valid microservice id'
+        request?.method = "DELETE"
+        request?.setParameter("id", input)
+        controller?.delete()
+
+        then: 'microservice having that id should be deleted decrementing the microservice count by 1'
+        response?.status == status
+//        def micro = Microservice.findById("1" as Long)
+//        println micro
+//        def umr = UMR.findByMicroservices(micro)
+//        println umr
+//        umr == null
+        Microservice.count() == count
+        response?.json.message == output
+
+        where:
+
+        input <<["1",
+                 "3",
+                 "2"]
+
+        output<< ["Successfully deleted microservice: PCS",
+                  "MicroService not found. Provide a valid microservice instance.",
+                  "Successfully deleted microservice: CBR"]
+
+        count <<[1,
+                 2,
+                 1]
+
+        status <<[200,
+                  404,
+                  200]
+    }
+
+    @Unroll
+    void "test update api"() {
+        when: 'update is called with existing microservice'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.update()
+
+        then: 'corresponding microservice should be updated as provided in the request json'
+        response?.status == status
+        response?.json.message == output
+
+        where:
+
+        input <<[$/{"id":"1", "name":"UMM", "ipAddress":"http://127.0.0.1:8080","description":"User Management Microservice"}/$,
+                 $/{"id":"2", "name":"CBR","ipAddress":"http://127.0.0.1:8080"}/$,
+                 $/{"id":"3", "name":"CBR"}/$]
+
+        output<< ["UMM has been updated successfully.",
+                  "CBR has been updated successfully.",
+                  "Invalid JSON provided. Please read the API specifications."]
+
+
+        status <<[200,
+                  200,
+                  406]
+    }
+
+    @Unroll
+    void "test add Permissions api"() {
+        when: 'addRemovePermissions is called with add functionality'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.addRemovePermissions()
+
+        then: 'the corresponding permission should be added for the role'
+        response?.status == status
+        def message =response?.json.message
+        message.toString() == output
+        def out = null
+        if(findRoles(id)){
+            out = findRoles(id).toString()
+        }
+        out == umrOutput
+
+        where:
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRemove":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRemove":"add"}/$,
+                  $/{"id":"2","permissions":[{"id":"3"}], "addRemove":"add"}/$]
+
+        output << ["[\"Permission: *:* has been successfully added.\"," +
+                           "\"Permission: show:* has been successfully added.\"]",
+                   $/["Permission: show:* has been successfully added."]/$,
+                   $/["Permission: update:* has already been assigned in the microservice."]/$]
+        status << [200,
+                   200,
+                   200]
+        id <<["1",
+              "2",
+              "2"]
+
+        umrOutput <<["[Name: com.app.ef.admin, Expression: *:*, Name: com.app.ef.show, Expression: show:*]",
+                     "[Name: com.app.ef.show, Expression: show:*, Name: com.app.ef.update, Expression: update:*]",
+                     "[Name: com.app.ef.update, Expression: update:*]"]
+    }
+
+    @Unroll
+    void "test remove Permissions api"() {
+        when: 'addRemovePermissions is called'
+        request?.method = "PUT"
+        request?.json = input
+        controller?.addRemovePermissions()
+
+        then: 'the corresponding roles should be removed from the microservice'
+        response?.status == status
+        def message =response?.json.message
+        message.toString() == output
+        def out = null
+        if(findRoles(id)){
+            out = findRoles(id).toString()
+        }
+        out == umrOutput
+
+
+        where:
+        input << [$/{"id":"1","permissions":[{"id":"1"}, {"id":"2"}], "addRemove":"remove"}/$,
+                  $/{"id":"2","permissions":[{"id":"3"}], "addRemove":"remove"}/$,
+                  $/{"id":"2","permissions":[{"id":"2"}], "addRemove":"asdf"}/$,
+                  $/{"id":"1","permissions":[{"id":"2"}], "addRemove":"remove"}/$]
+
+        output << ["[\"Permission: *:* cannot be removed since it's not been assigned.\"," +
+                           "\"Permission: show:* cannot be removed since it's not been assigned.\"]",
+                   "[\"Permission: update:* has been successfully removed.\"]",
+                   "Only add or remove is allowed in this method.",
+                   $/["Permission: show:* cannot be removed since it's not been assigned."]/$]
+        status << [200,
+                   200,
+                   406,
+                   200]
+        id <<["1",
+              "2",
+              "2",
+              "1"]
+
+        umrOutput <<[null,
+                     null,
+                     "[Name: com.app.ef.update, Expression: update:*]",
+                     null]
+    }
+
+    private findRoles(String id){
+        def micro = Microservice.findById(id)
+        return micro.permissions.sort{it?.name}
+    }
+}

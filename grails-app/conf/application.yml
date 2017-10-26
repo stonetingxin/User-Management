@@ -1,0 +1,202 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: umm1
+    spring:
+        transactionManagement:
+            proxies: false
+    resources:
+        pattern : '/**'
+info:
+    app:
+        name: '@info.app.umm@'
+        version: '@info.umm.1.0@'
+        grailsVersion: '@info.umm.3.2.2@'
+spring:
+    groovy:
+        template:
+            check-template-location: false
+    http:
+        multipart:
+            maxFileSize: 10MB
+            maxRequestSize: 10MB
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            all: '*/*'
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            form: application/x-www-form-urlencoded
+            html:
+              - text/html
+              - application/xhtml+xml
+            js: text/javascript
+            json:
+              - application/json
+              - text/json
+            multipartForm: multipart/form-data
+            pdf: application/pdf
+            rss: application/rss+xml
+            text: text/plain
+            hal:
+              - application/hal+json
+              - application/hal+xml
+            xml:
+              - text/xml
+              - application/xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlets: html
+                taglib: none
+                staticparts: none
+    cors:
+        enabled: true
+endpoints:
+    jmx:
+        unique-names: true
+
+server:
+    contextPath: /umm
+    port: 9091
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: true
+        use_query_cache: false
+        region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+dataSource:
+    pooled: true
+    jmxExport: true
+    driverClassName:  com.mysql.jdbc.Driver
+#    dialect: org.hibernate.dialect.SQLServer2012Dialect
+    username: root
+    password: toor
+
+environments:
+    development:
+        dataSource:
+            dbCreate: update
+            url: jdbc:mysql://localhost:3306/umm1
+            dialect: org.hibernate.dialect.MySQL5Dialect
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT 1
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+    test:
+        dataSource:
+            dbCreate: update
+            url: jdbc:mysql://localhost:3306/umm1
+            dialect: org.hibernate.dialect.MySQL5Dialect
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT 1
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+    production:
+        dataSource:
+            dbCreate: update
+            url: jdbc:mysql://localhost:3306/umm1
+            dialect: org.hibernate.dialect.MySQL5Dialect
+            properties:
+                jmxEnabled: true
+                initialSize: 5
+                maxActive: 50
+                minIdle: 5
+                maxIdle: 25
+                maxWait: 10000
+                maxAge: 600000
+                timeBetweenEvictionRunsMillis: 5000
+                minEvictableIdleTimeMillis: 60000
+                validationQuery: SELECT 1
+                validationQueryTimeout: 3
+                validationInterval: 15000
+                testOnBorrow: true
+                testWhileIdle: true
+                testOnReturn: false
+                jdbcInterceptors: ConnectionState
+                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+
+
+#grails:
+#   plugin:
+#      springsecurity:
+#         ldap:
+#            context:
+#               managerDn: 'uid=admin,ou=system'
+#               managerPassword: 'c12h22o11'
+#               server: 'ldap://localhost:10389'
+#            authorities:
+#               groupSearchBase: 'dc=expertflow,dc=com'
+#               retrieveDatabaseRoles: true
+#               retrieveGroupRoles: false
+#            useRememberMe: false
+#            search:
+#               base: 'ou=people,dc=expertflow,dc=com'
+#               filter: 'uid={0}' # for Active Directory you need this
+#               searchSubtree: true
+#            auth:
+#               hideUserNotFoundExceptions: false
+
+---
+names:
+    adminPanel: "efadminpanel"

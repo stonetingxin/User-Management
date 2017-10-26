@@ -1,0 +1,74 @@
+version: 1
+
+dn: cn=marshal,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: marshal
+sn: Marshal Erikson
+uid: marshal
+userPassword:: e1NIQX1Tcmt4aExGMFJsbjFGaXZ1OGl0bWExUVJyQ1k9
+
+dn: cn=ted,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: mosby
+cn: ted
+sn: Ted Mosby
+uid: ted
+userPassword:: e1NIQX1ScXRYZzFPd1I0cThjZnBVZVdwMndRdStRYWc9
+
+dn: cn=james,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: james
+sn: James Falafel
+uid: james
+userPassword:: e1NIQX1SMHVtZTlzb25HSmpzMjM5aW52dGJJV3dTVU09
+
+dn: cn=lily,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: aldrin
+cn: lily
+sn: Lily Aldrin
+uid: lily
+userPassword:: e1NIQX0vZHZnR0ZmaTA2dFFXL3dkckRzNG9zaTR6V1U9
+
+dn: cn=robin,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: robin
+sn: Robin Sherbatsky
+uid: robin
+userPassword:: e1NIQX1SMDdwN2hlYkRzOEx3blFJQjVvTEZlMmt5WjA9
+
+dn: cn=barney,ou=people,dc=expertflow,dc=com
+objectClass: organizationalPerson
+objectClass: person
+objectClass: inetOrgPerson
+objectClass: top
+cn: barney
+sn: Barney Stinson
+uid: barney
+userPassword:: e1NIQX1IdWQyQ2pHUXlWWkJSQzhyNE85M2RPRTUreDg9
+
+dn: ou=people,dc=expertflow,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: people
+
+dn: dc=expertflow,dc=com
+objectclass: top
+objectclass: domain
+dc: expertflow
+
