@@ -1,7 +1,0 @@
-{
-"environment" : "prod",
-  "state" : "app.base",
-  "extraSettings" : true,
-  "gatewayUrl" : "http://localhost:9091/umm"
-
-}
