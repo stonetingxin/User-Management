@@ -78,6 +78,12 @@ class AuthorizationService {
                 log.error("Exception occured while saving active directory user in DB.", ex)
             }
 
+            if(microName == "base"){
+                response.status = 200
+                response.auth=true
+                return response
+            }
+
             if(!micro){
                 log.info("Microservice: '${microName}' does not exist. Contact system admin.")
                 resultSet.put("message", "Microservice: '${microName}' does not exist. Contact system admin.")

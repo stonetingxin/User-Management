@@ -34,7 +34,7 @@
             vm.contact = {
                 'name'    : '',
                 'lastName': '',
-                'avatar'  : '/efadminpanel/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime(),
+                'avatar'  : '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime(),
                 'nickname': '',
                 'company' : '',
                 'jobTitle': '',
@@ -66,6 +66,14 @@
         vm.togglePassword = togglePassword;
         vm.toggleInArrayRole = toggleInArrayRole;
         vm.filterRoles = filterRoles;
+        vm.removable= removable;
+
+        function removable(username){
+            if(username === 'admin')
+                return false;
+            else
+                return true;
+        }
 
         function togglePassword(){
           if(vm.showPassword === "password")
@@ -243,9 +251,9 @@
               //var indAge = _.findIndex(vm.agentList, { userID: userData.userID });
               //if (ind != -1) {
                 if (userData.message === 'upload') {
-                  vm.contact.avatar = window.appBaseUrl3 + '/images/agents/' + angular.lowercase(userData.userID) + '.jpg?timestamp=' + new Date().getTime();
+                  vm.contact.avatar = window.appBaseUrl + 'base/assets1/images/agents/' + angular.lowercase(userData.username) + '.jpg?timestamp=' + new Date().getTime();
                 } else if (userData.message === 'delete') {
-                  vm.contact.avatar = '/efadminpanel/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
+                  vm.contact.avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
                 }
               //}
             }

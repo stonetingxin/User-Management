@@ -227,7 +227,7 @@
 
                 <img ng-click="vm.openContactDialog($event, contact)" class="md-avatar" ng-if="contact.avatar"
                      alt="{{contact.username}}"
-                     ng-src="{{contact.avatar}}"/>
+                     http-src="{{contact.avatar}}"/>
 
                 <p class="maxWidth text-truncate font-weight-600" ng-click="vm.openContactDialog($event, contact)">
                   <span>{{contact.fullName? contact.fullName: contact.username}}
@@ -245,7 +245,7 @@
                   <md-tooltip><span translate="CONTACTS.rolesAssigned"></span></md-tooltip>
                 </p>
 
-                <div ng-if="options" class="listMenuHover">
+                <div ng-if="options" ng-hide="contact.username === 'admin'" class="listMenuHover">
                   <!--<md-button ng-click="vm.openContactDialog($event, contact)" class="buttonDis md-icon-button " aria-label="Edit" translate translate-attr-aria-label="">-->
                   <!--<md-tooltip md-direction="top">{{'generic.edit' | translate}}</md-tooltip>-->
                   <!--<md-icon md-font-icon="icon-pencil s18" ng-click=""></md-icon>-->
@@ -365,7 +365,7 @@
                   <md-tooltip><span translate="CONTACTS.assignedPerms"></span></md-tooltip>
                 </p>
 
-                <div ng-if="options" class="listMenuHover">
+                <div ng-if="options" ng-hide="role.name === 'admin'" class="listMenuHover">
                   <!--<md-button ng-click="vm.openRoleEditDialog($event, role)" class="buttonDis md-icon-button " aria-label="Edit" translate translate-attr-aria-label="">-->
                   <!--<md-tooltip md-direction="top">{{'generic.edit' | translate}}</md-tooltip>-->
                   <!--<md-icon md-font-icon="icon-pencil s18" ng-click=""></md-icon>-->

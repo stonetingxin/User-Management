@@ -9,21 +9,21 @@ class UserService {
 
     def updateProfilePic(agentId, file) {
         def webDirectory = ServletContextHolder?.servletContext?.getRealPath("/")
-        File destinationFile = new File(webDirectory + "/base/images/agents/", agentId + "." + FilenameUtils.getExtension(file?.getOriginalFilename()?.toLowerCase()))
+        File destinationFile = new File(webDirectory + "/base/assets1/images/agents/", agentId + "." + FilenameUtils.getExtension(file?.getOriginalFilename()?.toLowerCase()))
         file.transferTo(destinationFile)
         return [status: 200]
     }
 
     def getProfilePic(agentId) {
         def directory = ServletContextHolder?.servletContext?.getRealPath("/")
-        File profilePic = new File(directory + '/base/images/agents/' + agentId + '.jpg')
+        File profilePic = new File(directory + '/base/assets1/images/agents/' + agentId + '.jpg')
         return profilePic.exists()
 
     }
 
     def deleteProfilePic(agentId) {
         def directory = ServletContextHolder?.servletContext?.getRealPath("/")
-        File profilePic = new File(directory + '/base/images/agents/' + agentId + '.jpg')
+        File profilePic = new File(directory + '/base/assets1/images/agents/' + agentId + '.jpg')
         if (profilePic?.exists()) {
             if (profilePic?.delete())
                 return [status: 200]

@@ -10,7 +10,16 @@
               'ngFileUpload'
             ]
         )
-        .config(config);
+        .config(config)
+        .directive('customChip2', function(){
+            return {
+                restrict: 'A',
+                link: function(scope, elem, attrs) {
+                    var mdChip = elem.parent().parent();
+                    mdChip.addClass('remPadding');
+                }
+            }
+        });
 
     /** @ngInject */
     function config($stateProvider, msNavigationServiceProvider)

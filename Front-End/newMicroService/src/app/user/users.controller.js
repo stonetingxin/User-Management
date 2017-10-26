@@ -42,7 +42,7 @@
         vm.user =  {
         "id": "5725a6802d10e277a0f35724",
         "name": "John Doe",
-        "avatar": "assets/images/avatars/profile.jpg",
+        "avatar": "assets1/images/avatars/profile.jpg",
         "starred": [
             "5725a680ae1ae9a3c960d487",
             "5725a6801146cce777df2a08",
@@ -188,7 +188,7 @@
             }
 
             if (value.profileExists)
-              vm.contacts[key].avatar = window.appBaseUrl + '/base/images/agents/' + angular.lowercase(value.username) + '.jpg?timestamp=' + new Date().getTime();
+              vm.contacts[key].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(value.username) + '.jpg?timestamp=' + new Date().getTime();
             else
               vm.contacts[key].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
@@ -269,7 +269,7 @@
                   if (ind != -1) {
                     vm.contacts[ind] = userData.user;
                     if (vm.contacts[ind].profileExists)
-                      vm.contacts[ind].avatar = window.appBaseUrl + '/base/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
+                      vm.contacts[ind].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
                     else
                       vm.contacts[ind].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
@@ -313,7 +313,7 @@
                   if (ind != -1) {
                     vm.contacts[ind] = userData.user;
                     if (vm.contacts[ind].profileExists)
-                      vm.contacts[ind].avatar = window.appBaseUrl + '/base/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
+                      vm.contacts[ind].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
                     else
                       vm.contacts[ind].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
