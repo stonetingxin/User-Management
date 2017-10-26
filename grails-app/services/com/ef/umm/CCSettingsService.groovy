@@ -123,6 +123,42 @@ class CCSettingsService {
         databaseUsername = null
     }
 
+    def checkAuthentication(username, password) {
+
+        try {
+            AuthenticationBean authenticationBean = new AuthenticationBean()
+            authenticationBean?.setUsername(username)
+            authenticationBean?.setPassword(password)
+            authenticationBean?.setBaseUrl(webRequest+"://"+primaryIp+"/adminapi")
+
+            def result =callAPI(authenticationBean, "GET", "/skill/", null, null, null)
+            if(result.available){
+                if (result?.containsKey("apiError")) {
+                    def checkingStatus = result?.get("apiError")
+                    if (checkingStatus?.get('errorType')?.equals("Unauthorized")) {
+                        return false
+                    }
+                }
+            }else{
+                authenticationBean?.setUsername(username)
+                authenticationBean?.setPassword(password)
+                authenticationBean?.setBaseUrl(webRequest+"://"+secondaryIp+"/adminapi")
+                if (result?.containsKey("apiError")) {
+                    def checkingStatus = result?.get("apiError")
+                    if (checkingStatus?.get('errorType')?.equals("Unauthorized")) {
+                        return false
+                    }
+                }
+            }
+
+            return true
+        } catch (Exception ex) {
+            log.error("Exception while authenticate user in uccx and exception is " + ex.getMessage())
+            return false
+        }
+
+    }
+
     def publish(applicationSetting){
         def micros = Microservice.list()
         def result = []

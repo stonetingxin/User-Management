@@ -19,6 +19,7 @@ class UserController extends RestfulController<User> {
     def springSecurityService
     def restService
     def userService
+    def CCSettingsService
     GrailsApplication grailsApplication
 
     def UserController(){
@@ -567,6 +568,18 @@ class UserController extends RestfulController<User> {
         }
 
 
+    }
+
+    def isUserAuthentic() {
+        def username = params.username
+        def password = params.password
+        if (username && password) {
+            if (CCSettingsService.checkAuthentication(username, password)) {
+                render status: OK
+            } else {
+                render status: UNAUTHORIZED
+            }
+        }
     }
 
     def downloadScript(){
