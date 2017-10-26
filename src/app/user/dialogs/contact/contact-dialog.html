@@ -1,0 +1,257 @@
+<!-- DIALOG -->
+<md-dialog class="contact-dialog" aria-label="New Task">
+
+  <form name="contactForm" class="md-inline-form" novalidate>
+
+    <!-- DIALOG TOOLBAR -->
+    <md-toolbar class="md-accent md-tall" layout="column">
+
+      <!-- TOOLBAR TOP -->
+      <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
+        <span class="title">{{vm.title}}</span>
+        <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
+                   translate-attr-aria-label="CONTACTS.CLOSE_DIALOG">
+          <md-icon md-font-icon="icon-close"></md-icon>
+        </md-button>
+      </div>
+      <!-- / TOOLBAR TOP -->
+
+      <!-- TOOLBAR MIDDLE -->
+      <div class="md-toolbar-tools md-toolbar-tools-middle" flex layout="column" layout-align="center center">
+        <div layout="column" layout-align="center center">
+          <div class="pro-pic" ngf-select="" n class="save-button md-accent md-raised" name="file"
+               ngf-accept="'image/*'"
+               ngf-max-size="2MB" aria-label="upload" ng-model="vm.user.file" accept=".jpg">
+
+            <img ng-if="vm.user.file" ngf-src="vm.user.file" class="profile-image avatar xlarge"
+                 alt="{{vm.contact.username}}"/>
+
+            <img ng-if="!vm.user.file" ng-src="/efadminpanel/assets1/images/avatars/profile.jpg"
+                 class="profile-image avatar xlarge" alt="{{vm.contact.username}}"/>
+            <span><md-icon class="icon-camera">
+              <!--<md-button ngf-select="" n class="save-button md-accent md-raised" name="file" ngf-accept="'image/*'"-->
+              <!--ngf-max-size="2MB" aria-label="upload" ng-model="vm.agent.file" accept=".jpg">-->
+              <!--{{'file.browse' | translate}}-->
+              <!--</md-button>-->
+            </md-icon> {{'agent.uploadProfile' | translate}} </span>
+          </div>
+          <div class="contact-name">{{vm.contact.fullName}}</div>
+        </div>
+      </div>
+      <!-- / TOOLBAR MIDDLE -->
+
+      <!--  TOOLBAR BOTTOM -->
+      <!--<div class="md-toolbar-tools md-toolbar-tools-bottom" layout="row" layout-align="center center">-->
+
+      <!--<div flex layout="row" layout-align="center center">-->
+      <!--<label>Active</label>-->
+      <!--<md-switch ng-model="vm.contact.isActive" aria-label="Switch 1"></md-switch>-->
+      <!--</div>-->
+      <!--</div>-->
+      <!-- / TOOLBAR BOTTOM -->
+
+    </md-toolbar>
+    <!-- / DIALOG TOOLBAR -->
+
+    <!-- DIALOG CONTENT -->
+    <md-dialog-content>
+
+      <div layout="row" layout-padding>
+        <div flex="40" ng-hide="vm.newContact">
+
+          <div flex layout="row" layout-align="center center">
+            <span translate="CONTACTS.active"></span>
+            <div flex></div>
+            <md-switch ng-model="vm.contact.isActive" aria-label="Switch 1"></md-switch>
+          </div>
+
+          <md-input-container ng-if="vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.username">Username (required)</label>
+            <input ng-model="vm.contact.username" type="text" ng-required>
+          </md-input-container>
+
+          <md-input-container ng-if="!vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.username">Username</label>
+            <input ng-model="vm.contact.username" ng-disabled="true" type="text">
+          </md-input-container>
+
+          <md-input-container ng-if="vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.password"></label>
+            <input ng-model="vm.contact.password" type="{{vm.showPassword}}" ng-required>
+            <!--<input ng-show="vm.showPassword" ng-model="vm.contact.password" type="text" ng-required>-->
+            <md-icon ng-click="vm.togglePassword()" md-font-icon="icon-eye">
+              <md-tooltip><span translate="CONTACTS.showPass"></span></md-tooltip>
+            </md-icon>
+          </md-input-container>
+
+          <md-input-container class="md-icon-float md-block">
+            <label translate="CONTACTS.fullName">Full Name (required)</label>
+            <input ng-model="vm.contact.fullName" type="text" ng-required md-autofocus>
+          </md-input-container>
+
+          <md-input-container class="md-icon-float md-block">
+            <label translate="CONTACTS.email">Email (required)</label>
+            <input ng-model="vm.contact.email" type="text" ng-required>
+          </md-input-container>
+
+        </div>
+
+        <div flex="100" ng-hide="!vm.newContact">
+
+          <div flex layout="row" layout-align="center center">
+            <span translate="CONTACTS.active"></span>
+            <div flex></div>
+            <md-switch ng-model="vm.contact.isActive" aria-label="Switch 1"></md-switch>
+          </div>
+          <md-input-container ng-if="vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.username">Username (required)</label>
+            <input ng-model="vm.contact.username" type="text" ng-required>
+          </md-input-container>
+
+          <md-input-container ng-if="!vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.username">Username</label>
+            <input ng-model="vm.contact.username" ng-disabled="true" type="text">
+          </md-input-container>
+
+          <md-input-container ng-if="vm.newContact" class="md-icon-float md-block">
+            <label translate="CONTACTS.password"></label>
+            <input ng-model="vm.contact.password" type="{{vm.showPassword}}" ng-required>
+            <!--<input ng-show="vm.showPassword" ng-model="vm.contact.password" type="text" ng-required>-->
+            <md-icon ng-click="vm.togglePassword()" md-font-icon="icon-eye">
+              <md-tooltip><span translate="CONTACTS.showPass"></span></md-tooltip>
+            </md-icon>
+          </md-input-container>
+
+          <md-input-container class="md-icon-float md-block">
+            <label translate="CONTACTS.fullName">Full Name (required)</label>
+            <input ng-model="vm.contact.fullName" type="text" ng-required md-autofocus>
+          </md-input-container>
+
+          <md-input-container class="md-icon-float md-block">
+            <label translate="CONTACTS.email">Email (required)</label>
+            <input ng-model="vm.contact.email" type="text" ng-required>
+          </md-input-container>
+
+        </div>
+        <!--<div flex="100" class="user-roles">-->
+        <!--<div class="h3">Roles</div>-->
+        <!--<md-chips ng-model="vm.contact.roles" readonly="vm.readonly" md-removable="vm.removable">role-name</md-chips>-->
+        <!--</div>-->
+
+
+        <div flex="60" class="scrollable" ms-scroll ng-hide="vm.newContact">
+          <div layout="row" layout-padding>
+            <div flex="90">
+              <span translate="CONTACTS.roles"></span>
+            </div>
+            <div flex="10">
+              <md-menu class="labels">
+                <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                        ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+                  <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+                </button>
+                <md-menu-content class="labels-menu-content super-select" width="4">
+                  <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+                    <!-- SELECT LABEL -->
+                    <md-tab>
+                      <md-tab-body>
+                        <md-tooltip><span translate="CONTACTS.roles"></span></md-tooltip>
+                        <md-menu-item>
+                          <md-input-container class="no-errors-spacer" md-no-float>
+                            <input class="serInput"
+                                   placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}"
+                                   type="text" ng-model="vm.labelSearchRoleText" autocomplete="off"
+                                   translate-attr-palceholder="SB.SEARCH_LABELS">
+                          </md-input-container>
+                        </md-menu-item>
+
+                        <md-menu-item class="label" ng-repeat="label in vm.roles | filter: vm.filterRoles">
+                          <md-button class="label-toggle-button" md-prevent-menu-close
+                                     ng-click="vm.toggleInArrayRole(label, vm.contact.roles)"
+                                     aria-label="Toggle Label" translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+
+                            <md-list-item class="md-2-line contact-item selected">
+                              <div class="md-list-item-text compact">
+                                <h3>{{label.name}}
+                                  <i ng-if="vm.exists(label, vm.contact.roles)"
+                                     class="icon-check s16"></i>
+                                </h3>
+                              </div>
+                            </md-list-item>
+
+
+                          </md-button>
+                        </md-menu-item>
+
+                      </md-tab-body>
+                    </md-tab>
+                    <!-- / SELECT LABEL -->
+                  </md-tabs>
+                </md-menu-content>
+              </md-menu>
+            </div>
+
+          </div>
+          <md-chips disabled="true" name="roles" class="label-chips" ng-model="vm.contact.roles"
+                    md-autocomplete-snap md-require-match="false"
+                    md-transform-chip="vm.roleAssignment(vm.contact, $chip)"
+                    placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}"
+                    md-on-remove="vm.revokeRole(vm.contact, $chip)">
+
+            <md-autocomplete md-selected-item="vm.selectedRole" md-search-text="vm.searchText"
+                             md-items="item in vm.queryArraySearch(vm.searchText,vm.roles)"
+                             md-item-text="item.name"
+                             placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}">
+              <span md-highlight-text="vm.searchText">{{item.name}}</span>
+            </md-autocomplete>
+
+            <md-chip-template class="member-chip">
+              <span><strong>{{$chip.name}}</strong></span>
+            </md-chip-template>
+            <button md-chip-remove class="md-primary">
+              <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+            </button>
+
+          </md-chips>
+
+        </div>
+
+      </div>
+
+    </md-dialog-content>
+    <!-- / DIALOG CONTENT -->
+
+    <!-- DIALOG ACTIONS -->
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <div layout="row" layout-align="start center">
+        <md-button type="submit" ng-if="!vm.newContact" ng-click="vm.saveContact(vm.contact, vm.user.file)"
+                   class="send-button md-accent md-raised"
+                   ng-disabled="contactForm.$invalid || contactForm.$pristine"
+                   aria-label="SAVE" translate="CONTACTS.SAVE" translate-attr-aria-label="CONTACTS.SAVE">
+          SAVE
+        </md-button>
+
+        <md-button type="submit" ng-if="vm.newContact" ng-click="vm.addNewContact(vm.contact, vm.user.file)"
+                   class="send-button md-accent md-raised"
+                   ng-disabled="contactForm.$invalid || contactForm.$pristine"
+                   aria-label="Add Task" translate="CONTACTS.ADD_CONTACT"
+                   translate-attr-aria-label="CONTACTS.ADD_CONTACT">
+          ADD CONTACT
+        </md-button>
+
+      </div>
+
+      <!--<div layout="row">-->
+      <!--<md-button class="md-icon-button" ng-if="!vm.newContact" ng-click="vm.deleteContactConfirm($event)" aria-label="Delete"-->
+      <!--translate translate-attr-aria-label="CONTACTS.DELETE">-->
+      <!--<md-icon md-font-icon="icon-delete"></md-icon>-->
+      <!--<md-tooltip><span translate="CONTACTS.DELETE">DELETE</span></md-tooltip>-->
+      <!--</md-button>-->
+      <!--</div>-->
+    </md-dialog-actions>
+    <!-- / DIALOG ACTIONS -->
+
+  </form>
+
+</md-dialog>
+<!-- / DIALOG -->

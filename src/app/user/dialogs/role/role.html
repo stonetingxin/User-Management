@@ -1,0 +1,232 @@
+<md-dialog class="md-default-theme role-dialog" aria-label="New Role" flex="50">
+  <form ng-cloak>
+    <md-toolbar class="md-accent">
+      <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
+        <span class="title">{{vm.title}}</span>
+        <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
+                   translate-attr-aria-label="CONTACTS.CLOSE_DIALOG">
+          <md-icon md-font-icon="icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content ms-no-scroll>
+
+      <div layout="row" layout-padding>
+        <div flex="100">
+          <md-input-container class="md-block">
+            <label translate="generic.name"></label>
+            <input ng-model="vm.role.name">
+          </md-input-container>
+          <!--</div>-->
+          <!--<div flex="50">-->
+          <md-input-container class="md-block">
+            <label translate="generic.description"></label>
+            <textarea ng-model="vm.role.description" md-maxlength="150" rows="3" md-select-on-focus></textarea>
+          </md-input-container>
+
+        </div>
+      </div>
+      <!--<div flex="100" class="scrollable" ms-scroll>-->
+      <!--<md-tabs md-stretch-tabs="always">-->
+      <!--<md-tab label="Permissions">-->
+      <div layout="row" layout-padding ng-hide="vm.newRole">
+        <span flex="40" translate="CONTACTS.permissions"></span>
+        <div flex="10">
+
+          <md-menu class="labels">
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+            <md-menu-content class="labels-menu-content super-select" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+                <!-- SELECT LABEL -->
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="CONTACTS.permissions"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}"
+                               type="text" ng-model="vm.labelSearchPermText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+
+                    <md-menu-item class="label" ng-repeat="label in vm.permissions | filter: vm.filterPermissions">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArrayPerm(label,  vm.role.permissions)"
+                                 aria-label="Toggle Label" translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+
+                        <md-list-item class="md-2-line contact-item selected">
+                          <!--<img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>-->
+                          <div class="md-list-item-text compact">
+                            <h3>{{label.name}}({{label.expression}})
+                              <i ng-if="vm.exists(label, vm.role.permissions)"
+                                 class="icon-check s16"></i>
+                            </h3>
+                          </div>
+                        </md-list-item>
+
+
+                      </md-button>
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+          </md-menu>
+        </div>
+
+        <span flex="40" translate="user.users"></span>
+        <div flex="10">
+
+          <md-menu class="labels">
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+            <md-menu-content class="labels-menu-content super-select" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+                <!-- SELECT LABEL -->
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="user.users"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.users} }}"
+                               type="text" ng-model="vm.labelSearchUserText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+
+                    <md-menu-item class="label" ng-repeat="label in vm.contacts | filter: vm.filterUsers">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArrayUser(label,  vm.role)"
+                                 aria-label="Toggle Label" translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+
+                        <md-list-item class="md-2-line contact-item selected">
+                          <img ng-src="{{label.avatar}}" class="md-avatar" alt="{{label.fullName}}"/>
+                          <div class="md-list-item-text compact">
+                            <h3>{{label.fullName}}({{label.username}})
+                              <i ng-if="vm.exists(label, vm.roleUser)"
+                                 class="icon-check s16"></i>
+                            </h3>
+                          </div>
+                        </md-list-item>
+
+
+                      </md-button>
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+          </md-menu>
+        </div>
+      </div>
+      <div layout="row" layout-padding ng-hide="vm.newRole">
+
+        <div flex="50">
+          <div class="scrollControl maxHeight" id="perms" ng-click="vm.scrollToBottom('perms')">
+            <md-chips disabled="true" name="permissions" class="label-chips" ng-model="vm.role.permissions"
+                      md-autocomplete-snap md-require-match="false"
+                      md-transform-chip="vm.addPermission(vm.role, $chip)"
+                      placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}"
+                      md-on-remove="vm.removePermission(vm.role, $chip)">
+
+              <md-autocomplete md-selected-item="vm.selectedPermission" md-search-text="vm.searchText"
+                               md-items="item in vm.queryArraySearch(vm.searchText,vm.permissions)"
+                               md-item-text="item.name"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}">
+                <span md-highlight-text="vm.searchText">{{item.name}}</span>
+              </md-autocomplete>
+
+              <md-chip-template class="member-chip">
+                <span>{{$chip.name}}</span>
+              </md-chip-template>
+              <button md-chip-remove class="md-primary">
+                <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+              </button>
+
+            </md-chips>
+          </div>
+        </div>
+        <!--</div>-->
+        <!--</md-tab>-->
+        <!--<md-tab label="Users">-->
+        <!--<div layout="row" layout-padding>-->
+
+        <div flex="50" class="scrollControl maxHeight" id="users" ng-click="vm.scrollToBottom('users')">
+          <md-chips disabled="true" name="permissions" class="label-chips" ng-model="vm.roleUser"
+                    md-autocomplete-snap md-require-match="false"
+                    md-transform-chip="vm.userAssignment(vm.role, $chip)"
+                    placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.users} }}"
+                    md-on-remove="vm.revokeUser(vm.role, $chip)">
+
+            <md-autocomplete md-selected-item="vm.selectedUser" md-search-text="vm.searchUser"
+                             md-items="item in vm.queryUserSearch(vm.searchUser,vm.contacts)"
+                             md-item-text="item.fullName"
+                             placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.users} }}">
+              <span md-highlight-text="vm.searchUser">{{item.fullName}}</span>
+              <md-not-found>
+                <span translate="generic.notFound"></span>
+              </md-not-found>
+            </md-autocomplete>
+
+            <md-chip-template class="member-chip" custom-chip2>
+              <img class="image" ng-if="$chip.avatar" alt="{{$chip.username}}"
+                   ng-src="{{$chip.avatar}}"/>
+              <span>{{$chip.fullName}}</span>
+            </md-chip-template>
+            <button md-chip-remove class="md-primary">
+              <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+            </button>
+
+          </md-chips>
+
+          <!--<md-contact-chips-->
+          <!--ng-model="vm.roleUser"-->
+          <!--md-contacts="vm.queryArraySearch($query, vm.contacts)"-->
+          <!--md-contact-name="fullName"-->
+          <!--md-contact-image="avatar"-->
+          <!--md-contact-email="email"-->
+          <!--md-require-match="true"-->
+          <!--md-highlight-flags="i"-->
+          <!--filter-selected="true"-->
+          <!--placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.users} }}">-->
+          <!--</md-contact-chips>-->
+
+        </div>
+      </div>
+      <!--</md-tab>-->
+      <!--</md-tabs>-->
+      <!--</div>-->
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <md-button ng-if="vm.newRole" ng-click="vm.addNewRole(vm.role)" class="save-button md-accent md-raised"
+                 aria-label="SAVE">
+        <span translate="generic.save"></span>
+      </md-button>
+
+      <md-button ng-if="!vm.newRole" ng-click="vm.saveRole(vm.role)" class="save-button md-accent md-raised"
+                 aria-label="SAVE">
+        <span translate="generic.update"></span>
+      </md-button>
+
+      <!--<md-button ng-click="" class="md-icon-button" aria-label="Delete">-->
+      <!--<md-icon md-font-icon="icon-delete"></md-icon>-->
+      <!--<md-tooltip><span translate="">Delete</span></md-tooltip>-->
+      <!--</md-button>-->
+    </md-dialog-actions>
+
+  </form>
+</md-dialog>
