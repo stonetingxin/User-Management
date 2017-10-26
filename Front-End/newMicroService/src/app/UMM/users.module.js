@@ -29,7 +29,7 @@
             url    : '/users',
             views  : {
                 'content@app': {
-                    templateUrl: 'app/user/users.html',
+                    templateUrl: 'app/UMM/users.html',
                     controller : 'UsersController as vm'
                 }
             }

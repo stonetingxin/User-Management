@@ -243,7 +243,7 @@
             $mdDialog.show({
                 controller         : 'ContactDialogController',
                 controllerAs       : 'vm',
-                templateUrl        : 'app/user/dialogs/contact/contact-dialog.html',
+                templateUrl        : 'app/UMM/dialogs/contact/contact-dialog.html',
                 parent             : angular.element($document.find('#content-container')),
                 targetEvent        : ev,
               skipHide : true,
@@ -287,7 +287,7 @@
           $mdDialog.show({
               controller         : 'RoleDialogController',
               controllerAs       : 'vm',
-              templateUrl        : 'app/user/dialogs/contact/role-dialog.html',
+              templateUrl        : 'app/UMM/dialogs/contact/role-dialog.html',
               parent             : angular.element($document.find('#content-container')),
               targetEvent        : ev,
               skipHide : true,
@@ -329,7 +329,7 @@
         $mdDialog.show({
             controller         : 'RoleController',
             controllerAs       : 'vm',
-            templateUrl        : 'app/user/dialogs/role/role.html',
+            templateUrl        : 'app/UMM/dialogs/role/role.html',
             parent             : angular.element($document.find('#content-container')),
             targetEvent        : ev,
             skipHide : true,
@@ -364,7 +364,7 @@
         $mdDialog.show({
             controller         : 'PermissionController',
             controllerAs       : 'vm',
-            templateUrl        : 'app/user/dialogs/role/permission.html',
+            templateUrl        : 'app/UMM/dialogs/role/permission.html',
             parent             : angular.element($document.find('#content-container')),
             targetEvent        : ev,
             skipHide : true,
@@ -673,7 +673,7 @@
 			$mdDialog.show({
 			controller: 'RoleController',
 			controllerAs: 'vm',
-			templateUrl: 'app/user/dialogs/role/role.html',
+			templateUrl: 'app/UMM/dialogs/role/role.html',
 			parent: angular.element(document.body),
 			clickOutsideToClose:false,
 			//fullscreen: vm.customFullscreen // Only for -xs, -sm breakpoints.
