@@ -10,6 +10,10 @@
 /Back-End/.project
 /Back-End/.settings
 /Back-End/.classpath
+/Back-End/classes/*
+/Back-End/classes
+/Back-End/out/*
+/Back-End/out
 
 /Front-End/Thumbs.db
 /Front-End/.DS_Store
@@ -37,11 +41,8 @@
 
 /Front-End/node_modules
 /Front-End/node_modules/*
-/Front-End/app.js
-/Front-End/build.js
-/Front-End/test.js
-/Front-End/bower.json
-/Front-End/package.json
+/Front-End/*.js
+/Front-End/*.json
 
 /Front-End/newMicroService/src/app/baseApp
 /Front-End/newMicroService/src/app/baseApp/*
