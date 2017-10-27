@@ -1,6 +1,8 @@
 package com.ef.umm
 
 import grails.transaction.Transactional
+import net.sf.json.JSON
+import org.springframework.web.client.ResourceAccessException
 
 import static org.springframework.http.HttpStatus.*
 
@@ -14,10 +16,18 @@ class ApplicationSettingController {
     def checkUccxStatusService
 
     def index() {
-        respond ApplicationSetting.first(), [status: OK]
+        if(ApplicationSetting.first())
+            respond ApplicationSetting.first(), [status: OK]
+        else{
+            def resultSet=[:]
+            resultSet.put("message","Application settings are undefined.")
+            resultSet.put("status",NOT_FOUND)
+            response.status =404
+            render resultSet as JSON
+        }
     }
 
-    @Transactional
+    @Transactional(noRollbackFor=[ResourceAccessException, ConnectException])
     def save(ApplicationSetting applicationSettingInstance) {
         if (applicationSettingInstance == null) {
             render status: NOT_FOUND
@@ -30,9 +40,14 @@ class ApplicationSettingController {
             return
         }
 
-        applicationSettingInstance.save flush: true
+        applicationSettingInstance.save flush: true, failOnError: true
         CCSettingsService.setSettings(applicationSettingInstance)
-        def pubStatus = CCSettingsService.publish(applicationSettingInstance)
+        def pubStatus
+        try{
+            pubStatus = CCSettingsService.publish(applicationSettingInstance)
+        }catch (Exception ex){
+            log.error("Exception occured while publishing application settings: ${ex}")
+        }
 
         respond applicationSettingInstance, [status: CREATED]
     }

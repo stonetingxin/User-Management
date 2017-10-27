@@ -11,11 +11,12 @@ import org.apache.commons.httpclient.methods.GetMethod
 import org.apache.commons.httpclient.methods.PostMethod
 import org.apache.commons.httpclient.methods.PutMethod
 import org.apache.http.client.utils.URLEncodedUtils
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BasicNameValuePair
+import org.springframework.web.client.ResourceAccessException;
 
 import static org.springframework.http.HttpStatus.*
 
-@Transactional
+@Transactional(noRollbackFor=[ResourceAccessException, ConnectException])
 class CCSettingsService {
     int ccType //0 for CCE, 1 for CCX
     // setting for the ucce prompt network
@@ -165,9 +166,15 @@ class CCSettingsService {
         def resp
         micros.each{
             if(it?.name!= "umm"){
-                resp = updateMicro("post", it?.ipAddress,
-                        "/${it?.name}/applicationSetting/SetCCSettings",applicationSetting)
-                result.push("Publish response for ${it?.name} is: ${resp.responseEntity.statusCode.value}")
+                try{
+                    resp = updateMicro("post", it?.ipAddress,
+                            "/${it?.name}/applicationSetting/SetCCSettings",applicationSetting)
+                    result.push("Publish response for ${it?.name} is: ${resp.responseEntity.statusCode.value}")
+                }catch(ResourceAccessException ex){
+                    log.error "Exception occured while publishing application settings: ${ex}"
+                } catch(ConnectException ex){
+                    log.error "Exception occured while publishing application settings: ${ex}"
+                }
             }
         }
         return result

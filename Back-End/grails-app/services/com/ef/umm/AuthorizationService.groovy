@@ -78,7 +78,8 @@ class AuthorizationService {
                 log.error("Exception occured while saving active directory user in DB.", ex)
             }
 
-            if(microName == "base"){
+            if(microName == "base" || (action == "isUserAuthentic" && microName == "umm")
+                    || (action == "getAgentTeam" && microName == "umm")){
                 response.status = 200
                 response.auth=true
                 return response
@@ -97,19 +98,15 @@ class AuthorizationService {
                 resp = makeRestCall(params, request)
             }
 
-            if(!UMR.findByUsersAndMicroservices(user, micro)){
-                log.info("Access forbidden. User not authorized to request this resource.")
-                resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
-                response.status = 403
-                response.resultSet = resultSet
-                response.auth = false
-                return response
-            }
+
+            //Authorization Mechanism Based on permissions
 
             def permSuper = Permission.findByExpression("*:*")
+            def permMicroFull = Permission.findByExpression("${microName}:*:*")
             def permFull = Permission.findByExpression("${controller}:*")
             def permAction = Permission.findByExpression("${controller}:${action}")
 
+            //Highest permission level is *:*
             if(permSuper && hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
@@ -129,6 +126,38 @@ class AuthorizationService {
                 return response
             }
 
+            //If a user does not have super user permission, then he must have at least one permission assigned in
+            //relevant microservice.
+            if(!UMR.findByUsersAndMicroservices(user, micro)){
+                log.info("Access forbidden. User not authorized to request this resource.")
+                resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
+                response.status = 403
+                response.resultSet = resultSet
+                response.auth = false
+                return response
+            }
+
+            //This permission allows a user to perform all operations in a microservice.
+            if(permMicroFull && hasPermission(user, micro, permMicroFull)){
+                if(microName != "umm"){
+                    log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    response.status = resp.responseEntity.statusCode.value
+                    if(resp?.json){
+                        log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
+                        response.resultSetJSON= resp.json
+                    } else if(resp.responseEntity.body)
+                        response.resultSetBody = resp.responseEntity.body
+                    else
+                        response.resultSetZero = 0
+                    response.auth = false
+                    return response
+                }
+                log.info("Successfully Authorized. Forwarding request to: ${req}")
+                response.auth = true
+                return response
+            }
+
+            //This permission set allows all operations of a specific controller of a microservice.
             if(permFull && hasPermission(user, micro, permFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
@@ -148,6 +177,7 @@ class AuthorizationService {
                 return response
             }
 
+            //This is the least privileged permission and allows a specific action of a controller of a microservice.
             if(permAction && hasPermission(user, micro, permAction)) {
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")

@@ -24,7 +24,7 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     String usernamePropertyName = "username"
     String authoritiesPropertyName = "role"
     def AuthorizationService
-
+    def userService
 
     String generateJson(AccessToken accessToken) {
         Assert.isInstanceOf(UserDetails, accessToken.principal, "A UserDetails implementation is required")
@@ -79,13 +79,14 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     }
 
     def getTeams(String user){
-        def rest = new RestBuilder()
-        def config = Holders.config
-        def resp
-        def adminPanel = config.getProperty('names.adminPanel')
-        def serv = Microservice.findByName(adminPanel)
-        if(serv)
-            resp = rest.get("${serv?.ipAddress}/${serv.name}/agent/getAgentTeam?id=${user}")
+//        def rest = new RestBuilder()
+//        def config = Holders.config
+//        def resp
+//        def adminPanel = config.getProperty('names.adminPanel')
+//        def serv = Microservice.findByName(adminPanel)
+//        if(serv)
+//            resp = rest.get("${serv?.ipAddress}/${serv.name}/agent/getAgentTeam?id=${user}")
+        def resp = userService.getAgentTeams(user)
         return resp
     }
 }

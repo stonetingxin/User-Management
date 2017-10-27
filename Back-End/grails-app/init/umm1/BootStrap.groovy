@@ -14,40 +14,80 @@ class BootStrap {
             try {
 
                 def permTAM = [
+
+                        //All team administartion operations
+                        [name: "All Team Administration Operations", expression: "tam:*:*"],
+
                         // Agent related permissions for TAM
-                        [name: "All Agent Operations", expression: "agent:*"],
+                        [name: "All Agent Operations", expression: "agent:*",
+                         preReqs:["group:index",
+                                  "skill:index",
+                                  "team:index"]],
                         //Requires group:index, skill:index and team:index
-                        [name: "List Agents", expression: "agent:index"],
+                        [name: "List Agents", expression: "agent:index",
+                         preReqs:["group:index",
+                                  "skill:index",
+                                  "team:index"]],
                         [name: "Update Agents", expression: "agent:update"],
                         [name: "Update Agent's Profile Pic", expression: "agent:updateProfilePic"],
 
 
-                        [name: "All queue Operations", expression: "queue:*"],
+                        [name: "All queue Operations", expression: "queue:*",
+                         preReqs: ["group:index",
+                                   "skill:index"]],
                         //Requires group:index and skill:index
-                        [name: "List queues", expression: "queue:index"],
+                        [name: "List queues", expression: "queue:index",
+                         preReqs: ["group:index",
+                                   "skill:index"]],
                         [name: "Create new queue", expression: "queue:save"],
                         [name: "Update queues", expression: "queue:update"],
                         [name: "Delete queues", expression: "queue:delete"],
 
 
-                        [name: "All Team Operations", expression: "team:*"],
+                        [name: "All Team Operations", expression: "team:*",
+                         preReqs: ["service:index",
+                                   "agent:index",
+                                   "queue:index",
+                                   "application:index"]],
                         //Requires service:index, agent:index, queue:index and application:index
-                        [name: "List Teams", expression: "team:index"],
+                        [name: "List Teams", expression: "team:index",
+                         preReqs: ["service:index",
+                                   "agent:index",
+                                   "queue:index",
+                                   "application:index"]],
                         [name: "Get a team's details", expression: "team:getTeam"],
                         [name: "Create new Teams", expression: "team:save"],
                         //Requires agent:index
-                        [name: "Update Teams", expression: "team:update"],
+                        [name: "Update Teams", expression: "team:update",
+                         preReqs: "agent:index"],
                         [name: "Delete Teams", expression: "team:delete"],
 
 
-                        [name: "All Application Operations", expression: "application:*"],
+                        [name: "All Application Operations", expression: "application:*",
+                        preReqs:["prompt:getAllPrompts",
+                                 "callControlGroup:index",
+                                 "trigger:index",
+                                 "script:getAllScripts",
+                                 "script:index",
+                                 "script:getScriptvariables"]],
                         //Requires prompt:getAllPrompts, callControlGroup:index, trigger:index, script:getAllScripts
-                        [name: "List Applications", expression: "application:index"],
+                        [name: "List Applications", expression: "application:index",
+                         preReqs:["prompt:getAllPrompts",
+                                  "callControlGroup:index",
+                                  "trigger:index",
+                                  "script:getAllScripts"]],
                         [name: "Get an application's details", expression: "application:get"],
                         //Requires script:index, prompt:getAllPrompts, application:get, script:getScriptvariables
-                        [name: "Create new Application", expression: "application:save"],
+                        [name: "Create new Application", expression: "application:save",
+                         preReqs:["prompt:getAllPrompts",
+                                  "Application:get",
+                                  "script:index",
+                                  "script:getScriptvariables"]],
                         //Requires prompt:getAllPrompts, application:get and script:getScriptvariables
-                        [name: "Update Applications", expression: "application:update"],
+                        [name: "Update Applications", expression: "application:update",
+                         preReqs: ["prompt:getAllPrompts",
+                                   "application:get",
+                                   "script:getScriptvariables"]],
                         [name: "Delete Applications", expression: "application:delete"],
 
 
@@ -60,7 +100,7 @@ class BootStrap {
                         [name: "Delete scripts or folders", expression: "script:delete"],
                         [name: "Create script Folder", expression: "script:createFolder"],
                         //Self prereqs
-                        [name: "Update Script's folder", expression: "script:updateFolder"],
+                        [name: "Update Script's folder", expression: "script:updateFolder", preReqs:["script:getAllScripts"]],
                         [name: "Get Scripts after folder update", expression: "script:getAllScripts"],
 
                         [name: "Get script's Variables", expression: "script:getScriptVariables"],
@@ -71,7 +111,7 @@ class BootStrap {
                         [name: "List prompts", expression: "prompt:index"],
                         [name: "Upload new prompt", expression: "prompt:save"],
                         //Self prereqs
-                        [name: "Update a prompt", expression: "prompt:update"],
+                        [name: "Update a prompt", expression: "prompt:update", preReqs: ["script:getAllPrompts"]],
                         [name: "Get Prompts after folder update", expression: "script:getAllPrompts"],
 
                         [name: "Delete prompts or folders", expression: "prompt:delete"],
@@ -105,12 +145,12 @@ class BootStrap {
                         [name: "Delete DNs", expression: "service:delete"],
 
                         //No cross domain prerequisite for triggers
-                        [name: "All trigger Operations", expression: "service:*"],
-                        [name: "List triggers", expression: "service:index"],
-                        [name: "Get a trigger's details", expression: "service:get"],
-                        [name: "Create new trigger", expression: "service:save"],
-                        [name: "Update triggers", expression: "service:update"],
-                        [name: "Delete triggers", expression: "service:delete"],
+                        [name: "All trigger Operations", expression: "trigger:*"],
+                        [name: "List triggers", expression: "trigger:index"],
+                        [name: "Get a trigger's details", expression: "trigger:get"],
+                        [name: "Create new trigger", expression: "trigger:save"],
+                        [name: "Update triggers", expression: "trigger:update"],
+                        [name: "Delete triggers", expression: "trigger:delete"],
 
                         //No cross domain prerequisite for callControlGroup
                         [name: "All call control group Operations", expression: "callControllGroup:*"],
@@ -118,84 +158,23 @@ class BootStrap {
 
                 ]
 
-                /*Permissions for Admin Panel Supervisor*/
-                def permSupervisor = [
-                        // Agent related permissions for Admin Panel
-                        [name: "Agent(Side Menu)", expression: "agents:*"],
-                        [name: "Full Access: Agent", expression: "agent:*"],
-                        [name: "Full Access: Skill", expression: "skill:*"],
-                        [name: "Full Access: Group", expression: "group:*"],
-                        [name: "List Access: Team", expression: "team:index"],
-                        [name: "GetTeam Access: Team", expression: "team:getTeam"],
-                        [name: "Update Access: Team", expression: "team:update"],
+//                /*Permissions for Admin Panel Supervisor*/
+                def permSupervisor = ["agent:*","application:*","queue:*","prompt:*","script:*"]
+                def permJunior = ["agent:*","queue:*"]
 
-                        // Application related permissions in Admin Panel
-                        [name: "Application(Side Menu)", expression: "applications:*"],
-                        [name: "Full Access: Application", expression: "application:*"],
-
-                        // Permissions related to EasyAnnouncements
-//                        [name: "Full Access: Easy Announcement", expression: "easyAnnouncement:*"],
-//                        [name: "Full Access: General Announcement", expression: "generalAnnouncement:*"],
-//                        [name: "Full Access: Service", expression: "service:*"],
-//                        [name: "Full Access: Region", expression: "region:*"],
-
-                        // Permissions related to business calendar
-//                        [name: "Full Access: Business Calendar", expression: "businessCalendar:*"],
-//                        [name: "Full Access: Working Events(BC)", expression: "workingEvents:*"],
-//                        [name: "Full Access: Holiday Profile(BC)", expression: "holidayProfile:*"],
-//                        [name: "Full Access: Agency(BC)", expression: "agency:*"],
-//                        [name: "Full Access: BC Service", expression: "businessCalendarService:*"],
-
-                        // Queue related permissions in Admin Panel
-                        [name: "Queue(Side Menu)", expression: "queues:*"],
-                        [name: "Full Access: Queue", expression: "queue:*"],
-
-                        // Permissions related to prompt in Admin Panel
-                        [name: "Prompts(Side Menu)", expression: "prompts:*"],
-                        [name: "Full Access: Prompt", expression: "prompt:*"],
-
-                        // CallerList related permissions for adminpanel
-//                        [name: "Full Access: Caller List", expression: "todo:*"],
-//                        [name: "CallerList(Side Menu)", expression: "callerlist:*"],
-//                        [name: "Full Access: Caller", expression: "caller:*"],
-
-                        // Script related permissions
-                        [name: "Scripts(Side Menu)", expression: "scripts:*"],
-                        [name: "Full Access: Script", expression: "script:*"],
-                        [name: "Full Access: callControlGroup", expression: "callControlGroup:*"],
-                        [name: "Full Access: Trigger", expression: "trigger:*"],
-
-                        // Permission for user validation API in admin panel
-                        [name: "Full Access: User", expression: "user:*"],
-
-                        // Permission to perform application settings
-                        [name: "Full Access: Application Setting", expression: "applicationSetting:*"]
-                ]
-
-                def permDefaultAP= [
-                    // Permission for user validation API in admin panel
-                    [name: "Full Access: User", expression: "user:*"],
-
-                    // Permission to perform application settings
-                    [name: "Full Access: Application Setting", expression: "applicationSetting:*"]
-                ]
 
                 def admin
                 def umm
 
                 // Microservices
                 if(!Microservice.findByName("umm")){
-                    umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9090", description: 'User Management MicroService')
+                    umm = new Microservice(name: 'umm', ipAddress: "http://127.0.0.1:9091", description: 'User Management MicroService')
                     umm?.save(flush: true, failOnError: true)
                 }
 
                 def adminPanel = grailsApplication.config.getProperty('names.adminPanel')
-                def efadminpanel = new Microservice(name: adminPanel, ipAddress: "http://127.0.0.1:8080", description: 'Admin panel')
+                def efadminpanel = new Microservice(name: adminPanel, ipAddress: "http://127.0.0.1:8080", description: 'Team Administration Module')
                 efadminpanel?.save(flush: true, failOnError: true)
-
-                def ecm = new Microservice(name: 'ecm', ipAddress: "http://192.168.1.92:8080", description: 'ECM')
-                ecm?.save(flush: true, failOnError: true)
-
 
                 // Roles
 
@@ -206,37 +185,42 @@ class BootStrap {
                 roleAdmin?.save(flush: true, failOnError: true)
 //                umm?.save(flush: true, failOnError: true)
 
-                def roleSupervisor = new Role(authority: "supervisor", description: "Supervisor Role")
 
-                permSupervisor.each{
+                permTAM.each{
                     def perm = new Permission(it)
-                    roleSupervisor.addToPermissions(perm)
+//                    roleSupervisor.addToPermissions(perm)
                     efadminpanel.addToPermissions(perm)
+                    perm.save(flush:true, failOnError: true)
                 }
 
+                def roleSupervisor = new Role(authority: "supervisor", description: "Supervisor Role")
+                permSupervisor.each{
+                    def perm = Permission.findByExpression(it)
+                    roleSupervisor.addToPermissions(perm)
+                }
                 roleSupervisor?.save(flush: true, failOnError: true)
-                efadminpanel?.save(flush: true, failOnError: true)
+//                efadminpanel?.save(flush: true, failOnError: true)
 
                 def roleJunior = new Role(authority: "junior supervisor", description: "Junior Spervisor Role")
-                roleJunior.addToPermissions(Permission.findByExpression("agent:*"))
-                roleJunior.addToPermissions(Permission.findByExpression("queue:*"))
-                roleSupervisor.addToPermissions(Permission.findByExpression("user:*"))
-                roleJunior.addToPermissions(Permission.findByExpression("applicationSetting:*"))
+                permJunior.each{
+                    def perm = Permission.findByExpression(it)
+                    roleJunior.addToPermissions(perm)
+                }
                 roleJunior?.save(flush: true, failOnError: true)
 
-                def roleDefaultAP = new Role(authority: "default", description: "Default role for admin panel")
-                permDefaultAP.each{
-                    def perm = Permission.findByExpression(it?.expression)
-                    if(perm){
-                        roleDefaultAP.addToPermissions(perm)
-                        efadminpanel.addToPermissions(perm)
-                    } else {
-                        def perm2 = new Permission(it)
-                        roleDefaultAP.addToPermissions(perm2)
-                        efadminpanel.addToPermissions(perm2)
-                    }
-                }
-                roleDefaultAP.save(flush: true, failOnError: true)
+//                def roleDefaultAP = new Role(authority: "default", description: "Default role for admin panel")
+//                permDefaultAP.each{
+//                    def perm = Permission.findByExpression(it?.expression)
+//                    if(perm){
+//                        roleDefaultAP.addToPermissions(perm)
+//                        efadminpanel.addToPermissions(perm)
+//                    } else {
+//                        def perm2 = new Permission(it)
+//                        roleDefaultAP.addToPermissions(perm2)
+//                        efadminpanel.addToPermissions(perm2)
+//                    }
+//                }
+//                roleDefaultAP.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
                     admin = new User(username: "admin", fullName: "Administrator", password: "admiN123!", isActive: true, type: "DB",
@@ -250,9 +234,6 @@ class BootStrap {
 
 
                 UMR.create admin, roleAdmin, umm
-                UMR.create admin, roleAdmin, efadminpanel
-                UMR.create admin, roleDefaultAP, efadminpanel
-                UMR.create admin, roleAdmin, ecm
 
                 UMR.withSession {
                     it.flush()

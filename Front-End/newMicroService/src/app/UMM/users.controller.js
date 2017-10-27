@@ -262,7 +262,7 @@
                 if(userData.message === 'create'){
                   vm.contacts.unshift(userData.user);
                   if (vm.contacts[0].profileExists)
-                    vm.contacts[0].avatar = window.appBaseUrl + '/base/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
+                    vm.contacts[0].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
                   else
                     vm.contacts[0].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
                 } else if(userData.message === 'update' || userData.message === 'roleAssigned'){
@@ -306,7 +306,7 @@
                 if(userData.message === 'create'){
                   vm.contacts.unshift(userData.user);
                   if (vm.contacts[0].profileExists)
-                    vm.contacts[0].avatar = window.appBaseUrl + '/base/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
+                    vm.contacts[0].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
                   else
                     vm.contacts[0].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
                 } else if(userData.message === 'update' || userData.message === 'upload'){

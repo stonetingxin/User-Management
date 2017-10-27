@@ -582,6 +582,12 @@ class UserController extends RestfulController<User> {
         }
     }
 
+    def getAgentTeam(){
+        def agentId = params.id
+        def response = userService.getAgentTeams(agentId)
+        parseResponse(response)
+    }
+
     def downloadScript(){
         def http = new HTTPBuilder('https://192.168.1.100')
         http.ignoreSSLIssues()
