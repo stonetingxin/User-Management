@@ -1,0 +1,56 @@
+<div  class="event-detail-dialog" aria-label="New Message">
+
+
+
+    <md-toolbar class="md-accent md-hue-2">
+      <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+        <span class="title">Region Detail</span>
+      </div>
+    </md-toolbar>
+  <form name="groupForm" class="user-detail">
+    <md-dialog-content ms-scroll>
+
+      <div layout="row" layout-align="center start" layout-margin>
+        <div flex="30">
+          <div layout="column" layout-align="center start">
+
+
+          </div><!--column-->
+        </div>
+        <div flex="70">
+          <div layout="row" class="date-row">
+
+            <md-input-container flex="" >
+              <label for="">Name 123</label>
+              <input name="name"  ng-model-options="{ debounce: 250 }"
+                     property="nameExist" ng-model="vm.group.name"  autocomplete="off" required>
+              <div ng-messages="groupForm.name.$error" ng-show="groupForm.name.$touched && !groupForm.name.$valid" role="alert">
+                <div ng-message="required">
+                  <span >Name cannot be null</span>
+                </div>
+
+              </div>
+            </md-input-container>
+
+          </div>
+
+        </div>
+      </div><!--row-->
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" class="agent-act" layout-align="center center" layout-margin>
+
+      <div flex="20">
+        <button type="button" ng-click="vm.deleteGroup(vm.group)" class="md-icon-button md-button md-ink-ripple" aria-label="Delete"><md-icon md-font-icon="icon-delete" class="md-font icon-delete material-icons"></md-icon><md-tooltip>Delete</md-tooltip></button>
+      </div>
+      <div flex="80" layout="row" layout-align="end center">
+		   <md-button ng-click="vm.update(vm.group)" class="save-button md-accent white-fg md-raised" aria-label="Save"
+		   ng-disabled="groupForm.$invalid || groupForm.$pristine">Save</md-button>
+      </div>
+    </md-dialog-actions>
+
+
+  </form>
+
+</div>

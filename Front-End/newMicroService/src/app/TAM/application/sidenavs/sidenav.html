@@ -1,0 +1,294 @@
+<div id="application">
+
+    <md-toolbar class="md-accent md-hue-2 md-default-theme">
+        <div layout-align="space-between center" layout="row" class="md-toolbar-tools">
+            <span class="title">{{vm.createFormOr == 'edit'?'generic.update':'generic.create'|translate}}</span>
+            <span>
+        <button type="button" class="md-icon-button md-button md-ink-ripple" ng-show="vm.createFormOr==='edit'" ng-click="vm.deleteApplication(vm.selected)" aria-label="Delete"><md-icon md-font-icon="icon-delete" class="md-font icon-delete material-icons"></md-icon><md-tooltip><span translate="generic.delete"></span></md-tooltip>
+            </button>
+            <button type="button" class="md-icon-button md-button md-ink-ripple" ng-click="vm.saveApplication(vm.selected,vm.trigger)" aria-label="Save"><md-icon md-font-icon="icon-check" class="md-font material-icons"></md-icon><md-tooltip><span translate="generic.save"></span></md-tooltip></button>
+            <button type="button" class="md-icon-button md-button md-ink-ripple" ng-click="vm.selected=undefined" aria-label="Close dialog"><md-icon md-font-icon="icon-close" class="ng-scope ng-isolate-scope md-font icon-close material-icons" aria-hidden="true"></md-icon><md-tooltip><span translate="generic.close"></span></md-tooltip></button>
+            </span>
+        </div>
+    </md-toolbar>
+    <!-- / SIDENAV HEADER -->
+
+    <!-- SIDENAV CONTENT -->
+    <md-content class="content app-detail">
+
+        <div class="file-details">
+
+            <form name="vm.createForm" class="md-inline-form">
+                <div layout="row" layout-padding>
+
+                    <div flex="50">
+                        <md-input-container class="md-block">
+                            <label for="" translate="application.appName"></label>
+                            <input type="text" name="applicationName" min="1" autocomplete="off" ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" name-local-validate list-element="{{vm.applications}}" max-length="3" property="applicationExist" object-key="applicationName"
+                                ng-disabled="vm.createFormOr=='edit'" ng-model="vm.selected.applicationName" placeholder="{{'application.appName'|translate}}" required>
+                            <div ng-messages="vm.createForm.applicationName.$error" ng-show="vm.createForm.applicationName.$dirty" role="alert">
+                                <div ng-message="required">
+                                    <span translate="data.cannot_null" translate-values="{name:'{{'application.appName'|translate}}'}"> </span>
+                                </div>
+                                <div ng-show="!vm.createForm.applicationName.$valid && applicationExist">
+                                    <span translate="data.charSize" translate-values="{field:'{{'application.appName'|translate}}',number:3}"></span>
+                                </div>
+                                <div ng-message="pattern">
+                                    <span translate="data.specialChar" translate-values="{field:'{{'application.appName'|translate}}'}"></span>
+                                </div>
+                            </div>
+                        </md-input-container>
+                    </div>
+
+                    <div flex="20">
+                        <md-input-container class="md-block">
+                            <label for="" translate="application.sessions"></label>
+                            <input type="text" name="maxsession" min="1" ng-model="vm.selected.maxsession" placeholder="" ng-pattern="/^[0-9]+$/" required>
+                            <div ng-messages="vm.createForm.maxsession.$error" ng-show="vm.createForm.maxsession.$touched" role="alert">
+                                <div ng-message="required">
+                                    <span translate="data.cannot_null" translate-values="{name:'{{'application.sessions'|translate}}'}"> </span>
+                                </div>
+                                <div ng-message="pattern">
+                                    <span translate="data.onlyNumber"></span>
+                                </div>
+                            </div>
+                        </md-input-container>
+                    </div>
+
+                    <div flex="20">
+                        <md-input-container class="md-block">
+                            <label for="" translate="generic.id"></label>
+                            <input type="text" name="id" min="1" ng-model="vm.selected.id" autocomplete="off" ng-model-options="{ debounce: 250 }" name-local-validate ng-pattern="/^[0-9]+$/" list-element="{{vm.applications}}" max-length="2" property="applicationIdExist" object-key="id"
+                                placeholder="ID" required>
+                            <div ng-messages="vm.createForm.id.$error" ng-show="vm.createForm.id.$touched" role="alert">
+                                <div ng-message="required">
+                                    <span translate="data.cannot_null" translate-values="{name:'{{'generic.id'|translate}}'}"> </span>
+                                </div>
+                                <div ng-show="!vm.createForm.id.$valid && applicationIdExist">
+                                    <span translate="data.charSize" translate-values="{field:'{{'generic.id'|translate}}',number:2}"></span>
+                                </div>
+                                <div ng-message="pattern">
+                                    <span translate="data.onlyNumber"></span>
+                                </div>
+                            </div>
+                        </md-input-container>
+                    </div>
+
+                    <div flex="10" class="en-app">
+                        <label for="" translate="application.enableApp"></label>
+                        <md-switch ng-model="vm.selected.enabled" ng-true-value="'true'" ng-false-value="'false'" aria-label="enabled"></md-switch>
+                    </div>
+
+                </div>
+                <!--row-->
+
+                <div class="script-trigger">
+
+                    <div flex="100">
+                        <div layout="row">
+                            <!--<label for="" translate="file.script"></label> : {{vm.selected.script}}-->
+                            <fetch-files add-file="vm.selected.script" type-of-file="'script'" format-file="'singal'">
+                            </fetch-files>
+                        </div>
+                        <ul class="script-list">
+                            <li ng-repeat="scriptParam in vm.selected.ScriptApplication.scriptParams">
+                                <!--<i class="icon icon-flickr-after s24"></i>-->
+
+                                <span class="text-boxed m-0 md-blue-grey-400-bg white-fg" flex>
+                    	              <label class="md-body-1" for="">{{scriptParam.name}}</label>
+                                </span>
+                                <md-input-container flex>
+                                    <input ng-if="scriptParam.type==='java.lang.Integer'" type="number" aria-label="Integer" name="{{scriptParam.name}}" min="0" ng-model="scriptParam.value">
+                                    <input ng-if="scriptParam.type==='java.lang.String'" type="text" aria-label="String" ng-pattern='/^"[a-zA-Z0-9-_.]+"$/' name="{{scriptParam.name}}" min="0" ng-model="scriptParam.value">
+                                    <!--<md-select ng-if="scriptParam.type==='com.cisco.prompt.Playable'" ng-model="scriptParam.value" aria-label="Playable" name="{{scriptParam.name}}">
+                                        <md-option ng-repeat="prompt in vm.prompts" ng-value="prompt">{{prompt}}</md-option>
+                                    </md-select>-->
+                                    <div layout="row" ng-if="scriptParam.type==='com.cisco.prompt.Playable'">
+                                        <!--{{scriptParam.value}}-->
+                                        <fetch-files add-file="scriptParam.value" type-of-file="'prompt'" format-file="'singal'" max-files="3">
+                                        </fetch-files>
+                                    </div>
+                                    <div ng-messages="vm.createForm.$error" role="alert">
+                                        <div ng-message="pattern">
+                                            <span translate="application.stringVariables"></span>
+                                        </div>
+                                        <div ng-message="number">
+                                            <span translate="data.onlyNumber"></span>
+                                        </div>
+                                    </div>
+                                </md-input-container>
+
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                <!--row-->
+            </form>
+
+            <div class="script-trigger" ng-class="vm.createFormOr!='edit'?'hidden':''">
+
+                <div flex="100">
+                    <div layout="row" layout-align="space-between center">
+
+                        <div flex class="triggers">
+                            <span translate="application.configureTriggers"></span>
+                        </div>
+
+                        <div flex align="right">
+                            <md-menu class="labels">
+                                <md-button class="md-icon-button" aria-label="Label" ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+                                    <md-icon md-menu-origin md-font-icon="icon-dots-vertical"></md-icon>
+                                </md-button>
+
+                                <md-menu-content class="labels-menu-content" width="4">
+                                    <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                                        <!-- SELECT LABEL -->
+                                        <md-tab>
+                                            <md-tab-body>
+                                                <div class="edit-label-tab-content">
+
+                                                    <div class="header" layout="row" layout-align="space-between center">
+                                                        <md-button class="md-icon-button label-edit-button" md-prevent-menu-close ng-click="vm.labelTabIndex = 2" aria-label="Create Trigger">
+                                                            <i class="icon-plus s20"></i>
+                                                        </md-button>
+                                                        <span flex translate="generic.createLabel" translate-values="{name:'{{'application.trigger.trigger'|translate}}'}"></span>
+                                                    </div>
+
+                                                    <div class="content" layout="column" layout-align="start stretch">
+                                                        <md-menu-item class="label " ng-repeat="tri in vm.appTrigger">
+
+                                                            <md-button class="label-toggle-button" md-prevent-menu-close aria-label="Toggle Label" translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+                                                                <div layout="row" layout-align="space-between center">
+                                                                    <span>{{tri.directoryNumber}}</span>
+                                                                </div>
+                                                            </md-button>
+
+                                                        </md-menu-item>
+                                                    </div>
+                                                </div>
+                                            </md-tab-body>
+                                        </md-tab>
+                                        <!-- / SELECT LABEL -->
+                                        <!-- EDIT LABEL -->
+                                        <md-tab>
+                                            <md-tab-body>
+                                                <div class="edit-label-tab-content">
+
+                                                    <div class="header" layout="row" layout-align="space-between center">
+                                                        <md-button class="md-icon-button" md-prevent-menu-close ng-click="vm.labelTabIndex = 0" aria-label="back">
+                                                            <i class="icon-arrow-left s20"></i>
+                                                        </md-button>
+                                                        <span flex translate="application.trigger.trigger"> </span>
+
+                                                        <md-button ng-if="vm.createFormOr==undefined" class="md-icon-button" ng-click="vm.labelTabIndex = 0" md-prevent-menu-close aria-label="Save">
+                                                            <i class="icon-check s20"></i>
+                                                        </md-button>
+                                                        <md-button ng-if="vm.createFormOr=='edit'" class="md-icon-button" ng-disabled="createTrigger.$invalid" ng-click="vm.addTrigger(vm.trigger,vm.selected)" md-prevent-menu-close aria-label="Save">
+                                                            <i class="icon-check s20"></i>
+                                                        </md-button>
+                                                    </div>
+
+                                                    <div class="content" layout="column" layout-align="start stretch">
+                                                        <form name="createTrigger">
+                                                            <md-input-container flex="100">
+                                                                <label for="directoryName" translate="application.trigger.directoryNumber"></label>
+                                                                <input type="text" ng-model="vm.trigger.directoryNumber" required="" autocomplete="off" ng-model-options="{ debounce: 250 }" name-local-validate ng-pattern="/^[0-9-_]+$/" list-element="{{vm.triggers}}" max-length="2" property="directoryNumber" object-key="directoryNumber"
+                                                                    name="directoryNumber" />
+                                                                <div ng-messages="createTrigger.directoryNumber.$error" ng-show="createTrigger.directoryNumber.$touched" role="alert">
+                                                                    <div ng-message="required">
+                                                                        <span translate="data.cannot_null" translate-values="{name:'{{'application.trigger.directoryNumber'|translate}}'}"></span>
+                                                                    </div>
+                                                                    <div ng-class="directoryNumber" ng-show="directoryNumber">
+                                                                        <span translate="data.charSize" translate-values="{filed:'{{'application.trigger.directoryNumber'|translate}}',number:2}"></span>
+                                                                    </div>
+                                                                    <div ng-message="pattern">
+                                                                        <span translate="data.onlyNumber"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </md-input-container>
+
+                                                            <md-input-container flex="100">
+                                                                <label for="deviceName" translate="application.trigger.deviceName"> </label>
+                                                                <input type="text" ng-model="vm.trigger.deviceName" maxlength="15" autocomplete="off" ng-model-options="{ debounce: 250 }" name-local-validate ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" list-element="{{vm.triggers}}" max-length="4" property="deviceName" object-key="deviceName"
+                                                                    required="" name="deviceName" />
+                                                                <div ng-messages="createTrigger.deviceName.$error" ng-show="createTrigger.deviceName.$touched" role="alert">
+                                                                    <div ng-message="required">
+                                                                        <span translate="data.cannot_null" translate-values="{name:'{{'application.trigger.deviceName'|translate}}'}"></span>
+                                                                    </div>
+                                                                    <div ng-class="deviceName" ng-show="deviceName">
+                                                                        <span translate="data.charSize" translate-values="{filed:'{{'application.trigger.deviceName'|translate}}',number:2}"></span>
+                                                                    </div>
+                                                                    <div ng-message="pattern">
+                                                                        <span translate="data.specialChar" translate-values="{filed:'{{'application.trigger.deviceName'|translate}}'}"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </md-input-container>
+
+                                                            <div class="row" layout="row">
+                                                                <md-input-container flex="30">
+                                                                    <label for="language" translate="application.trigger.language"></label>
+                                                                    <md-select ng-model="vm.trigger.selectLanguage" ng-change="vm.changeLanguage()" aria-label="language">
+                                                                        <md-option ng-repeat="language in vm.languages" ng-value="language">{{language}}</md-option>
+                                                                    </md-select>
+                                                                </md-input-container>
+
+                                                                <md-input-container flex="70">
+                                                                    <input ng-model="vm.trigger.language" required="" name="language" aria-label="language" />
+                                                                    <div ng-messages="createTrigger.language.$error" ng-show="createTrigger.language.$touched" role="alert">
+                                                                        <div ng-message="required">
+                                                                            <span translate="data.cannot_null" translate-values="{name:'{{'application.trigger.language'|translate}}'}"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </div>
+
+                                                            <div class="row" layout="row">
+                                                                <md-input-container flex="100">
+                                                                    <label for="callControlGroup" translate="application.trigger.callControlGroup"></label>
+                                                                    <md-select ng-model="vm.trigger.callControlGroup" required="" name="callControlGroup" aria-label="callControlGroup">
+                                                                        <md-option ng-repeat="callControlGroup in vm.callControlGroups" ng-value="callControlGroup.id">{{callControlGroup.description}}({{callControlGroup.id}})</md-option>
+                                                                    </md-select>
+                                                                    <div ng-messages="createTrigger.callControlGroup.$error" ng-show="createTrigger.callControlGroup.$touched" role="alert">
+                                                                        <div ng-message="required">
+                                                                            <span translate="data.cannot_null" translate-values="{name:'{{'application.trigger.callControlGroup'|translate}}'}"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                </md-input-container>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </md-tab-body>
+                                        </md-tab>
+                                        <!-- / EDIT LABEL -->
+                                    </md-tabs>
+                                </md-menu-content>
+                            </md-menu>
+                        </div>
+                        <!-- /flex -->
+                    </div>
+                    <!-- /Skills -->
+
+                    <md-divider></md-divider>{{vm.appTrigger.directoryNumber}}
+
+                    <div flex>
+                        <md-chips disabled="true" name="triggers" md-on-remove="vm.deleteTrigger($chip.directoryNumber)" class="label-chips" ng-model="vm.appTrigger" md-require-match="true" placeholder="Triggers">
+                            <md-chip-template class="member-chip">
+                                <span>{{$chip.deviceName}}({{$chip.directoryNumber}})</span>
+                            </md-chip-template>
+                            <button md-chip-remove class="md-primary">
+                <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+              </button>
+
+                        </md-chips>
+
+                    </div>
+                    <!--row-->
+                </div>
+
+            </div>
+        </div>
+    </md-content>
+</div>

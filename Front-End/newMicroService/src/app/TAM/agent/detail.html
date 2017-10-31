@@ -1,0 +1,62 @@
+<md-dialog class="event-detail-dialog" aria-label="New Message">
+  <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools">
+      <span class="title">
+        <md-list >
+          <md-list-item class="md-2-line contact-item">
+            <img ng-src="{{vm.agent.avatar ? vm.agent.avatar:'/assets1/images/avatars/profile.jpg'}}" class="md-avatar" alt="{{vm.agent.first_name}}" />
+            <div>
+              <md-icon md-font-icon ng-class="vm.agent.status==='ready'?'icon-checkbox-marked-circle':vm.agent.status==='talking'?'icon-clock':vm.agent.status==='notready'?'icon-checkbox-blank-circle-outline':vm.agent.status==='logout'?'icon-minus-circle':''"
+                       ng-style="{'margin-top':'35px','margin-left':'-30px','color':vm.agent.status==='ready'?'green':vm.agent.status==='talking'?'orange':vm.agent.status==='notready'?'red':vm.agent.status==='logout'?'blue':'' }"
+                       class="icon status s16">
+                <md-tooltip md-direction="right">{{vm.agent.status}}</md-tooltip>
+              </md-icon>
+            </div>
+            <div class="md-list-item-text compact">
+              <h3> <md-tooltip md-direction="left">Name</md-tooltip><span>{{vm.agent.first_name +' '+vm.agent.last_name}}</span>
+               <!-- <md-icon md-font-icon ng-class="vm.agent.status==='ready'?'icon-checkbox-marked-circle':vm.agent.status==='talking'?'icon-minus-circle':vm.agent.status==='notready'?'icon-checkbox-marked-circle':vm.agent.status==='logout'?'icon-clock':''"
+                         ng-style="{'color':vm.agent.status==='ready'?'green':vm.agent.status==='talking'?'orange':vm.agent.status==='notready'?'red':vm.agent.status==='logout'?'blue':'' }"
+                         class="icon status s16">
+                  <md-tooltip md-direction="right">{{vm.agent.status}}</md-tooltip>
+                </md-icon>-->
+              </h3>
+              <h4 ><span>{{vm.agent.userId}} <md-tooltip md-direction="left">Agent Id</md-tooltip></span> <span class="icon-headphones">{{vm.agent.extension}}</span>
+                <md-progress-linear class="md-info" md-mode="determinate" value="{{vm.agent.competence_level*10}}">
+                </md-progress-linear>
+                <md-tooltip md-direction="right"><span>Competence level: </span>{{vm.agent.competence_level}}</md-tooltip>
+              </h4>
+            </div>
+          </md-list-item>
+        </md-list>
+
+
+      </span>
+
+      <span flex></span>
+      <md-button class="edit-event-button md-fab md-warn md-mini"
+                 ng-click="vm.agentEditForm(vm.agent)" aria-label="Edit Agent"
+                 translate translate-attr-aria-label="CALENDAR.EDIT_EVENT">
+        <md-icon md-font-icon="icon-pencil"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content ms-scroll>
+    <div layout="row">
+      <h3 flex="20"><md-icon md-font-icon ng-class="'icon-beaker'" ng-style="{color:'blue'}" class="icon status s30"></md-icon><span>Skills</span></h3>
+      <md-chips ng-model="vm.agent.skillId" readonly="true">
+        <md-chip-template>
+          <small>{{vm.skillName($chip.id)}}</small>
+        </md-chip-template>
+      </md-chips>
+
+  </div>
+    <div layout="row">
+      <h3 flex="20"><md-icon md-font-icon ng-class="'icon-hexagon'" ng-style="{color:'blue'}" class="icon status s30"></md-icon><span>Group</span></h3>
+      <md-chips>
+        <md-chip><small>{{vm.groupName(vm.agent.groupId)}}</small></md-chip>
+      </md-chips>
+
+    </div>
+  </md-dialog-content>
+</md-dialog>

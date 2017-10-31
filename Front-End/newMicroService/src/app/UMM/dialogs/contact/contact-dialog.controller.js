@@ -7,7 +7,7 @@
         .controller('ContactDialogController', ContactDialogController);
 
     /** @ngInject */
-    function ContactDialogController( $rootScope, utilCustom, userService, $mdDialog, $filter, Roles, Contact, Contacts, User, msUtils, $document)
+    function ContactDialogController( $rootScope, utilCustom, userService, $mdDialog, $filter, Roles, Contact, Contacts, User, msUtils, $document,$scope)
     {
         var vm = this;
         var message;
@@ -15,7 +15,7 @@
         vm.title = $filter('translate')('CONTACTS.editUser');
         vm.contact = angular.copy(Contact);
         vm.contacts = Contacts;
-        vm.roles = Roles;
+        vm.roles = angular.copy(Roles);
         //vm.user = User;
         vm.newContact = false;
         vm.allFields = false;
@@ -67,6 +67,23 @@
         vm.toggleInArrayRole = toggleInArrayRole;
         vm.filterRoles = filterRoles;
         vm.removable= removable;
+        vm.usernameExists = usernameExists;
+        vm.uniqueUsername = true;
+
+        // $scope.$watch('vm.roles', function()
+        // {
+        //   vm.contactForm.$setDirty();
+        // }, true);
+
+        function usernameExists(data){
+          var ind = _.findIndex(vm.contacts, function(o){
+            return angular.lowercase(o.username)=== angular.lowercase(data);
+          });
+          if(ind!==-1)
+            vm.uniqueUsername = false;
+          else
+            vm.uniqueUsername = true;
+        }
 
         function removable(username){
             if(username === 'admin')
@@ -98,6 +115,7 @@
             vm.contact = response.user;
             message = "roleAssigned";
             utilCustom.toaster($filter('translate')('CONTACTS.roleAssignmentSuccess'));
+            vm.contactForm.$setDirty();
           },function(error){
             console.log(error);
           });
@@ -116,6 +134,7 @@
             vm.contact = response.user;
             message = "roleAssigned";
             utilCustom.toaster($filter('translate')('CONTACTS.roleRevokeSuccess'));
+            vm.contactForm.$setDirty();
           },function(error){
             console.log(error);
           });

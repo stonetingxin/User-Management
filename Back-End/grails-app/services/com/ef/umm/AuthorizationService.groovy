@@ -79,7 +79,8 @@ class AuthorizationService {
             }
 
             if(microName == "base" || (action == "isUserAuthentic" && microName == "umm")
-                    || (action == "getAgentTeam" && microName == "umm")){
+                    || (action == "getAgentTeam" && microName == "umm")
+                    || (action == "list" && controller == "microservice")){
                 response.status = 200
                 response.auth=true
                 return response
@@ -241,6 +242,16 @@ class AuthorizationService {
         if(!perm){
             return false
         }
+        def permSuper = Permission.findByExpression("*:*")
+//        if(perm.expression == "*:*")
+//            return true
+        def umrUser = UMR.findAllByUsers(user)
+        if(!umrUser)
+            return false
+        def permsUser = umrUser*.roles*.permissions
+        def trueSuper = permsUser*.contains(permSuper)
+        if(trueSuper.contains(true))
+            return true
 
         def umr = UMR.findAllByUsersAndMicroservices(user, micro)
 

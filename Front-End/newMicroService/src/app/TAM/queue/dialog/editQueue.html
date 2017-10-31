@@ -1,0 +1,151 @@
+<md-dialog class="md-default-theme compose-dialog" aria-label="Card Dialog" ng-cloak>
+  <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <span class="title" translate="generic.edit"></span>
+      <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
+                 translate-attr-aria-label="CALENDAR.CLOSE_DIALOG">
+        <md-icon md-font-icon="icon-close"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <form ng-submit="vm.editQueue(vm.queue,vm.other)"  name="createForm" class="md-inline-form" >
+  <md-dialog-content ms-scroll>
+    <div id="forms" class="page-layout simple fullwidth doc-page" layout="column">
+
+      <!-- CONTENT -->
+      <div class="content" layout="column">
+
+
+          <div layout="column" layout-gt-sm="row">
+            <md-input-container flex>
+              <label translate="generic.name"></label>
+              <input type="text" name="name" min="5" max="35" ng-model="vm.queue.name"
+                     placeholder="{{'generic.name'|translate}}"
+                     autocomplete="off" ng-model-options="{ debounce: 250 }" name-local-validate ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" list-element="{{vm.queueList}}"
+                     max-length="2" property="name"  object-key="name"
+                     required>
+              <div ng-messages="createForm.name.$error" ng-show="createForm.name.$dirty"
+                   role="alert">
+                <div ng-message="required">
+                  <span translate="data.cannot_null" translate-values="{name:'{{'generic.name'|translate}}'}"></span>
+                </div>
+                <div ng-class="queueExist" ng-show="queueExist">
+                  <span  translate="data.charSize" translate-values="{field:'{{'generic.name'|translate}}',number:3}"></span>
+                </div>
+                <div ng-message="pattern">
+                  <span  translate="data.specialChar" translate-values="{field:'{{'generic.name'|translate}}'}"></span>
+                </div>
+              </div>
+            </md-input-container>
+
+            <md-input-container flex>
+              <md-checkbox ng-model="vm.queue.autoWork">
+                <span translate="csq.autoWork"></span>
+              </md-checkbox>
+            </md-input-container>
+          </div>
+          <div layout="column" layout-gt-sm="row">
+            <md-input-container flex>
+              <md-checkbox  ng-model="vm.queue.enable_wrapup_time" >
+                <span translate="csq.wrapUpTimeEnable"></span>
+              </md-checkbox>
+            </md-input-container>
+            <md-input-container flex>
+              <input type="number" name="wrapup_time" ng-disabled="!vm.queue.enable_wrapup_time" ng-model="vm.queue.wrapupTime"
+                     placeholder="{{'csq.wrapupTime'|translate}}"
+                     required>
+              <div ng-messages="createForm.wrapup_time.$error" ng-show="vm.queue.enable_wrapup_time && createForm.wrapup_time.$touched"
+                   role="alert">
+                <div ng-message="required">
+                  <span translate="data.cannot_null" translate-values="{name:'{{'csq.wrapupTime'|translate}}'}"></span>
+                </div>
+              </div>
+            </md-input-container>
+
+
+          </div>
+          <div layout="column" layout-gt-sm="row">
+            <md-input-container flex>
+              <md-select ng-disabled="true" ng-model="vm.queue.resourcePoolType" >
+                <md-option ng-value="sk.id" ng-repeat="sk in vm.queuingModel">{{sk.name}}</md-option>
+              </md-select>
+              <div ng-messages="queue.resourcePoolType.$error" ng-show="queue.resourcePoolType.$touched"
+                   role="alert">
+                <div ng-message="required">
+                  <span translate="generic.selectOne"></span>
+                </div>
+              </div>
+            </md-input-container>
+            <md-input-container ng-show="vm.queue.resourcePoolType==='RESOURCE_GROUP'" flex>
+              <md-select ng-model="vm.other.groupName" placeholder="{{'generic.selectOneLabel'|translate:'{name:'+vm.translationData.group+'}' }}" >
+                <md-option ng-value="sk" ng-repeat="sk in vm.queueGroupName">{{sk}}</md-option>
+              </md-select>
+              <div ng-messages="queue.prompt.$error" ng-show="queue.prompt.$touched"
+                   role="alert">
+
+              </div>
+            </md-input-container>
+
+
+          </div>
+          <div layout="column" layout-gt-sm="row">
+            <md-input-container flex>
+              <md-select ng-model="vm.other.selectionCriteria" placeholder="{{'generic.selectOneLabel'|translate:{name:vm.translationData.selectCriteria} }}">
+                <md-option ng-value="sk.id" ng-repeat="sk in vm.resourceSelectionCriteriaList">{{sk.name}}</md-option>
+              </md-select>
+              <div ng-messages="queue.selectionCriteria.$error" ng-show="queue.selectionCriteria.$touched"
+                   role="alert">
+                <div ng-message="required">
+                  <span  translate="csq.selectCriteria"></span>
+                </div>
+              </div>
+            </md-input-container>
+          </div>
+
+          <div layout="row"  >
+            <md-input-container flex="30">
+              <div layout layout-align="center center">
+                <span class="md-body-1" translate="csq.serviceLevel"></span>
+              </div>
+               <input  type="number" name="serviceLevel" ng-model="vm.queue.serviceLevel"  min="0" max="2147483647"    aria-label="serviceLevel"/>
+               <div ng-messages="createForm.serviceLevel.$error" ng-show="createForm.serviceLevel.$touched"
+               role="alert">
+                 <div ng-message="required">
+                   <span translate="data.cannot_null" translate-values="{name:'{{'csq.serviceLevel'|translate}}'}"></span>
+                 </div>
+                 <div ng-message="max">
+                   <span translate="data.filedLarge" translate-values="{field:'{{'csq.serviceLevel'|translate}}',number:20}"></span>
+                 </div>
+                 <div ng-message="min">
+                   <span translate="data.filedShort" translate-values="{field:'{{'csq`.serviceLevel'|translate}}',number:1}"></span>
+                 </div>
+                </div>
+
+            </md-input-container>
+            <md-input-container flex="70">
+                <span class="md-body-1" translate="csq.serviceLevelPercentage"></span>
+                <div>
+                <md-slider min="0"  md-discrete="" max="100" ng-model="vm.queue.serviceLevelPercentage" aria-label="serviceLevelPercentage" class="md-primary"></md-slider>
+              </div>
+
+            </md-input-container>
+
+          </div>
+
+
+
+
+      </div>
+
+    </div>
+  </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="space-between center">
+      <md-button type="submit" class="save-button md-accent md-raised" aria-label="Update">
+       <span translate="generic.update"></span>
+      </md-button>
+
+
+    </md-dialog-actions>
+  </form>
+
+</md-dialog>

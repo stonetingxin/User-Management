@@ -1,0 +1,211 @@
+<div class="event-detail-dialog" aria-label="New Message">
+
+  <form name="agentForm">
+
+    <md-toolbar class="md-accent md-hue-2">
+      <div layout-align="space-between center" layout="row" class="md-toolbar-tools">
+        <span class="title">{{vm.agent.firstName }} {{vm.agent.lastName}}</span>
+        <span>
+         <button type="button" class="md-icon-button md-button md-ink-ripple" ng-click="vm.saveAgent(vm.agent)"
+                 aria-label="Save">
+           <md-icon md-font-icon="icon-check" class="md-font material-icons"></md-icon><md-tooltip><span
+           translate="generic.save"></span></md-tooltip></button>
+        <button type="button" class="md-icon-button md-button md-ink-ripple" translate-aria-label="generic.CLOSE"
+                tranlate="generic.CLOSE" aria-label="Close dialog" ng-click="vm.agent=undefined">
+          <md-icon md-font-icon="icon-close" class="ng-scope ng-isolate-scope md-font icon-close material-icons"
+                   aria-hidden="true"></md-icon>
+          <md-tooltip><span translate="generic.cancel"></span></md-tooltip></button>
+        </span>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content ms-scroll>
+
+      <div layout="row" layout-align="center start" layout-margin>
+
+        <div flex="25">
+          <div layout="column" layout-align="center start">
+            <div class="pro-pic" ng-click="vm.dialogShowDetail(vm.agent,$event)">
+              <img ng-src="{{vm.agent.avatar ? vm.agent.avatar:'/assets1/images/avatars/profile.jpg'}}"
+                   class="profile-image avatar xlarge" alt="{{vm.agent.firstName}}"/>
+              <span><md-icon class="icon-camera"></md-icon> {{'agent.uploadProfile' | translate}} </span>
+            </div>
+            <div class="agnt-info grey-700-fg">
+              <p><span class="icon icon-account blue-500-fg"></span><span class="ng-binding">{{vm.agent.userID}}</span>
+                <md-tooltip><span translate="generic.id"></span></md-tooltip>
+              </p>
+              <p><span class="icon icon-headphones blue-500-fg"></span><span
+                class="ng-binding">{{vm.agent.extension}}</span>
+                <md-tooltip><span translate="agent.extension"></span></md-tooltip>
+              </p>
+            </div>
+            <div class="agnt-info grey-700-fg">
+              <span for="" translate="agent.autoAvailable"></span>
+              <md-switch ng-model="vm.agent.autoAvailable" aria-label="autoavailable"><!--{{ data.cb1 }}--></md-switch>
+            </div>
+          </div><!--column-->
+        </div>
+
+        <div flex="75">
+          <div layout="row" layout-padding>
+
+            <div flex="50">
+              <md-input-container class="md-block">
+                <label for="" translate="agent.firstName"></label>
+                <input disabled name="firstName" ng-model="vm.agent.firstName" autocomplete="off">
+                <div ng-messages="agentForm.firstName.$error" ng-show="agentForm.firstName.$touched" role="alert">
+                  <div ng-message="required">
+                    <span translate="generic.cannot_null" translate-values="{{'agent.firstName' | translate}}"></span>
+                  </div>
+                </div>
+              </md-input-container>
+            </div>
+
+            <div flex="50">
+              <md-input-container class="md-block">
+                <label for="" translate="agent.lastName"></label>
+                <input disabled name="lastName" ng-model="vm.agent.lastName" autocomplete="off">
+                <div ng-messages="agentForm.lastName.$error" ng-show="agentForm.lastName.$touched" role="alert">
+                  <div ng-message="required">
+                    <span translate="generic.cannot_null" translate-values="{{'agent.lastName' | translate}}"></span>
+                  </div>
+                </div>
+              </md-input-container>
+            </div>
+          </div><!--row-->
+
+          <div layout="row" layout-padding>
+            <div flex="50">
+              <md-input-container class="md-block">
+                <label for="" translate="team.team"></label>
+                <md-select ng-model="vm.agent.teamId">
+                  <md-option ng-repeat="team in vm.teams" value="{{team.teamId}}">{{vm.teamName(team.teamId)}}
+                  </md-option>
+                </md-select>
+              </md-input-container>
+            </div>
+            <div flex="50">
+              <md-input-container class="md-block">
+                <label for="" translate="group.group"></label>
+                <md-select ng-model="vm.agent.groupId" data-md-container-class="selectdemoSelectHeader">
+
+                    <md-option ng-repeat="group in vm.groupList" value="{{group.id}}">
+                      {{vm.groupName(group.id)}}
+                    </md-option>
+
+                </md-select>
+              </md-input-container>
+
+
+            </div>
+          </div><!--row-->
+
+          <div layout="row" layout-align="space-between center" layout-padding>
+            <div flex>
+              <span translate="skill.skills"></span>
+            </div>
+            <div flex align="right">
+              <md-menu class="labels">
+                <md-button class="md-icon-button" aria-label="Label"
+                           ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+                  <md-icon md-menu-origin md-font-icon="icon-dots-vertical"></md-icon>
+                </md-button>
+
+                <md-menu-content class="labels-menu-content" width="4">
+                  <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                    <!-- SELECT LABEL -->
+                    <md-tab>
+                      <md-tab-body>
+                        <md-tooltip><span translate="skill.skills"></span></md-tooltip>
+                        <md-menu-item>
+                          <md-input-container class="no-errors-spacer" md-no-float>
+                            <input class="serInput" placeholder="{{'skill.searchSkill' | translate}}" type="text"
+                                   ng-model="vm.skillSearchText" autocomplete="off"
+                                   translate-attr-palceholder="skill.searchSkill">
+                          </md-input-container>
+                        </md-menu-item>
+                        <md-menu-item class="label " ng-repeat="label in vm.skillList | filter: vm.filterSkill">
+
+                          <md-button class="label-toggle-button" md-prevent-menu-close
+                                     ng-click="vm.toggleInArraySkill(label,  vm.agent.skills)"
+                                     aria-label="Toggle Label" translate
+                                     translate-attr-aria-label="skill.searchSkill">
+                            <div layout="row" layout-align="space-between center">
+                              <span>{{label.skillName}}</span>
+
+                              <i ng-if="vm.existsSkill(label.skillId,vm.agent.skills)" class="icon-check s16"></i>
+                            </div>
+                          </md-button>
+                          <md-button ng-if="vm.existsSkill(label.skillId,vm.agent.skills)"
+                                     class="md-icon-button label-edit-button" md-prevent-menu-close
+                                     ng-click="vm.editSkill = {id:label.skillId,agent:vm.agent.userID}; vm.labelTabIndex = 2"
+                                     aria-label="Edit Label">
+                            <md-icon md-font-icon="icon-pencil" class="s16"></md-icon>
+                          </md-button>
+                        </md-menu-item>
+
+                      </md-tab-body>
+                    </md-tab>
+                    <!-- / SELECT LABEL -->
+                    <!-- EDIT LABEL -->
+                    <md-tab>
+                      <md-tab-body>
+                        <div class="edit-label-tab-content">
+
+                          <div class="header" layout="row" layout-align="space-between center">
+                            <md-button class="md-icon-button" md-prevent-menu-close
+                                       ng-click="vm.labelTabIndex = 0" aria-label="back">
+                              <i class="icon-arrow-left s20"></i>
+                            </md-button>
+                            <span flex>{{'agent.competencelevel'|translate }}</span>
+                          </div>
+
+                          <div class="content" layout="column" layout-align="start stretch">
+                            <md-input-container class="no-errors-spacer" md-no-float>
+                              <md-slider md-discrete="" flex="" min="1" max="10"
+                                         ng-model="vm.findSkill(vm.editSkill,vm.agent).competencelevel"
+                                         aria-label="competencelevel" class=""></md-slider>
+                            </md-input-container>
+                          </div>
+                        </div>
+
+                      </md-tab-body>
+
+                    </md-tab>
+                    <!-- / EDIT LABEL -->
+                  </md-tabs>
+                </md-menu-content>
+              </md-menu>
+            </div>
+          </div><!-- /Skills -->
+          <div layout="row" flex="100" layout-padding>
+
+            <md-chips flex="100" disabled="true" name="skills" class="label-chips skill-chips"
+                      ng-model="vm.agent.skills" md-autocomplete-snap
+                      md-require-match="true" placeholder="{{'skill.skills' | translate}}"
+                      md-on-select="vm.selectedSkill($chip)"
+                      md-transform-chip="{skillId:$chip.skillId.toString(),skillName:$chip.skillName,competencelevel:5}">
+              <md-autocomplete
+                md-selected-item="vm.selectedLabel"
+                md-search-text="vm.skillSearchText"
+                md-items="label in vm.skillQuerySearch(vm.skillSearchText)"
+                md-item-text="label.skillName"
+                placeholder="{{'skill.addSkill' | translate}}">
+                <span md-highlight-text="vm.skillSearchText">{{label.skillName}}</span>
+              </md-autocomplete>
+              <md-chip-template class="member-chip">
+                <span>{{$chip.skillName}}({{$chip.competencelevel}}) </span>
+              </md-chip-template>
+              <button md-chip-remove class="md-primary">
+                <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+              </button>
+
+            </md-chips>
+
+          </div><!--row-->
+        </div>
+      </div><!--row-->
+    </md-dialog-content>
+  </form>
+</div>

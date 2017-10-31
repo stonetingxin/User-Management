@@ -6,7 +6,7 @@
         .controller('RoleController', RoleController);
 
     /** @ngInject */
-    function RoleController($rootScope, userService, utilCustom, contacts, Microservices, Permissions, $mdDialog, $filter, Role, msUtils) {
+    function RoleController($rootScope, userService, utilCustom, contacts, Microservices, Permissions, $mdDialog, $filter, Role, Roles, msUtils) {
         var message;
         var vm = this;
 
@@ -18,6 +18,7 @@
         vm.permissions = Permissions;
         vm.contacts = contacts;
         vm.roleUser = [];
+        vm.roles = angular.copy(Roles);
 
         //vm.user = User;
         vm.newRole = false;
@@ -60,6 +61,18 @@
         vm.filterUsers = filterUsers;
         vm.filterPermissions = filterPermissions;
         vm.removable = removable;
+        vm.roleExists = roleExists;
+        vm.uniqueRole = true;
+
+        function roleExists(data){
+          var ind = _.findIndex(vm.roles, function(o){
+            return angular.lowercase(o.name)=== angular.lowercase(data);
+          });
+          if(ind!==-1)
+            vm.uniqueRole = false;
+          else
+            vm.uniqueRole = true;
+        }
 
         function removable(name) {
             if (name === 'admin')
@@ -106,6 +119,7 @@
 
                 message = "contactUpdate";
                 utilCustom.toaster($filter('translate')('CONTACTS.roleAssignmentSuccess'));
+                vm.roleForm.$setDirty();
             }, function (error) {
                 console.log(error);
             });
@@ -136,6 +150,7 @@
                     vm.roleUser.splice(ind2, 1);
                 message = "contactUpdate";
                 utilCustom.toaster($filter('translate')('CONTACTS.roleRevokeSuccess'));
+                vm.roleForm.$setDirty();
             }, function (error) {
                 console.log(error);
             });
@@ -175,6 +190,7 @@
                 vm.role = response.role;
                 message = "update";
                 utilCustom.toaster($filter('translate')('CONTACTS.roleAssignmentSuccess'));
+                vm.roleForm.$setDirty();
             }, function (error) {
                 console.log(error);
             });
@@ -193,6 +209,7 @@
                 vm.role = response.role;
                 message = "update";
                 utilCustom.toaster($filter('translate')('CONTACTS.roleRevokeSuccess'));
+                vm.roleForm.$setDirty();
             }, function (error) {
                 console.log(error);
             });
@@ -235,6 +252,11 @@
                 }
 
             }
+            var ind = _.findIndex(objectList, function(o){
+              return o.username === "admin";
+            });
+            if(ind !==-1)
+              results.splice(ind, 1);
             return results;
 
         }

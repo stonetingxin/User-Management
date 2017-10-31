@@ -1,0 +1,121 @@
+
+<md-toolbar class="md-accent md-hue-2 md-default-theme setting-bar">
+	<div layout-align="space-between center" layout="row" class="md-toolbar-tools">
+		<span class="title" translate="service.services"></span>
+	</div>
+	<md-fab-trigger class="fabIcon">
+		<md-button aria-label="AddService" ng-click="vm.create($event)" class="md-fab md-warn">
+			<md-tooltip md-direction="left" md-visible="tooltipVisible"
+				  md-autohide="false"><span translate="generic.addLabel" translate-values="{name:'{{'service.services'|translate}}'}"></span></md-tooltip>
+			<md-icon md-font-icon="icon-plus"></md-icon>
+		</md-button>
+	</md-fab-trigger>
+</md-toolbar>
+
+<!--Services List-->
+
+
+<div layout="row" class="white-bg" layout-padding>
+  <md-chips disabled="true" name="skills" md-on-select="vm.selectedService($chip)"  md-on-add="vm.addNew($chip)"
+            md-on-remove="vm.deleteService($chip)"  class="label-chips skill-chips"
+            ng-model="vm.serviceList"
+            md-require-match="true" placeholder="{{service.services|translate}}"   md-transform-chip="$chip.id">
+    <md-chip-template class="member-chip">
+      <span>{{$chip.name}}({{$chip.dialNumber}}) </span>
+    </md-chip-template>
+    <button md-chip-remove class="md-primary">
+      <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+    </button>
+  </md-chips>
+</div>
+
+<!--Service Detail-->
+
+<div layout="row" class="white-bg" layout-padding>
+
+  <ms-widget flex="70" layout="column" flippable="false" ng-show="vm.service">
+    <ms-widget-front class="white-bg">
+
+
+        <form name="serviceForm" class="user-detail">
+          <div layout-align="space-between center" layout="row" class="ph-16 md-accent-bg">
+            <div class="h3"><span  translate="generic.updateLabel" translate-values="{name:'{{'service.service'|translate}}'}"></span></div>
+            <div class="pv-8">
+
+             <md-button class="md-icon-button" ng-click="vm.update(vm.service)" ng-disabled="serviceForm.$invalid || serviceForm.$pristine" aria-label="Save"><i class="icon-check s20"></i><md-tooltip><span translate="generic.save"></span></md-tooltip></md-button>
+
+			<md-button class="md-icon-button" ng-click="vm.service=undefined" aria-label="Close dialog"><i class="icon-close s20"></i><md-tooltip><span translate="generic.close"></span></md-tooltip></md-button>
+
+            </div>
+
+          </div>
+        <!--</div>-->
+        <div layout="row" layout-align="center start" layout-margin>
+          <div flex="30">
+            <div layout="column" layout-align="center start">
+              <div class="agnt-info grey-700-fg">
+                <p><md-icon class="icon icon-calendar grey-600-fg"></md-icon>
+                  <span class="grey-700-fg" translate="generic.dateCreated">:</span><span class="dayt">{{vm.service.dateCreated_lan}}</span>
+                </p>
+                <p><md-icon class="icon icon-pencil grey-600-fg"></md-icon>
+                  <span class="grey-700-fg" translate="generic.lastUpdated">:</span><span class="dayt">{{vm.service.lastUpdated_lan}} </span>
+                </p>
+
+              </div>
+            </div><!--column-->
+          </div>
+          <div flex="70">
+            <div layout="row" class="date-row">
+              <md-input-container flex="70">
+                <label for="" translate="generic.name"></label>
+                <input name="name" property="nameExist" ng-model="vm.service.name"
+                       autocomplete="off" ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" name-local-validate current-id="{{vm.service.id}}"
+                       list-element="{{vm.serviceList}}"
+                       max-length="2" object-key="name" required>
+                <div ng-messages="serviceForm.name.$error" ng-show="serviceForm.name.$dirty" role="alert">
+                  <div ng-message="required">
+                    <span  translate="data.cannot_null" translate-values="{name:'{{'generic.name'|translate}}'}"></span>
+                  </div>
+                  <div ng-show="!serviceForm.name.$valid && nameExist">
+                    <span  translate="data.charSize" translate-values="{field:'{{'generic.name'|translate}}',number:2}"></span>
+                  </div>
+                  <div ng-message="pattern">
+                    <span  translate="data.specialChar" translate-values="{field:'{{'generic.name'|translate}}'"></span>
+                  </div>
+                </div>
+              </md-input-container>
+              <md-input-container flex="30">
+                <label for="" translate="service.dialNumber"></label>
+                <input name="dialNumber" type="text" property="dialNumberExist" ng-model="vm.service.dialNumber"
+                       autocomplete="off" ng-model-options="{ debounce: 250 }" ng-pattern="/^[0-9]{2,30}$/"
+                       name-local-validate current-id="{{vm.service.id}}"
+                       list-element="{{vm.serviceList}}"
+                       max-length="2" object-key="dialNumber" required>
+                <div ng-messages="serviceForm.dialNumber.$error" ng-show="serviceForm.dialNumber.$dirty" role="alert">
+                  <div ng-message="required">
+                    <span  translate="data.cannot_null" translate-values="{name:'{{'service.dialNumber'|translate}}'}"></span>
+                  </div>
+                  <div ng-show="!serviceForm.dialNumber.$valid && dialNumberExist">
+                    <span  translate="data.charSize" translate-values="{field:'{{'service.dialNumber'|translate}}',number:2}"></span>
+                  </div>
+                  <div ng-message="pattern">
+                    <span  translate="data.onlyNumberLength" translate-values="{min:2,max:30}"></span>
+                  </div>
+                </div>
+              </md-input-container>
+            </div>
+            <div layout="row" class="date-row">
+              <md-input-container class="md-block" flex="100">
+                <label translate="generic.description"></label>
+                <textarea columns="1" md-maxlength="150" rows="5" ng-model="vm.service.description" ></textarea>
+              </md-input-container>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    </ms-widget-front>
+  </ms-widget>
+
+</div><!--/row-->
+

@@ -11,7 +11,7 @@
       </md-button>
 
       <div class="logo" layout="row" layout-align="start center">
-                <span class="logo-icon">
+                <span class="logo-icon" style="padding-left: 12px;">
                     <md-icon md-font-icon="icon-account-circle" class="s24"></md-icon>
                 </span>
         <!-- <span class="logo-text" translate="CONTACTS.CONTACTS">User Management</span> -->
@@ -167,7 +167,7 @@
 
                 <div class="list-title" layout="row" layout-align="start start"
                      ng-hide="editGroupForm.$visible">
-                  <span ng-if="vm.listType === 'all'" translate="CONTACTS.ALL_CONTACTS">All contacts</span>
+                  <span ng-if="vm.listType === 'all'" translate="CONTACTS.ALL_USERS">All contacts</span>
                   <span ng-if="vm.listType.name">{{vm.listType.name}}</span>
 										<span class="secondary-text contacts-count">
 											({{filteredContacts.length}})
@@ -351,7 +351,7 @@
                    class="text-truncate font-weight-600">
                   <strong>
                     <md-icon md-font-icon="icon-key"></md-icon>
-                    {{role.name}}
+                    &nbsp;{{role.name}}
                     <md-tooltip><span translate="generic.name"></span></md-tooltip>
                   </strong>
                 </p>

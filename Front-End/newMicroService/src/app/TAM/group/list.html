@@ -1,0 +1,75 @@
+
+<md-toolbar class="md-accent md-hue-2 md-default-theme setting-bar">
+	<div layout-align="space-between center" layout="row" class="md-toolbar-tools">
+		<span class="title" translate="group.groups"></span>
+	</div>
+	<md-fab-trigger class="fabIcon">
+		<md-button aria-label="AddGroup" ng-click="vm.create($event)" class="md-fab md-warn">
+			<md-tooltip md-direction="left" md-visible="tooltipVisible"
+				  md-autohide="false"><span translate="generic.addLabel" translate-values="{name:'{{'group.group'|translate}}'}"></span></md-tooltip>
+			<md-icon md-font-icon="icon-plus"></md-icon>
+		</md-button>
+	</md-fab-trigger>
+</md-toolbar>
+  
+<!--Groups List-->
+
+<div layout="row" class="white-bg" layout-padding>
+  <md-chips disabled="true" name="groups" md-on-select="vm.selectedGroup($chip)"
+  md-on-add="vm.addNew($chip)" md-on-remove="vm.deleteGroup($chip)"  class="label-chips skill-chips"
+          ng-model="vm.groupList"
+            md-require-match="true" placeholder="{{group.groups|translate}}"  md-transform-chip="$chip.id">
+    <md-chip-template  class="member-chip">
+      <span>{{$chip.name}}</span> 
+    </md-chip-template>
+    <button md-chip-remove class="md-primary">
+      <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+    </button>
+  </md-chips>
+</div>
+
+<!--Group Detail-->
+
+<div layout="row" class="white-bg" layout-padding>
+	<ms-widget flex="50" layout="column" flippable="false" ng-show="vm.group">
+      <ms-widget-front class="white-bg">
+        <div layout-align="space-between center" layout="row" class="ph-16 md-accent-bg">
+          <div class="h3" translate="generic.updateLabel" translate-values="{name:'{{'group.group'|translate}}'}"></div>
+          <div class="pv-8">
+           
+            <md-button class="md-icon-button" ng-click="vm.update(vm.group)" aria-label="Save" ng-disabled="regionForm.$invalid || regionForm.$pristine"><i class="icon-check s20"></i><md-tooltip><span translate="generic.save"></span></md-tooltip></md-button>
+            
+            <md-button class="md-icon-button" ng-click="vm.group=undefined" aria-label="Close dialog"><i class="icon-close s20"></i><md-tooltip><span translate="generic.close"></span></md-tooltip></md-button>
+                   		
+          </div>
+        </div>
+        <div layout="row" layout-align="center start" layout-margin>
+            <div flex="100">
+            	<form name="regionForm" class="user-detail">
+            		<md-input-container class="md-block">
+                        <label for="" translate="generic.name"></label>
+                        <input name="name"
+                               autocomplete="off" ng-model-options="{ debounce: 250 }"
+                               ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" name-local-validate
+                               list-element="{{vm.groupList}}"
+                               max-length="2" object-key="name"
+                         property="nameExist" ng-model="vm.group.name"  required>
+                        <div ng-messages="regionForm.name.$error" ng-show="regionForm.name.$dirty" role="alert">
+                            <div ng-message="required">
+                                <span  translate="data.cannot_null" translate-values="{name:'{{'generic.name'|translate}}'}"></span>
+                            </div>
+                          <div ng-show="!regionForm.name.$valid && nameExist">
+                            <span  translate="data.charSize" translate-values="{field:'{{'generic.name'|translate}}',number:2}"></span>
+                          </div>
+                          <div ng-message="pattern">
+                            <span  translate="data.specialChar" translate-values="{field:'{{'generic.name'|translate}}'}"></span>
+                          </div>
+                        </div>
+            		</md-input-container>
+        		</form>
+            </div>
+        </div>
+        </ms-widget-front>
+    </ms-widget>
+
+</div>

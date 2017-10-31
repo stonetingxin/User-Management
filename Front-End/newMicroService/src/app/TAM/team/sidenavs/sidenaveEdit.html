@@ -1,0 +1,443 @@
+<div class="event-detail-dialog" aria-label="New Message">
+
+  <md-toolbar class="md-accent md-hue-2 md-default-theme">
+    <div layout-align="space-between center" layout="row" class="md-toolbar-tools">
+      <span class="title">{{vm.createFormOr==='edit'? 'team.updateTeam':'team.createTeam' | translate}}</span>
+            <span>
+                <button type="button" class="md-icon-button md-button md-ink-ripple" ng-show="vm.createFormOr==='edit'"
+                        ng-click="vm.deleteTeam(vm.team)" aria-label="Delete">
+                  <md-icon md-font-icon="icon-delete" class="md-font icon-delete material-icons"></md-icon>
+                  <md-tooltip><span translate="generic.delete"></span></md-tooltip>
+                </button>
+            <button type="button" class="md-icon-button md-button md-ink-ripple" ng-click="vm.update(vm.team)"
+                    aria-label="Save">
+              <md-icon md-font-icon="icon-check" class="md-font material-icons"></md-icon>
+              <md-tooltip><span translate="generic.save"></span></md-tooltip>
+            </button>
+            <button type="button" class="md-icon-button md-button md-ink-ripple" ng-click="vm.team=undefined"
+                    translate-aria-label="MAIL.CLOSE_DIALOG" tranlate="" aria-label="Close dialog">
+              <md-icon md-font-icon="icon-close" class="ng-scope ng-isolate-scope md-font icon-close material-icons"
+                       aria-hidden="true"></md-icon>
+              <md-tooltip><span translate="generic.cancel"></span></md-tooltip>
+            </button>
+            </span>
+    </div>
+  </md-toolbar>
+  <form name="vm.teamForm" class="team-detail">
+
+    <md-dialog-content>
+      <div layout="row" layout-align="center start" layout-padding>
+        <div flex="50">
+          <md-input-container class="md-block">
+            <label for="" translate="generic.name"></label>
+            <input name="name" ng-model="vm.team.teamname" ng-model-options="{ debounce: 250 }"
+                   ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" name-local-validate list-element="{{vm.teamList}}" max-length="3"
+                   property="nameExist" object-key="teamname" autocomplete="off" required>
+            <div ng-messages="vm.teamForm.name.$error" ng-show="vm.teamForm.name.$dirty" role="alert">
+              <div ng-message="required">
+                <span translate="data.cannot_null" translate-values="{name:'{{'generic.name' | translate}}'}"></span>
+              </div>
+              <div ng-show="!vm.teamForm.name.$valid && nameExist">
+                <span translate="data.charSize"
+                      translate-values="{field:'{{'generic.name' | translate}}',number:3}"> </span>
+              </div>
+              <div ng-message="pattern">
+                <span translate="data.specialChar" translate-values="{field:'{{'generic.name' | translate}}'}"> </span>
+              </div>
+            </div>
+          </md-input-container>
+        </div>
+
+        <div flex="50">
+          <md-input-container class="md-block sinlge-select">
+            <label translate="team.supervisor"></label>
+            <md-select name="primarySupervisor" required="" ng-model="vm.team.primarySupervisor.userId"
+                       placeholder="{{'generic.selectOneLabel'|translate:{name:vm.translationData.supervisor} }}">
+              <md-option ng-value="team.userId" ng-repeat="team in vm.supervisors">
+                <md-list-item class="md-2-line contact-item selected">
+                  <img ng-src="{{team.image}}" class="md-avatar" alt="{{team.name}}"/>
+                  <div class="md-list-item-text compact">
+                    <h3>{{team.name}}({{team.userId}})</h3>
+                  </div>
+                </md-list-item>
+              </md-option>
+            </md-select>
+            <div ng-messages="createForm.primarySupervisor.$error" ng-show="createForm.primarySupervisor.$touched"
+                 role="alert">
+              <div ng-message="required">
+                <span translate="data.cannot_null" translate-values="{name:'{{vm.translationData.services}}'}"> </span>
+              </div>
+
+            </div>
+          </md-input-container>
+        </div>
+      </div>
+      <!--row-->
+
+      <div layout="row" layout-align="center start" layout-padding>
+        <div flex="40">
+          <!-- // filter-selected="vm.filterSelected" -->
+
+          <div flex class="h3"><span translate="team.secondarySupervisor"></span></div>
+          <md-contact-chips md-selected-item="vm.team.secondarySupervisors" ng-model="vm.team.secondarySupervisors"
+                            md-contacts="vm.querySearch($query,2)" md-contact-name="name" md-contact-image="image"
+                            md-require-match="false" md-highlight-flags="i"
+                            placeholder="{{'team.searchTeamData'|translate:{name:vm.translationData.supervisor} }}">
+          </md-contact-chips>
+        </div>
+        <div flex="10">
+
+          <md-menu class="labels">
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+            <md-menu-content class="labels-menu-content super-select" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+                <!-- SELECT LABEL -->
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="team.secondarySupervisor"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.secondarySupervisor} }}"
+                               type="text" ng-model="vm.labelSearchSuperText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+
+                    <md-menu-item class="label" ng-repeat="label in vm.supervisors | filter: vm.filterSupervisor">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArray(label,  vm.team.secondarySupervisors)"
+                                 aria-label="Toggle Label" translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+
+                        <md-list-item class="md-2-line contact-item selected">
+                          <img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>
+                          <div class="md-list-item-text compact">
+                            <h3>{{label.name}}({{label.userId}})
+                              <i ng-if="vm.exists(label, vm.team.secondarySupervisors,'agent')"
+                                 class="icon-check s16"></i>
+                            </h3>
+                          </div>
+                        </md-list-item>
+
+
+                      </md-button>
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+          </md-menu>
+        </div>
+        <div flex="40">
+          <div flex class="h3" translate="csq.csqs"></div>
+          <!-- //filter-selected="vm.filterSelected" -->
+          <md-contact-chips ng-model="vm.team.csqs" md-contacts="vm.querySearchForQueue($query)" md-contact-name="name"
+                            md-require-match="false" md-highlight-flags="i"
+                            placeholder="{{'team.searchTeamData'|translate:{name:vm.translationData.csq} }}">
+          </md-contact-chips>
+        </div>
+        <div flex="10">
+          <md-menu class="labels">
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+            <md-menu-content class="labels-menu-content" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                <!-- SELECT LABEL -->
+
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="csq.csqs"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.csqs} }}"
+                               type="text" ng-model="vm.labelSearchCsqText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+
+                    <md-menu-item class="label" ng-repeat="label in vm.queues | filter: vm.filterCsq">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArray(label,  vm.team.csqs)" aria-label="Toggle Label" translate
+                                 translate-attr-aria-label="SB.TOGGLE_LABEL">
+                        <div layout="row" layout-align="space-between center">
+                          <span>{{label.name}}</span>
+                          <i ng-if="vm.exists(label, vm.team.csqs,'csq')" class="icon-check s16"></i>
+                        </div>
+                      </md-button>
+
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+
+          </md-menu>
+        </div>
+      </div>
+      <!--row-->
+
+
+      <div layout="row" layout-align="center start" layout-padding>
+
+        <div flex="90">
+          <div flex class="h3" translate="agent.agents"></div>
+          <!-- //  filter-selected="vm.filterSelected" -->
+          <md-contact-chips ng-model="vm.team.resources" md-contacts="vm.querySearch($query)" md-contact-name="userId"
+                            md-contact-image="image" md-require-match="false" md-highlight-flags="i"
+                            placeholder="{{'team.searchTeamData'|translate:{name:vm.translationData.agent} }}">
+          </md-contact-chips>
+        </div>
+
+        <div flex="10">
+          <md-menu class="labels">
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+
+            <md-menu-content class="labels-menu-content super-select" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                <!-- SELECT LABEL -->
+
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="agent.agents"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.agents} }}"
+                               type="text" ng-model="vm.labelSearchAgentText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+
+                    <md-menu-item class="label " ng-repeat="label in vm.agents | filter: vm.filterResource">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArray(label,  vm.team.resources)" aria-label="Toggle Label"
+                                 translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+                        <md-list-item class="md-2-line contact-item selected">
+                          <img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>
+                          <div class="md-list-item-text compact">
+                            <h3>{{label.name}}({{label.userId}})
+                              <i ng-if="vm.exists(label, vm.team.resources,'agent')" class="icon-check s16"></i>
+                            </h3>
+                          </div>
+                        </md-list-item>
+                      </md-button>
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+
+          </md-menu>
+        </div>
+
+      </div>
+
+      <div layout="row" layout-padding>
+        <div flex="40">
+          <h3 translate="application.applications"></h3>
+          <md-chips disabled="true" name="applications" class="label-chips" ng-model="vm.team.applications"
+                    md-autocomplete-snap md-require-match="false"
+                    placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.applications} }}"
+                    md-transform-chip="$chip.id">
+
+            <md-autocomplete md-selected-item="vm.selectedAppLabel" md-search-text="vm.labelSearchAppText"
+                             md-items="label in vm.queryArraySearch(vm.labelSearchAppText,vm.applicationList,'app')"
+                             md-item-text="label.applicationName"
+                             placeholder="{{'generic.addLabel'|translate:{name:vm.translationData.applications} }}">
+              <span md-highlight-text="vm.searchLabelText">{{label.applicationName}}</span>
+            </md-autocomplete>
+
+            <md-chip-template class="member-chip">
+              <span>{{vm.findApplicationName($chip)}} </span>
+            </md-chip-template>
+            <button md-chip-remove class="md-primary">
+              <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+            </button>
+
+          </md-chips>
+
+          <div ng-messages="eventForm.applications.$error" role="alert">
+            <div ng-class="vm.applications" ng-show="vm.applications">
+              <span translate="data.cannot_null" translate-values="{name:'{{vm.translationData.applications}}'}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div flex="10">
+
+          <md-menu class="labels">
+
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+
+            <md-menu-content class="labels-menu-content" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                <!-- SELECT LABEL -->
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="application.applications"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.applications} }}"
+                               type="text" ng-model="vm.labelSearchAppText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+                    <md-menu-divider></md-menu-divider>
+                    <md-menu-item class="label " ng-repeat="label in vm.applicationList | filter: vm.filterApplication">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArray(label.id,  vm.team.applications)" aria-label="Toggle Label"
+                                 translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+                        <div layout="row" layout-align="space-between center">
+                          <span>{{label.applicationName}}</span>
+                          <i ng-if="vm.existsMain(label.idS, vm.team.applications)" class="icon-check s16"></i>
+                        </div>
+                      </md-button>
+
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+
+          </md-menu>
+          <!-- /Announcement -->
+
+        </div>
+
+        <div flex="40">
+
+          <h3 translate="service.services"></h3>
+
+          <md-chips disabled="true" name="services" class="label-chips" ng-model="vm.team.services" md-autocomplete-snap
+                    md-require-match="false"
+                    placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.services} }}"
+                    md-transform-chip="$chip.idS">
+
+            <md-autocomplete md-selected-item="vm.selectedLabel" md-search-text="vm.searchLabelText"
+                             md-items="label in vm.queryArraySearch(vm.searchLabelText,vm.serviceList,undefined)"
+                             md-item-text="label.name"
+                             placeholder="{{'generic.addLabel'|translate:{name:vm.translationData.services} }}">
+              <span md-highlight-text="vm.searchLabelText">{{label.name}}</span>
+            </md-autocomplete>
+            <md-chip-template class="member-chip">
+              <span>{{vm.findServiceName($chip)}} </span>
+            </md-chip-template>
+            <button md-chip-remove class="md-primary">
+              <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+            </button>
+
+          </md-chips>
+
+          <div ng-messages="eventForm.services.$error" role="alert">
+            <div ng-class="vm.services" ng-show="vm.services">
+              <span translate="data.cannot_null" translate-values="{name:'{{vm.translationData.services}}'}"></span>
+            </div>
+          </div>
+        </div>
+
+        <div flex="10">
+          <!-- Services -->
+          <md-menu class="labels">
+
+            <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
+                    ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">
+              <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
+            </button>
+
+            <md-menu-content class="labels-menu-content" width="4">
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+
+                <!-- SELECT LABEL -->
+                <md-tab>
+                  <md-tab-body>
+                    <md-tooltip><span translate="service.services"></span></md-tooltip>
+                    <md-menu-item>
+                      <md-input-container class="no-errors-spacer" md-no-float>
+                        <input class="serInput"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.services} }}"
+                               type="text" ng-model="vm.labelSearchText" autocomplete="off"
+                               translate-attr-palceholder="SB.SEARCH_LABELS">
+                      </md-input-container>
+                    </md-menu-item>
+                    <md-menu-item class="label " ng-repeat="label in vm.serviceList | filter: vm.filterService">
+                      <md-button class="label-toggle-button" md-prevent-menu-close
+                                 ng-click="vm.toggleInArray(label.idS,  vm.team.services)" aria-label="Toggle Label"
+                                 translate translate-attr-aria-label="SB.TOGGLE_LABEL">
+                        <div layout="row" layout-align="space-between center">
+                          <span>{{label.name}}({{label.dialNumber}})</span>
+                          <i ng-if="vm.existsMain(label.idS, vm.team.services)" class="icon-check s16"></i>
+                        </div>
+                      </md-button>
+
+                    </md-menu-item>
+
+                  </md-tab-body>
+                </md-tab>
+                <!-- / SELECT LABEL -->
+              </md-tabs>
+            </md-menu-content>
+
+          </md-menu>
+          <!-- /Announcement -->
+        </div>
+
+      </div>
+
+      <div layout="row" layout-padding>
+        <div flex="50">
+          <md-input-container class="md-block">
+            <label for="" translate="application.promptFolder"></label>
+            <input name="promptFolder" ng-model="vm.team.promptFolder" autocomplete="off"
+                   ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_]{3,30}$/">
+            <div ng-messages="vm.teamForm.promptFolder.$error" ng-show="vm.teamForm.promptFolder.$touched" role="alert">
+              <div ng-message="pattern">
+                <span translate="data.specialChar"
+                      translate-values="{field:'{{'application.promptFolder' | translate}}'}"> </span>
+              </div>
+            </div>
+          </md-input-container>
+        </div>
+
+        <div flex="50">
+          <md-input-container class="md-block">
+            <label for="" translate="application.scriptFolder"></label>
+            <input name="scriptFolder" ng-model="vm.team.scriptFolder" autocomplete="off"
+                   ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_]{3,30}$/">
+            <div ng-messages="vm.teamForm.scriptFolder.$error" ng-show="vm.teamForm.scriptFolder.$touched" role="alert">
+              <div ng-message="pattern">
+                <span translate="data.specialChar"
+                      translate-values="{field:'{{'application.scriptFolder' | translate}}'}"> </span>
+              </div>
+            </div>
+          </md-input-container>
+        </div>
+      </div>
+
+    </md-dialog-content>
+  </form>
+
+</div>

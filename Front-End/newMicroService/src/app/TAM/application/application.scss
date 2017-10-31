@@ -1,0 +1,64 @@
+
+    .list-card-members {
+      margin-bottom: 12px;
+
+      .list-card-member {
+        margin-right: 8px;
+
+        .list-card-member-avatar {
+          border-radius: 50%;
+          width: 17px;
+          height: 17px;
+        }
+      }
+    }
+
+
+    .members {
+
+      .section-content {
+        padding: 8px 0 20px 0;
+      }
+
+      .member-chips {
+
+        .md-chips {
+          box-shadow: none;
+          padding: 0;
+
+          md-chip {
+            cursor: default;
+            border-radius: 16px;
+            display: block;
+            height: 20px;
+            line-height: 20px;
+            margin: 8px 8px 0 0;
+            padding: 0 4px 0 0;
+            float: left;
+            box-sizing: border-box;
+            max-width: 100%;
+            position: relative;
+
+            .member-chip {
+
+              .member-chip-avatar {
+                width: 28px;
+                border-radius: 50%;
+              }
+            }
+
+            .md-chip-remove-container {
+              right: 6px;
+              margin-top: -2px;
+              line-height: 20px;
+            }
+          }
+        }
+      }
+    }
+    md-dialog.card-dialog md-dialog-content .description {
+      padding-bottom: 0;
+      margin-top: 11px;
+    }
+
+

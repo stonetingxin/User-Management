@@ -1,8 +1,8 @@
 md-dialog {
 
     &.contact-dialog {
-        max-width: 700px !important;
-        width: 80% !important;
+      max-width: 700px !important;
+      min-width: 35% !important;
 
 		.user-roles {
 			height: 212px;

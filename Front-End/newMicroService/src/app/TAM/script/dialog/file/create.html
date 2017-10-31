@@ -1,0 +1,93 @@
+<div id="smallDialog">
+    <md-dialog class="md-default-theme compose-dialog" aria-label="New Message" nv-file-drop="">
+
+        <md-toolbar class="md-accent md-hue-2">
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <span class="title" translate="file.uploadAudioFile"></span>
+                <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate translate-attr-aria-label="CALENDAR.CLOSE_DIALOG">
+                    <md-icon md-font-icon="icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <!--{{vm.easyAnnouncement}}-->
+
+        <form name="folderForm" class="md-inline-form" novalidate>
+            <md-dialog-content ms-scroll>
+
+                <div layout="row">
+
+                    <md-input-container class="md-block pic-msg">
+
+                        <md-button class="save-button md-accent md-raised" name="script" ngf-select="" multiple="multiple" accept=".aef" ngf-max-size="20MB" ng-model="vm.script.file">
+                            <span translate="file.browses"></span>
+                        </md-button>
+
+                        <div ng-messages="folderForm.script.$error" ng-show="folderForm.script.$touched" role="alert">
+                            <div ng-message="required">
+                                <span translate="data.selectOne"></span>
+                            </div>
+                        </div>
+
+                        <div ng-show="vm.fileFormate" role="alert">
+                            <span translate="file.onlyAefFormat"></span>
+                        </div>
+
+                        <div ng-show="true" role="alert">
+                            <span translate="file.fileSize" translate-values="{format:'{{'file.formatAef'|translate}}',size:20}"></span>
+                        </div>
+
+                    </md-input-container>
+
+                </div>
+
+                <div layout="row" class="table-caption">
+                    <div flex="80">
+                        {{'file.file' |translate}}
+                    </div>
+                    <div flex="20">
+                        {{'file.status' | translate}}
+                    </div>
+                </div>
+
+                <div layout="row" ng-repeat="fl in vm.script.file" class="table-row">
+                    <div flex="80">
+                        {{fl.name}}
+                    </div>
+                    <div flex="20">
+                        <md-icon ng-show="fl.errorStatus==0" md-font-icon="icon-close-circle red-500-fg s24">
+                            <md-tooltip md-direction="left">Incompatible File Format</md-tooltip>
+                        </md-icon>
+                        <md-icon ng-show="fl.errorStatus==2" md-font-icon="icon-alert-circle orange-500-fg s24">
+                            <md-tooltip md-direction="left">Upload Error</md-tooltip>
+                        </md-icon>
+                        <md-icon ng-show="fl.errorStatus==1" md-font-icon="icon-checkbox-marked-circle green-500-fg s24">
+                            <md-tooltip md-direction="left">Upload Successfully</md-tooltip>
+                        </md-icon>
+                    </div>
+                </div>
+
+                <!--<table class="simple" ms-responsive-table>
+            <tr>
+              <td>{{'file.file' |translate}} </td>
+              <td>{{'file.status' | translate}} </td>
+            </tr>
+            <tr ng-repeat="fl in vm.script.file">
+              <td>{{fl.name}}</td>
+              <td>{{fl.status}}</td>
+            </tr>
+          </table>-->
+            </md-dialog-content>
+
+            <md-dialog-actions layout="row" layout-align="space-between center">
+                <!--<md-button ng-click="vm.upload(vm.script)" class="save-button md-accent md-raised" aria-label="Upload Files">
+         		Upload Files
+         		<md-tooltip><span translate="file.upload"></span></md-tooltip>
+         	</md-button>-->
+                <md-button ng-click="vm.upload(vm.script)" class="md-fab md-mini icon-upload s12">
+                    <md-tooltip><span translate="file.upload"></span></md-tooltip>
+                </md-button>
+
+            </md-dialog-actions>
+        </form>
+    </md-dialog>
+</div>

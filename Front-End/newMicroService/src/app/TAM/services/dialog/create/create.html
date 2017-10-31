@@ -1,0 +1,81 @@
+<md-dialog class="md-default-theme compose-dialog" aria-label="New Message" ng-cloak>
+
+  <md-toolbar class="md-accent md-hue-2">
+    <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+      <span class="title" translate="generic.addLabel" transalte-values="{'{{'service.service'|translate}}'}"></span>
+      <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
+                 translate-attr-aria-label="CALENDAR.CLOSE_DIALOG">
+        <md-icon md-font-icon="icon-close"></md-icon>
+      </md-button>
+    </div>
+	</md-toolbar>
+
+  <form name="serviceForm" class="md-inline-form">
+    <md-dialog-content ms-scroll>
+
+      <div layout="row" class="date-row">
+
+        <md-input-container flex="70">
+          <label for="" translate="generic.name"></label>
+          <input name="name" property="nameExist" ng-model="vm.service.name"
+                 autocomplete="off" ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_]{3,30}$/" name-local-validate
+                 list-element="{{vm.serviceList}}"
+                 max-length="3" object-key="name" required>
+          <div ng-messages="serviceForm.name.$error" ng-show="serviceForm.name.$dirty" role="alert">
+            <div ng-message="required">
+              <span translate="data.cannot_null" translate-values="{name:'{{'generic.name'|translate}}'}"> </span>
+            </div>
+            <div ng-show="!serviceForm.name.$valid && nameExist">
+              <span translate="data.charSize" translate-values="{field:'{{'generic.name'|translate}}',number:3}"></span>
+            </div>
+            <div ng-message="pattern">
+              <span translate="data.specialChar" translate-values="{field:'{{'generic.name'|translate}}'}"></span>
+            </div>
+          </div>
+        </md-input-container>
+        <md-input-container flex="30">
+          <label for="" translate="service.dialNumber"></label>
+          <input name="dialNumber" type="text" property="dialNumberExist" ng-model="vm.service.dialNumber"
+                 autocomplete="off" ng-model-options="{ debounce: 250 }" ng-pattern="/^[0-9]{2,30}$/" name-local-validate
+                 list-element="{{vm.serviceList}}"
+                 max-length="2" object-key="dialNumber" required>
+          <div ng-messages="serviceForm.dialNumber.$error" ng-show="serviceForm.dialNumber.$dirty" role="alert">
+            <div ng-message="required">
+              <span  translate="data.cannot_null" translate-values="{name:'{{'service.dialNumber'|translate}}'}"></span>
+            </div>
+            <div ng-show="!serviceForm.dialNumber.$valid && dialNumberExist">
+              <span  translate="data.charSize" translate-values="{min:2,max:30}"></span>
+            </div>
+            <div ng-message="pattern">
+              <span  translate="data.onlyNumber" ></span>
+            </div>
+          </div>
+        </md-input-container>
+      </div>
+      <div layout="row" class="date-row">
+        <md-input-container flex="">
+          <div class="description" flex="45">
+
+            <md-input-container  class="md-block">
+              <label translate="generic.description"></label>
+              <textarea columns="1" md-maxlength="150" rows="5" ng-model="vm.service.description" ></textarea>
+            </md-input-container>
+
+          </div>
+        </md-input-container>
+
+
+      </div>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="center center" layout-padding>
+      <md-button  ng-click="vm.saveService(vm.service)" class="save-button md-accent white-fg md-raised" aria-label="Save"
+                   ng-disabled="serviceForm.$invalid || serviceForm.$pristine">Save</md-button>
+
+    </md-dialog-actions>
+
+
+  </form>
+
+</md-dialog>

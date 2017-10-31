@@ -1,0 +1,51 @@
+<md-dialog class="event-detail-dialog" aria-label="New Message">
+    <form name="agentForm">
+        <md-toolbar class="md-accent md-hue-2">
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <span class="title">{{'agent.updateProfilePic' | translate}}</span>
+                <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate translate-attr-aria-label="generic.close">
+                    <md-icon md-font-icon="icon-close"></md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content ms-scroll>
+            <div layout="row" layout-align="space-between center">
+                <div flex="40">
+                    <span class="thumb"><img ngf-src="vm.agent.file" alt="Profile Picture"></span>
+                </div>
+                <div flex="60">
+                    <md-input-container class="md-block pic-msg">
+                        <lable>{{vm.agent.file.name}}</lable>
+                        <md-button ngf-select="" n class="save-button md-accent md-raised" name="file" ngf-accept="'image/*'" ngf-max-size="2MB" aria-label="upload" ng-model="vm.agent.file" accept=".jpg">{{'file.browse' | translate}}</md-button>
+                        <div ng-messages="folderForm.file.$error" ng-show="folderForm.file.$touched" role="alert">
+                            <div ng-message="required">
+                                <span>{{'generic.selectFile' | translate}}</span>
+                            </div>
+                        </div>
+                        <div ng-show="vm.fileFormate" role="alert">
+                            <span translate="generic.selectFormat" translate-values="{format:'.jpg'}"></span>
+                        </div>
+                        <div ng-show="true" role="alert">
+                            <span translate="generic.fileSize" translate-values="{size:'2MB'}"></span>
+                        </div>
+                    </md-input-container>
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row" layout-align="space-between center">
+            <md-button type="submit" ng-click="vm.saveAgentPic(vm.agent)" class="save-button md-accent md-raised" aria-label="SAVE" ng-disabled="agentForm.$invalid || agentForm.$pristine"><span translate="generic.save"></span></md-button>
+
+            <md-button ng-show="vm.agentData.profileExists" class="md-icon-button" aria-label="Delete" ng-click="vm.removeProfilePic()" translate translate-attr-aria-label="generic.delete">
+                <!--{{vm.agentData.profileExists}}-->
+              <md-icon md-font-icon="icon-delete"></md-icon>
+                <md-tooltip><span>{{'agent.removePic' | translate}}</span></md-tooltip>
+            </md-button>
+        </md-dialog-actions>
+    </form>
+
+
+
+
+</md-dialog>

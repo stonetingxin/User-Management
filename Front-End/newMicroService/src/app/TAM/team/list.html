@@ -1,0 +1,59 @@
+<div ng-show="!vm.authorizationRequires" layout="row" id="file-manager" class="page-layout page-layout2 simple right-sidenav right-sidenav2">
+
+    <div class="side-nav" layout="column" flex="30" style="overflow: hidden">
+        <div class="top-bg md-accent-bg"></div>
+        <div class="header" layout="column" layout-align="space-between">
+            <div class="logo" layout="row" layout-align="start center">
+                <span class="logo-text" translate="team.teams"></span>
+            </div>
+            <md-fab-trigger class="fabIcon">
+                <md-button class="md-fab md-warn" aria-label="Add Team" ng-click="vm.create($event)">
+                    <md-tooltip><span translate="generic.createLabel" transalte-values="{name:'{{'team.team'|translate}}'}"></span></md-tooltip>
+                    <md-icon md-font-icon="icon-plus"></md-icon>
+                </md-button>
+            </md-fab-trigger>
+        </div>
+        <!--Teams List-->
+        <div class="center team-list scrollable" ms-scroll layout="column">
+
+            <div class="todo-items " ng-model="vm.teamList">
+                <div class="todo-item md-grey-A100-bg" md-ink-ripple layout="row" layout-align="start center" ng-click="vm.selectedTeam(team)" ng-repeat="team in vm.teamList | filter:global.search">
+                    <div class="info" flex="100">
+                        <md-list flex="100" class="fixedRows">
+                            <md-list-item class="contact-item">
+                                <div class="md-list-item-createTeamtext compact">
+                                    <h3>
+                                        <md-tooltip><span translate="generic.name"></span></md-tooltip><span>{{team.teamname}}</span></h3>
+                                </div>
+                            </md-list-item>
+                        </md-list>
+                    </div>
+                    <!-- info -->
+
+                </div>
+                <!-- todo-item -->
+            </div>
+            <!-- todo-items -->
+        </div>
+        <!-- flex 30 -->
+    </div>
+
+    <!--Team Detail
+  <md-sidenav ng-if="vm.team!=undefined" class="center sidebar" layout="column" flex="70" md-is-locked-open="$mdMedia('gt-xs')"
+        md-component-id="details-sidenav"
+        ng-include="'app/adminPanel/team/sidenavs/sidenaveEdit.html'" ms-scroll
+        ms-sidenav-helper>
+	</md-sidenav>-->
+    <md-sidenav ng-if="vm.team!=undefined" class="center sidebar scrollable" ms-scroll layout="column" flex="70" md-is-locked-open="$mdMedia('gt-xs')" md-component-id="details-sidenav" ng-include="'app/TAM/team/sidenavs/sidenaveEdit.html'" ms-sidenav-helper>
+    </md-sidenav>
+</div>
+<div id="admin-access" ng-show="vm.authorizationRequires">
+    <div layout="column" ui-view="main" class="animate-slide-up ng-scope" id="main" ng-show="vm.authorizationRequires">
+        <div flex="" layout="column" class="template-layout ng-scope" id="layout-content-only">
+            <md-content flex="" ui-view="content" class="animate-slide-up md-background md-hue-1 ng-scope md-default-theme" id="content">
+                <ng-include src="'app/TAM/custome/accessDenied.html'" />
+            </md-content>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,84 @@
+<div id="file-manager" class="page-layout page-layout1 simple right-sidenav right-sidenav1" layout="row">
+
+    <!-- MAIN SIDENAV (EXTRA SIDENAV) -->
+    <md-sidenav class="main-sidenav" md-component-id="main-sidenav" ng-include="'app/TAM/prompt/sidenavs/main/main-sidenav.html'" ms-scroll ms-sidenav-helper>
+    </md-sidenav>
+    <!-- / MAIN SIDENAV (EXTRA SIDENAV) -->
+
+    <!-- CENTER -->
+    <div class="center" layout="column" flex>
+
+        <!-- HEADER -->
+        <div class="header md-accent-bg">
+
+            <div class="header-content" layout="column" layout-align="space-between">
+
+                <!-- TOOLBAR -->
+                <div class="toolbar" layout="row" layout-align="space-between">
+
+
+                    <div class="right-side" layout="row">
+
+                    </div>
+                </div>
+                <!-- / TOOLBAR -->
+
+                <!-- BREADCRUMB -->
+                <div class="breadcrumb text-truncate" layout="row" layout-align="start center">
+                    <md-button flex="20" ng-disabled="vm.folderTriverseArray.length <=1" class="md-icon-button" md-prevent-menu-close ng-click="vm.backFolder()">
+                        <md-icon md-font-icon="icon-keyboard-backspace" aria-label="Close dialog"></md-icon>
+                    </md-button>
+                    <!--<span ng-click="vm.openFolder(path.path,'no')" data-ng-repeat="path in vm.paths">{{path.name|translate}}
+                    <md-icon md-font-icon="icon-chevron-right" class="icon separator"></md-icon>-->
+
+                    <span data-ng-repeat="pt in vm.selectedPath" class = "removeHand">{{pt |translate}}
+                          <md-icon md-font-icon="icon-chevron-right" class="icon separator"></md-icon>
+                    </span>
+
+                    </span>
+                </div>
+                <!-- / BREADCRUMB -->
+            </div>
+
+            <!-- ADD FILE BUTTON -->
+            <div layout="row">
+                <md-fab-speed-dial ng-hide="vm.hidden" md-direction="right" md-open="vm.isOpen" class="md-scale " ng-class="{ 'md-hover-full': vm.hover }" ng-mouseenter="vm.isOpen=true" ng-mouseleave="vm.isOpen=false">
+                    <md-fab-trigger>
+                        <md-button aria-label="menu" class="md-fab md-warn">
+                            <!--<md-tooltip md-direction="top" md-visible="tooltipVisible">Menu</md-tooltip>-->
+
+                            <md-icon md-font-icon="icon-plus"></md-icon>
+                        </md-button>
+                    </md-fab-trigger>
+                    <md-fab-actions>
+                        <md-button aria-label="AddFolder" ng-click="vm.showFolderDialog($event)" class="md-fab md-raised  md-accent md-mini">
+                            <md-tooltip md-direction="right" md-visible="tooltipVisible" md-autohide="false"> <span translate="generic.addLabel" translate-values="{name:'{{'file.folder'|translate}}'}"></span></md-tooltip>
+                            <md-icon md-font-icon class="icon-folder-plus" aria-label="AddFolder"></md-icon>
+                        </md-button>
+                        <md-button aria-label="AddFile" ng-hide="vm.folders[0].path=='/'" ng-click="vm.showFileDialog($event)" class="md-fab  md-accent md-raised md-mini">
+                            <md-tooltip md-direction="right" md-visible="tooltipVisible" md-autohide="false"><span translate="file.uploadFile"></span> </md-tooltip>
+                            <md-icon md-font-icon="icon-file-music" aria-label="AddFile"></md-icon>
+                        </md-button>
+                    </md-fab-actions>
+                </md-fab-speed-dial>
+            </div>
+            <!-- / ADD FILE BUTTON -->
+        </div>
+        <!-- / HEADER -->
+
+        <!-- CONTENT -->
+        <md-content class="content" flex ms-scroll>
+            <div ng-if="vm.currentView === 'grid'" ng-include="'app/TAM/prompt/views/grid/grid-view.html'"></div>
+            <div ng-if="vm.currentView === 'list'" ng-include="'app/TAM/prompt/views/list/list-view.html'"></div>
+        </md-content>
+        <!-- / CONTENT -->
+
+    </div>
+    <!-- / CENTER -->
+
+    <!-- SIDENAV -->
+    <md-sidenav class="sidenav details-sidenav md-sidenav-right" md-is-locked-open="$mdMedia('gt-md')" md-component-id="details-sidenav" ng-include="'app/TAM/prompt/sidenavs/details/details-sidenav.html'" ms-scroll ms-sidenav-helper>
+    </md-sidenav>
+    <!-- / SIDENAV -->
+
+</div>

@@ -7,7 +7,7 @@
         .controller('UsersController', UsersController);
 
     /** @ngInject */
-    function UsersController(userService, utilCustom, $scope, $filter, $mdSidenav, msUtils, $mdDialog, $document)
+    function UsersController(userService, utilCustom, $scope, $filter, $mdSidenav, msUtils, $mdDialog, $document, $rootScope)
     {
 
         var vm = this;
@@ -105,9 +105,9 @@
         // Methods
         vm.filterChange = filterChange;
         vm.openContactDialog = openContactDialog;
-        vm.openRoleDialog = openRoleDialog;
+        // vm.openRoleDialog = openRoleDialog;
         vm.openRoleEditDialog = openRoleEditDialog;
-        vm.openPermissionDialog = openPermissionDialog;
+        // vm.openPermissionDialog = openPermissionDialog;
         vm.deleteContactConfirm = deleteContactConfirm;
         vm.deleteRoleConfirm = deleteRoleConfirm;
         vm.deleteContact = deleteContact;
@@ -126,7 +126,7 @@
         vm.toggleInArray = msUtils.toggleInArray;
         vm.exists = msUtils.exists;
 		    vm.showAdvanced = showAdvanced;
-        vm.roleAssignment = roleAssignment;
+        // vm.roleAssignment = roleAssignment;
 
         vm.init = init;
 
@@ -159,22 +159,22 @@
         function populateRoles(){
           userService.getRoles().then(function(data){
             vm.roles = data.roles;
-            extractRoles();
+            // extractRoles();
           }, function(error){
             console.log(error);
           });
         }
 
-        function extractRoles(){
-          angular.forEach(vm.roles, function(value, key){
-            var tempArr=[];
-            tempArr.push(value.name);
-            tempArr.push(value.permissions);
-            tempArr.push(value.description);
-            vm.widget11.table.rows.push(tempArr);
-          });
-          vm.widget11.table.rows
-        }
+        // function extractRoles(){
+        //   angular.forEach(vm.roles, function(value, key){
+        //     var tempArr=[];
+        //     tempArr.push(value.name);
+        //     tempArr.push(value.permissions);
+        //     tempArr.push(value.description);
+        //     vm.widget11.table.rows.push(tempArr);
+        //   });
+        //   vm.widget11.table.rows
+        // }
 
         function parseUserList() {
           angular.forEach(vm.contacts, function(value, key) {
@@ -196,9 +196,9 @@
           });
         }
 
-      function roleAssignment(chip){
-        return {name:chip}
-      }
+      // function roleAssignment(chip){
+      //   return {name:chip}
+      // }
         //////////
 
         /**
@@ -268,8 +268,10 @@
                 } else if(userData.message === 'update' || userData.message === 'roleAssigned'){
                   if (ind != -1) {
                     vm.contacts[ind] = userData.user;
-                    if (vm.contacts[ind].profileExists)
+                    if (vm.contacts[ind].profileExists){
                       vm.contacts[ind].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
+                      $rootScope.$broadcast("profilePicture",{username:vm.contacts[ind].username, avatar: vm.contacts[ind].avatar});
+                    }
                     else
                       vm.contacts[ind].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
@@ -281,48 +283,6 @@
             ;
         }
 
-
-        function openRoleDialog(ev, contact)
-        {
-          $mdDialog.show({
-              controller         : 'RoleDialogController',
-              controllerAs       : 'vm',
-              templateUrl        : 'app/UMM/dialogs/contact/role-dialog.html',
-              parent             : angular.element($document.find('#content-container')),
-              targetEvent        : ev,
-              skipHide : true,
-              clickOutsideToClose: false,
-              locals             : {
-                Contact : contact,
-                Roles   : vm.roles,
-                User    : vm.user,
-                Contacts: vm.contacts
-              }
-            })
-            .then(function(userData){
-              if (userData) {
-                var ind = _.findIndex(vm.contacts, { username: userData.user.username });
-
-                if(userData.message === 'create'){
-                  vm.contacts.unshift(userData.user);
-                  if (vm.contacts[0].profileExists)
-                    vm.contacts[0].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
-                  else
-                    vm.contacts[0].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
-                } else if(userData.message === 'update' || userData.message === 'upload'){
-                  if (ind != -1) {
-                    vm.contacts[ind] = userData.user;
-                    if (vm.contacts[ind].profileExists)
-                      vm.contacts[ind].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();
-                    else
-                      vm.contacts[ind].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
-
-                  }
-                }
-              }
-              vm.selectedContacts = [];
-            });
-        }
 
       function openRoleEditDialog(ev, role)
       {
@@ -336,6 +296,7 @@
             clickOutsideToClose: false,
             locals             : {
               Role   : role,
+              Roles   : vm.roles,
               Microservices: vm.microservices,
               Permissions: vm.permissions,
               contacts: vm.contacts
@@ -348,9 +309,17 @@
               if(roleData.message === 'create'){
                 vm.roles.unshift(roleData.role);
               } else if(roleData.message === 'update'){
-                if (ind != -1) {
+                if (ind !== -1) {
                   vm.roles[ind] = roleData.role;
                 }
+                angular.forEach(vm.contacts, function (contact, index) {
+                  var indRole = _.findIndex(contact.roles, function (o) {
+                    return o.id === roleData.role.id;
+                  });
+                  if(indRole!==-1){
+                    vm.contacts[index].roles[indRole] = roleData.role;
+                  }
+                });
               } else if(roleData.message === 'contactUpdate'){
                   //vm.contacts = roleData.contacts;
                   parseUserList();
@@ -359,36 +328,37 @@
             vm.selectedRoles = [];
           });
       }
-      function openPermissionDialog(ev, role)
-      {
-        $mdDialog.show({
-            controller         : 'PermissionController',
-            controllerAs       : 'vm',
-            templateUrl        : 'app/UMM/dialogs/role/permission.html',
-            parent             : angular.element($document.find('#content-container')),
-            targetEvent        : ev,
-            skipHide : true,
-            clickOutsideToClose: false,
-            locals             : {
-              Role   : role,
-              Microservices: vm.microservices
-            }
-          })
-          .then(function(userData){
-            if (userData) {
-              var ind = _.findIndex(vm.roles, { id: userData.role.id });
 
-              if(userData.message === 'create'){
-                vm.roles.unshift(userData.role);
-              } else if(userData.message === 'update'){
-                if (ind != -1) {
-                  vm.roles[ind] = userData.role;
-                }
-              }
-            }
-            vm.selectedRoles = [];
-          });
-      }
+      // function openPermissionDialog(ev, role)
+      // {
+      //   $mdDialog.show({
+      //       controller         : 'PermissionController',
+      //       controllerAs       : 'vm',
+      //       templateUrl        : 'app/UMM/dialogs/role/permission.html',
+      //       parent             : angular.element($document.find('#content-container')),
+      //       targetEvent        : ev,
+      //       skipHide : true,
+      //       clickOutsideToClose: false,
+      //       locals             : {
+      //         Role   : role,
+      //         Microservices: vm.microservices
+      //       }
+      //     })
+      //     .then(function(userData){
+      //       if (userData) {
+      //         var ind = _.findIndex(vm.roles, { id: userData.role.id });
+      //
+      //         if(userData.message === 'create'){
+      //           vm.roles.unshift(userData.role);
+      //         } else if(userData.message === 'update'){
+      //           if (ind != -1) {
+      //             vm.roles[ind] = userData.role;
+      //           }
+      //         }
+      //       }
+      //       vm.selectedRoles = [];
+      //     });
+      // }
         /**
          * Delete Contact Confirm Dialog
          */
@@ -419,7 +389,7 @@
         {
             var confirm = $mdDialog.confirm()
           var confirm = $mdDialog.confirm()
-            .title($filter('translate')('CONTACTS.ContactDeleteConfirm'))
+            .title($filter('translate')('CONTACTS.roleDeleteConfirm'))
             .ariaLabel('delete role')
             .targetEvent(ev)
             .ok($filter('translate')('generic.ok'))

@@ -159,7 +159,8 @@ class BootStrap {
                 ]
 
 //                /*Permissions for Admin Panel Supervisor*/
-                def permSupervisor = ["agent:*","application:*","queue:*","prompt:*","script:*"]
+                def permSupervisor = ["agent:*","application:*","queue:*","prompt:*","script:*",
+                                      "trigger:*", "callControllGroup:*"]
                 def permJunior = ["agent:*","queue:*"]
 
 
@@ -254,6 +255,7 @@ class BootStrap {
             output['expression'] = it?.expression
             output['description'] = it?.description
             output['microservice'] = it.micro?.id
+            output['preReqs'] = it.preReqs
             return output
         }
 
