@@ -33,6 +33,14 @@ class AuthorizationService {
             def userName= extractUsername(getAuthToken(request))
             (microName, controller, action) = extractURI(request.forwardURI)
 
+            if(microName == "base" || (action == "isUserAuthentic" && microName == "umm")
+                    || (action == "getAgentTeam" && microName == "umm")
+                    || (action == "list" && controller == "microservice")){
+                response.status = 200
+                response.auth=true
+                return response
+            }
+            
             log.info("Name of the microservice is: " + microName)
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
@@ -78,13 +86,6 @@ class AuthorizationService {
                 log.error("Exception occured while saving active directory user in DB.", ex)
             }
 
-            if(microName == "base" || (action == "isUserAuthentic" && microName == "umm")
-                    || (action == "getAgentTeam" && microName == "umm")
-                    || (action == "list" && controller == "microservice")){
-                response.status = 200
-                response.auth=true
-                return response
-            }
 
             if(!micro){
                 log.info("Microservice: '${microName}' does not exist. Contact system admin.")

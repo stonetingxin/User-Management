@@ -11,10 +11,15 @@ class UserService {
 
     def CCSettingsService
     def updateProfilePic(agentId, file) {
-        def webDirectory = ServletContextHolder?.servletContext?.getRealPath("/")
-        File destinationFile = new File(webDirectory + "/base/assets1/images/agents/", agentId + "." + FilenameUtils.getExtension(file?.getOriginalFilename()?.toLowerCase()))
-        file.transferTo(destinationFile)
-        return [status: 200]
+        try{
+            def webDirectory = ServletContextHolder?.servletContext?.getRealPath("/")
+            File destinationFile = new File(webDirectory + "/base/assets1/images/agents/", agentId + "." + FilenameUtils.getExtension(file?.getOriginalFilename()?.toLowerCase()))
+            file.transferTo(destinationFile)
+            return [status: 200]
+        }catch(Exception ex){
+            log.error(ex)
+            return [status: 500]
+        }
     }
 
     def getProfilePic(agentId) {

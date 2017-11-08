@@ -179,7 +179,7 @@ class UserController extends RestfulController<User> {
 
             if(!springSecurityService?.passwordEncoder?.isPasswordValid(activeUser?.getPassword(), jsonObject?.curPassword, null)){
                 resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Invalid password provided.")
+                resultSet.put("message", "Invalid curPass")
                 response.status = 406
                 render resultSet as JSON
                 return
@@ -407,7 +407,7 @@ class UserController extends RestfulController<User> {
 
                             if(addRevoke == "revoke"){
                                 def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance, micro, role)
-                                if(micro.name == "umm" && role.authority == "ROLE_ADMIN"
+                                if(micro.name == "umm" && role.authority == "admin"
                                         && userInstance.username == "admin"){
                                     resultSet.put("status", NOT_ACCEPTABLE)
                                     resultSet.put("message", "Admin roles cannot be revoked for super user.")
@@ -437,6 +437,154 @@ class UserController extends RestfulController<User> {
             }
 
             resultSet.put("status", OK)
+            resultSet.put("message", message)
+            resultSet.put("user", userInstance)
+            render resultSet as JSON
+            return
+
+        }catch (Exception ex){
+            log.error("Exception occured while adding/revoking microservices and roles to a user: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def assignRoles(){
+        def resultSet = [:]
+        def message = []
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.id || !jsonObject?.roles){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            User userInstance = User.findById(jsonObject?.id as Long)
+            if(!userInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "User not found. Invalid add/revoke request")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+
+            def roles = jsonObject?.roles
+
+            def role
+
+            roles?.each{
+                if(!it?.id){
+                    resultSet.put("status", NOT_ACCEPTABLE)
+                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                    response.status = 406
+                    render resultSet as JSON
+                    return
+                }
+                role = Role.findById(it?.id as Long)
+                if(role){
+                    def perms = role?.permissions
+
+                    def micros = []
+                    perms.each{p->
+                        micros.push(p.micro)
+                    }
+                    micros = micros.unique()
+                    micros.each{m->
+                        def umr = UMR.findByRolesAndUsersAndMicroservices(role, userInstance, m)
+                        if(!umr){
+                            UMR.create userInstance, role, m, true
+                        }
+                    }
+
+                } else{
+                    message.add("Role with id: ${it?.id} not found.")
+                }
+            }
+
+            resultSet.put("status", OK)
+            resultSet.put("message", message)
+            resultSet.put("user", userInstance)
+            render resultSet as JSON
+            return
+
+        }catch (Exception ex){
+            log.error("Exception occured while adding/revoking microservices and roles to a user: ", ex)
+            resultSet.put("status", INTERNAL_SERVER_ERROR)
+            resultSet.put("message", ex.getMessage())
+            response.status = 500
+            render resultSet as JSON
+        }
+    }
+
+    @Transactional
+    def revokeRoles(){
+        def resultSet = [:]
+        def message = []
+        try{
+            def jsonObject = request.getJSON()
+            if(!jsonObject?.id || !jsonObject?.roles){
+                resultSet.put("status", NOT_ACCEPTABLE)
+                resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                response.status = 406
+                render resultSet as JSON
+                return
+            }
+
+            User userInstance = User.findById(jsonObject?.id as Long)
+            if(!userInstance){
+                resultSet.put("status", NOT_FOUND)
+                resultSet.put("message", "User not found. Invalid add/revoke request")
+                response.status = 404
+                render resultSet as JSON
+                return
+            }
+
+            def roles = jsonObject?.roles
+
+            def role
+
+            roles?.each{
+                if(!it?.id){
+                    resultSet.put("status", NOT_ACCEPTABLE)
+                    resultSet.put("message", "Invalid JSON provided. Please read the API specifications.")
+                    response.status = 406
+                    render resultSet as JSON
+                    return
+                }
+                role = Role.findById(it?.id as Long)
+                if(role){
+                    def perms = role?.permissions
+
+                    def micros = []
+                    perms.each{p->
+                        micros.push(p.micro)
+                    }
+                    micros = micros.unique()
+                    micros.each{m->
+                        def umr = UMR.findByRolesAndUsersAndMicroservices(role, userInstance, m)
+                        if(umr){
+                            umr.delete(flush: true, failOnError: true)
+                            message.add("Successfully removed ${role} of ${userInstance} in ${m}.")
+                            response.status = 200
+                            resultSet.put("status", OK)
+                        } else {
+                            message.add("${role} is not assigned to ${userInstance} in ${m}.")
+                        }
+                    }
+
+                } else{
+                    message.add("Role with id: ${it?.id} not found.")
+                    response.status = 406
+                    resultSet.put("status", NOT_ACCEPTABLE)
+                }
+            }
+
             resultSet.put("message", message)
             resultSet.put("user", userInstance)
             render resultSet as JSON
@@ -575,8 +723,10 @@ class UserController extends RestfulController<User> {
         def password = params.password
         if (username && password) {
             if (CCSettingsService.checkAuthentication(username, password)) {
+                response.status = 200
                 render status: OK
             } else {
+                response.status = 401
                 render status: UNAUTHORIZED
             }
         }

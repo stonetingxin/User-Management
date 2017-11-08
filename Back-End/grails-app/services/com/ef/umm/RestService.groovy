@@ -5,6 +5,8 @@ import grails.core.GrailsApplication
 import grails.transaction.Transactional
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.multipart.MultipartHttpServletRequest
 
 import static grails.async.Promises.*
 import static org.springframework.http.HttpStatus.*
@@ -84,8 +86,13 @@ class RestService {
                     }
                 }
             } else {
-                if (user)
+                if (user){
+                    def umr = UMR.findAllByUsers(user)
+                    umr.each{
+                        it.delete(flush:true, failOnError: true)
+                    }
                     user.delete(flush: true)
+                }
             }
         }
         return supers
@@ -131,57 +138,15 @@ class RestService {
             }
         }
     }
-//    def APUserSync(){
-//        User user
-//        def adminPanel = getAPName()
-//        def micro = Microservice.findByName(adminPanel)
-//        def resp = getCCXUserList(micro)
-//        log.info("Response for CCX user Sync is: ${resp.responseEntity.statusCode.value}:${resp.json}")
-//        def currentUserList = User.findAllByType("CC")
-//        def userList = resp?.json
-//        def supervisor = Role.findByAuthority("supervisor")
-//        def AP = Microservice.findByName(adminPanel)
-//        userList.each {
-//            user = User.findByUsername(it?.username)
-//            if (!user) {
-//                try {
-//                    user = new User(username: it?.username, password: "123456!", isActive: true, fullName: it?.fullName,
-//                            dateCreated: it?.dateCreated, lastUpdated: it?.lastUpdated, lastLogin: it?.lastLogin,
-//                            email: it?.email, type: "CC")
-//                    user?.profileExists = it?.profileExists
-//                    user.save(flush: true, failOnError: true)
-//
-//                    UMR.create user, supervisor, AP, true
-//
-//                } catch (Exception ex) {
-//                    log.error("Error while Syncing user and Error is ")
-//                    log.error("_____________________________________")
-//                    log.error(ex.getMessage())
-//                    log.error("_____________________________________")
-//                }
-//            } else {
-//                user?.profileExists = it?.profileExists
-//                user.save(flush: true, failOnError: true)
-//            }
-//        }
-//
-//        currentUserList?.each {
-//            try {
-//                if (!userList?.findAll { u -> u?.get("username") == it.username } ){
-//                    def umr = UMR.findAllByUsers(it)
-//                    umr.each{um->
-//                        um?.delete(flush: true, failOnErrors:true)
-//                    }
-//                    it.delete(flush: true)
-//                }
-//
-//            } catch (Exception e) {
-//                log.error("Error occurred while deleting user which was deleted from CUCM.. ${e.getMessage()}")
-//            }
-//        }
-//
-//        return resp.responseEntity.statusCode.value
-//    }
+
+    File convertMultipartFileToFile(file) {
+        File convFile = new File(file.getOriginalFilename());
+        convFile.createNewFile();
+        FileOutputStream fos = new FileOutputStream(convFile);
+        fos.write(file.getBytes());
+        fos.close();
+        return convFile;
+    }
 
     def callAPI(def params, def request){
         params = purgeParams(params)
@@ -199,6 +164,26 @@ class RestService {
         def jsonString = jsonData as JSON
         def jsonSlurped= new JsonSlurper().parseText(jsonString as String)
         def resp
+
+//        if(params.file !=null){
+//            MultipartHttpServletRequest mpr
+//            mpr = (MultipartHttpServletRequest) request;
+//            MultipartFile file1 = mpr.getFile("file");
+//
+//            if(params.file instanceof  MultipartFile){
+////                def webDirectory = ServletContextHolder?.servletContext?.getRealPath("/")
+////                File destinationFile = new File(webDirectory + "/base/tmp/" )
+//                params.file=file1
+//                def rest = new RestBuilder()
+//                resp = rest."${method}"("${micro?.ipAddress}${req}"){
+//                    json(params)
+//                    contentType "multipart/form-data"
+//                    file = file1
+////                    contentType "multipart/form-data"
+//                }
+//                return resp
+//            }
+//        }
 
         if(params && jsonData){
             if(action == "save" || action == "create"){

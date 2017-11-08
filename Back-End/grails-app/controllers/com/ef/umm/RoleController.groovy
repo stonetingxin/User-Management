@@ -95,8 +95,10 @@ class RoleController {
                 render resultSet as JSON
                 return
             }
+            def permDef = Permission.findByExpression("default:*")
 
             newRole.save(flush: true, failOnError: true)
+            newRole.addToPermissions(permDef)
 
             resultSet.put("status", OK)
             resultSet.put("message", "New Role: '${newRole.authority}' has been created successfully. ")
@@ -160,8 +162,16 @@ class RoleController {
                 perm = Permission.findById(it?.id as Long)
                 if(perm){
                     if(addRevoke == 'add'){
-                        if(!roleInstance?.permissions.contains(perm)){
+                        if(!roleInstance?.permissions?.contains(perm)){
                             roleInstance.addToPermissions(perm)
+                            def umr = UMR.findAllByRoles(roleInstance)
+                            umr.each {
+                                def user = it.users
+                                def umrFull = UMR.findByUsersAndMicroservicesAndRoles(user, perm.micro, roleInstance)
+                                if(!umrFull){
+                                    UMR.create(user, roleInstance, perm.micro, true)
+                                }
+                            }
                             message.add("Permission: ${perm.name} has been successfully added.")
                         }
                         else{
@@ -170,15 +180,23 @@ class RoleController {
                     }
 
                     if(addRevoke == 'revoke'){
-                        if(roleInstance.authority == "ROLE_ADMIN" && perm.expression == "*:*"){
+                        if(roleInstance.authority == "admin" && perm.expression == "*:*"){
                             resultSet.put("status", NOT_ACCEPTABLE)
                             resultSet.put("message", "Super user permissions cannot be revoked from admin role.")
                             response.status = 406
                             render resultSet as JSON
                             return
                         }
-                        if(roleInstance?.permissions.contains(perm)){
+                        if(roleInstance?.permissions?.contains(perm)){
                             roleInstance.removeFromPermissions(perm)
+                            def umr = UMR.findAllByRoles(roleInstance)
+                            umr.each {
+                                def user = it.users
+                                def umrFull = UMR.findByUsersAndMicroservicesAndRoles(user, perm.micro, roleInstance)
+                                if(umrFull && !roleInstance.permissions*.micro.contains(perm.micro)){
+                                    umrFull.delete(flush:true, failOnError: true)
+                                }
+                            }
                             message.add("Permission: ${perm.name} has been successfully revoked.")
                         }
                         else{
@@ -377,25 +395,37 @@ class RoleController {
             def userInstance = User.findById(jsonObject?.user)
             if (!roleInstance) {
                 message.add("Role with ID: ${jsonObject?.role} not found. Provide a valid role id.")
+                response.status = 406
+                resultSet.put("status", NOT_ACCEPTABLE)
             } else{
                 if (!userInstance) {
                     message.add("User with ID: ${jsonObject?.user} not found. Provide a valid user id.")
+                    response.status = 406
+                    resultSet.put("status", NOT_ACCEPTABLE)
                 }else{
                     jsonObject.microservices.each{
                         def micro = Microservice.findById(it?.id)
                         if(!micro){
                             message.add("Microservice with ID: ${it?.id} not found. Provide a valid microservice id.")
+                            response.status = 406
+                            resultSet.put("status", NOT_ACCEPTABLE)
                         }else {
                             if(jsonObject?.addRevoke == "add"){
                                 UMR.create userInstance, roleInstance, micro, true
                                 message.add("Successfully added ${roleInstance.authority} role for user: ${userInstance.username}")
+                                resultSet.put("status", OK)
+                                response.status = 200
                             } else if(jsonObject?.addRevoke == "revoke"){
                                 def umr = UMR.findByUsersAndMicroservicesAndRoles(userInstance,micro, roleInstance)
                                 if(umr){
                                     umr.delete(flush:true,failOnErrors:true)
                                     message.add("Successfully revoked ${roleInstance.authority} role for user: ${userInstance.username}")
+                                    resultSet.put("status", OK)
+                                    response.status = 200
                                 } else {
                                     message.add("${roleInstance.authority} role has not assigned to user: ${userInstance.username}")
+                                    response.status = 406
+                                    resultSet.put("status", NOT_ACCEPTABLE)
                                 }
                             }
 
@@ -404,7 +434,7 @@ class RoleController {
                 }
             }
 
-            resultSet.put("status", OK)
+
             resultSet.put("message", message)
             resultSet.put("user", userInstance)
             render resultSet as JSON

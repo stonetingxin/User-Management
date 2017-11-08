@@ -44,48 +44,48 @@ class BootStrap {
                         [name: "Delete queues", expression: "queue:delete"],
 
 
-                        [name: "All Team Operations", expression: "team:*",
+                        [name: "All workspace Operations", expression: "team:*",
                          preReqs: ["service:index",
                                    "agent:index",
                                    "queue:index",
                                    "application:index"]],
                         //Requires service:index, agent:index, queue:index and application:index
-                        [name: "List Teams", expression: "team:index",
+                        [name: "List workspaces", expression: "team:index",
                          preReqs: ["service:index",
                                    "agent:index",
                                    "queue:index",
                                    "application:index"]],
-                        [name: "Get a team's details", expression: "team:getTeam"],
-                        [name: "Create new Teams", expression: "team:save"],
+                        [name: "Get a workspace's details", expression: "team:getTeam"],
+                        [name: "Create new workspaces", expression: "team:save"],
                         //Requires agent:index
-                        [name: "Update Teams", expression: "team:update",
+                        [name: "Update workspaces", expression: "team:update",
                          preReqs: "agent:index"],
-                        [name: "Delete Teams", expression: "team:delete"],
+                        [name: "Delete workspaces", expression: "team:delete"],
 
 
                         [name: "All Application Operations", expression: "application:*",
-                        preReqs:["prompt:getAllPrompts",
-                                 "callControlGroup:index",
+                        preReqs:["script:getAllPrompts",
+                                 "callControllGroup:index",
                                  "trigger:index",
                                  "script:getAllScripts",
                                  "script:index",
                                  "script:getScriptvariables"]],
-                        //Requires prompt:getAllPrompts, callControlGroup:index, trigger:index, script:getAllScripts
+                        //Requires script:getAllPrompts, callControllGroup:index, trigger:index, script:getAllScripts
                         [name: "List Applications", expression: "application:index",
-                         preReqs:["prompt:getAllPrompts",
-                                  "callControlGroup:index",
+                         preReqs:["script:getAllPrompts",
+                                  "callControllGroup:index",
                                   "trigger:index",
                                   "script:getAllScripts"]],
                         [name: "Get an application's details", expression: "application:get"],
-                        //Requires script:index, prompt:getAllPrompts, application:get, script:getScriptvariables
+                        //Requires script:index, script:getAllPrompts, application:get, script:getScriptvariables
                         [name: "Create new Application", expression: "application:save",
-                         preReqs:["prompt:getAllPrompts",
+                         preReqs:["script:getAllPrompts",
                                   "Application:get",
                                   "script:index",
                                   "script:getScriptvariables"]],
-                        //Requires prompt:getAllPrompts, application:get and script:getScriptvariables
+                        //Requires script:getAllPrompts, application:get and script:getScriptvariables
                         [name: "Update Applications", expression: "application:update",
-                         preReqs: ["prompt:getAllPrompts",
+                         preReqs: ["script:getAllPrompts",
                                    "application:get",
                                    "script:getScriptvariables"]],
                         [name: "Delete Applications", expression: "application:delete"],
@@ -152,7 +152,7 @@ class BootStrap {
                         [name: "Update triggers", expression: "trigger:update"],
                         [name: "Delete triggers", expression: "trigger:delete"],
 
-                        //No cross domain prerequisite for callControlGroup
+                        //No cross domain prerequisite for callControllGroup
                         [name: "All call control group Operations", expression: "callControllGroup:*"],
                         [name: "List call control group", expression: "callControllGroup:index"]
 
@@ -202,13 +202,18 @@ class BootStrap {
                 roleSupervisor?.save(flush: true, failOnError: true)
 //                efadminpanel?.save(flush: true, failOnError: true)
 
-                def roleJunior = new Role(authority: "junior supervisor", description: "Junior Spervisor Role")
+                def roleJunior = new Role(authority: "juniorSupervisor", description: "Junior Supervisor Role")
                 permJunior.each{
                     def perm = Permission.findByExpression(it)
                     roleJunior.addToPermissions(perm)
                 }
                 roleJunior?.save(flush: true, failOnError: true)
 
+                //This is a default permission for every newly created role.
+                //It won't show on interface or in the APIs.
+                def permDefault = new Permission(name: "Default Dummy permission", expression: "default:*")
+                umm.addToPermissions(permDefault)
+                permDefault.save(flush:true, failOnError: true)
 //                def roleDefaultAP = new Role(authority: "default", description: "Default role for admin panel")
 //                permDefaultAP.each{
 //                    def perm = Permission.findByExpression(it?.expression)

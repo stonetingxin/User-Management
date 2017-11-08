@@ -134,8 +134,8 @@ class CCSettingsService {
 
             def result =callAPI(authenticationBean, "GET", "/skill/", null, null, null)
             if(result.available){
-                if (result?.containsKey("apiError")) {
-                    def checkingStatus = result?.get("apiError")
+                if (result?.data?.containsKey("apiError")) {
+                    def checkingStatus = result?.data?.get("apiError")
                     if (checkingStatus?.get('errorType')?.equals("Unauthorized")) {
                         return false
                     }
@@ -144,8 +144,9 @@ class CCSettingsService {
                 authenticationBean?.setUsername(username)
                 authenticationBean?.setPassword(password)
                 authenticationBean?.setBaseUrl(webRequest+"://"+secondaryIp+"/adminapi")
-                if (result?.containsKey("apiError")) {
-                    def checkingStatus = result?.get("apiError")
+                result =callAPI(authenticationBean, "GET", "/skill/", null, null, null)
+                if (result?.data?.containsKey("apiError")) {
+                    def checkingStatus = result?.data?.get("apiError")
                     if (checkingStatus?.get('errorType')?.equals("Unauthorized")) {
                         return false
                     }

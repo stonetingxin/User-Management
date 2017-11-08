@@ -36,7 +36,7 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
             if(user?.type == "CC"){
                 def resp = getTeams(userDetails.username)
                 if(resp){
-                    result.put("teams" , resp.json)
+                    result.put("teams" , resp)
                 }
             }
 

@@ -107,6 +107,7 @@ if(!Environment.isDevelopmentMode()) {
     }
 
     logger('grails.app.controllers.com.ef.umm', DEBUG, ['APP_LOG', 'EXC_LOG'], false)
+    logger('grails.app.services.com.ef.umm', DEBUG, ['APP_LOG', 'EXC_LOG'], false)
     logger("org.springframework.security", DEBUG, ['SEC_LOG', 'EXC_LOG'], false)
     logger("grails.plugin.springsecurity", TRACE, ['SEC_LOG', 'EXC_LOG'], false)
     logger("org.pac4j", DEBUG, ['SEC_LOG', 'EXC_LOG'], false)
