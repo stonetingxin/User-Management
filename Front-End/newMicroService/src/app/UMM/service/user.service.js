@@ -65,12 +65,30 @@
         }
 
       },
+      // assignRoles: {
+      //   method: 'PUT',
+      //   url: window.appBaseUrl + '/user/addRevokeMicroserviceRoles/',
+      //   //isArray: true,
+      //   params: {
+      //     assignRoles: '@assignRoles'
+      //   }
+      //
+      // },
       assignRoles: {
         method: 'PUT',
-        url: window.appBaseUrl + '/user/addRevokeMicroserviceRoles/',
+        url: window.appBaseUrl + '/user/assignRoles/',
         //isArray: true,
         params: {
           assignRoles: '@assignRoles'
+        }
+
+      },
+      revokeRoles: {
+        method: 'PUT',
+        url: window.appBaseUrl + '/user/revokeRoles/',
+        //isArray: true,
+        params: {
+          revokeRoles: '@revokeRoles'
         }
 
       },
@@ -338,9 +356,30 @@
           });
         return defered.promise;
       },
+      // 'assignRoles': function (ids) {
+      //   var defered = $q.defer();
+      //   users.assignRoles(ids, function (response) {
+      //       defered.resolve(response);
+      //     },
+      //     function (error) {
+      //       defered.reject(error);
+      //     });
+      //   return defered.promise;
+      // },
       'assignRoles': function (ids) {
         var defered = $q.defer();
         users.assignRoles(ids, function (response) {
+            defered.resolve(response);
+          },
+          function (error) {
+            defered.reject(error);
+          });
+        return defered.promise;
+      },
+
+      'revokeRoles': function (ids) {
+        var defered = $q.defer();
+        users.revokeRoles(ids, function (response) {
             defered.resolve(response);
           },
           function (error) {

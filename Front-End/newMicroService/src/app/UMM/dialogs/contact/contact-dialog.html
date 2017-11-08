@@ -19,23 +19,28 @@
       <!-- TOOLBAR MIDDLE -->
       <div class="md-toolbar-tools md-toolbar-tools-middle" flex layout="column" layout-align="center center">
         <div layout="column" layout-align="center center">
-          <div class="pro-pic" ngf-select="" n class="save-button md-accent md-raised" name="file"
-               ngf-accept="'image/*'"
-               ngf-max-size="2MB" aria-label="upload" ng-model="vm.user.file" accept=".jpg">
-
+          <div name="profilePic" class="pro-pic" ngf-select="" n class="save-button md-accent md-raised" name="file"
+               ngf-accept="'image/*'" aria-label="upload" ng-model="vm.user.file" accept=".jpg">
+            <!--ngf-max-size="2MB"-->
             <img ng-if="vm.user.file" ngf-src="vm.user.file" class="profile-image avatar xlarge"
                  alt="{{vm.contact.username}}"/>
 
-            <img ng-if="!vm.user.file" ng-src="/assets1/images/avatars/profile.jpg"
+            <img ng-if="!vm.user.file" ng-src="assets1/images/avatars/profile.jpg"
                  class="profile-image avatar xlarge" alt="{{vm.contact.username}}"/>
             <span><md-icon class="icon-camera">
                 <!--<md-button ngf-select="" n class="save-button md-accent md-raised" name="file" ngf-accept="'image/*'"-->
               <!--ngf-max-size="2MB" aria-label="upload" ng-model="vm.agent.file" accept=".jpg">-->
               <!--{{'file.browse' | translate}}-->
               <!--</md-button>-->
-            </md-icon> {{'agent.uploadProfile' | translate}} </span>
+            </md-icon> {{'CONTACTS.uploadProfile' | translate}} </span>
           </div>
           <div class="contact-name">{{vm.contact.fullName}}</div>
+          <!--<div ng-show="vm.fileFormat" role="alert">-->
+          <!--<span translate="generic.selectFormat" translate-values="{format:'.jpg'}"></span>-->
+          <!--</div>-->
+          <!--<div ng-show="true" role="alert">-->
+          <!--<span translate="generic.fileSize" translate-values="{size:'2MB'}"></span>-->
+          <!--</div>-->
         </div>
       </div>
       <!-- / TOOLBAR MIDDLE -->
@@ -82,7 +87,7 @@
                 <span translate="data.cannot_null"
                       translate-values="{name:'{{'CONTACTS.fullName'|translate}}'}"> </span>
               </div>
-              <div ng-message="pattern">
+              <div class="maxWidth270" ng-message="pattern">
                 <span translate="data.filedShortLong"
                       translate-values="{field:'{{'CONTACTS.fullName'|translate}}', min:3,max:100}"></span>
               </div>
@@ -117,7 +122,7 @@
             <label for="" translate="CONTACTS.username">Username</label>
             <input name="username" ng-model="vm.contact.username" type="text" autocomplete="off"
                    ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_.]{3,30}$/"
-                   object-key="username" ng-change="vm.usernameExists(vm.contact.username)" required>
+                   object-key="username" ng-change="vm.usernameExists(vm.contact.username)" md-autofocus required>
             <!--{{vm.contactForm.username.$error}}-->
             <div ng-messages="vm.contactForm.username.$error" ng-show="vm.contactForm.username.$dirty" role="alert">
               <div ng-message="required">
@@ -129,7 +134,7 @@
                                   translate="data.charSize"
                                   translate-values="{field:'{{'CONTACTS.username'|translate}}',number:2}"></span>
               </div>
-              <div ng-message="pattern">
+              <div class="maxWidth270" ng-message="pattern">
                 <span translate="data.specialChar"
                       translate-values="{field:'{{'CONTACTS.username'|translate}}'}"></span>
               </div>
@@ -150,7 +155,7 @@
                 <span translate="data.cannot_null"
                       translate-values="{name:'{{'CONTACTS.password'|translate}}'}"> </span>
               </div>
-              <div ng-message="pattern">
+              <div class="maxWidth270" ng-message="pattern">
                 <span translate="data.filedShortLong"
                       translate-values="{field:'{{'CONTACTS.password'|translate}}', min:8,max:30}"></span>
               </div>
@@ -168,7 +173,7 @@
                 <span translate="data.cannot_null"
                       translate-values="{name:'{{'CONTACTS.fullName'|translate}}'}"> </span>
               </div>
-              <div ng-message="pattern">
+              <div class="maxWidth270" ng-message="pattern">
                 <span translate="data.filedShortLong"
                       translate-values="{field:'{{'CONTACTS.fullName'|translate}}', min:3,max:100}"></span>
               </div>
@@ -201,45 +206,45 @@
                   <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
                 </button>
                 <md-menu-content class="labels-menu-content super-select" width="4">
-                  <!--<md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>-->
-                  <!-- SELECT LABEL -->
-                  <!--<md-tab>-->
-                  <!--<md-tab-body>-->
-                  <md-tooltip><span translate="CONTACTS.roles"></span></md-tooltip>
-                  <md-menu-item>
-                    <md-input-container class="no-errors-spacer" md-no-float>
-                      <input class="serInput"
-                             placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}"
-                             type="text" ng-model="vm.labelSearchRoleText"
-                             autocomplete="off"
-                             translate-attr-palceholder="SB.SEARCH_LABELS">
-                    </md-input-container>
-                  </md-menu-item>
+                  <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
+                    <!-- SELECT LABEL -->
+                    <md-tab>
+                      <md-tab-body>
+                        <md-tooltip><span translate="CONTACTS.roles"></span></md-tooltip>
+                        <md-menu-item>
+                          <md-input-container class="no-errors-spacer" md-no-float>
+                            <input class="serInput"
+                                   placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}"
+                                   type="text" ng-model="vm.labelSearchRoleText"
+                                   autocomplete="off"
+                                   translate-attr-palceholder="SB.SEARCH_LABELS">
+                          </md-input-container>
+                        </md-menu-item>
 
-                  <md-menu-item class="label"
-                                ng-repeat="label in vm.roles | filter: vm.filterRoles">
-                    <md-button class="label-toggle-button" md-prevent-menu-close
-                               ng-click="vm.toggleInArrayRole(label, vm.contact.roles)"
-                               aria-label="Toggle Label" translate
-                               translate-attr-aria-label="SB.TOGGLE_LABEL">
+                        <md-menu-item class="label"
+                                      ng-repeat="label in vm.roles | filter: vm.filterRoles">
+                          <md-button class="label-toggle-button" md-prevent-menu-close
+                                     ng-click="vm.toggleInArrayRole(label, vm.contact.roles)"
+                                     aria-label="Toggle Label" translate
+                                     translate-attr-aria-label="SB.TOGGLE_LABEL">
 
-                      <md-list-item class="md-2-line contact-item selected">
-                        <div class="md-list-item-text compact">
-                          <h3>{{label.name}}
-                            <i ng-if="vm.exists(label, vm.contact.roles)"
-                               class="icon-check s16"></i>
-                          </h3>
-                        </div>
-                      </md-list-item>
+                            <md-list-item class="md-2-line contact-item selected">
+                              <div class="md-list-item-text compact">
+                                <h3><i ng-if="vm.exists(label, vm.contact.roles)"
+                                       class="icon-check s16"></i>{{label.name}}
+
+                                </h3>
+                              </div>
+                            </md-list-item>
 
 
-                    </md-button>
-                  </md-menu-item>
+                          </md-button>
+                        </md-menu-item>
 
-                  <!--</md-tab-body>-->
-                  <!--</md-tab>-->
-                  <!-- / SELECT LABEL -->
-                  <!--</md-tabs>-->
+                      </md-tab-body>
+                    </md-tab>
+                    <!-- / SELECT LABEL -->
+                  </md-tabs>
                 </md-menu-content>
               </md-menu>
             </div>

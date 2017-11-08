@@ -126,6 +126,7 @@
         vm.toggleInArray = msUtils.toggleInArray;
         vm.exists = msUtils.exists;
 		    vm.showAdvanced = showAdvanced;
+        // vm.removeDefPerm = removeDefPerm;
         // vm.roleAssignment = roleAssignment;
 
         vm.init = init;
@@ -190,11 +191,12 @@
             if (value.profileExists)
               vm.contacts[key].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(value.username) + '.jpg?timestamp=' + new Date().getTime();
             else
-              vm.contacts[key].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
+              vm.contacts[key].avatar = 'assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
 
           });
         }
+
 
       // function roleAssignment(chip){
       //   return {name:chip}
@@ -264,7 +266,7 @@
                   if (vm.contacts[0].profileExists)
                     vm.contacts[0].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[0].username) + '.jpg?timestamp=' + new Date().getTime();
                   else
-                    vm.contacts[0].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
+                    vm.contacts[0].avatar = 'assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
                 } else if(userData.message === 'update' || userData.message === 'roleAssigned'){
                   if (ind != -1) {
                     vm.contacts[ind] = userData.user;
@@ -273,7 +275,7 @@
                       $rootScope.$broadcast("profilePicture",{username:vm.contacts[ind].username, avatar: vm.contacts[ind].avatar});
                     }
                     else
-                      vm.contacts[ind].avatar = '/assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
+                      vm.contacts[ind].avatar = 'assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
 
                   }
                 }
@@ -306,9 +308,9 @@
             if (roleData) {
               var ind = _.findIndex(vm.roles, { id: roleData.role.id });
 
-              if(roleData.message === 'create'){
+              if(_.includes(roleData.message, "create")){
                 vm.roles.unshift(roleData.role);
-              } else if(roleData.message === 'update'){
+              } else if(_.includes(roleData.message, "update")){
                 if (ind !== -1) {
                   vm.roles[ind] = roleData.role;
                 }
@@ -320,10 +322,46 @@
                     vm.contacts[index].roles[indRole] = roleData.role;
                   }
                 });
-              } else if(roleData.message === 'contactUpdate'){
-                  //vm.contacts = roleData.contacts;
-                  parseUserList();
+
+                // if (_.includes(roleData.message, "userAss")){
+                //   angular.forEach(roleData.roleUser, function (contact) {
+                //     var indRoleUser = _.findIndex(vm.contacts, function (o) {
+                //       return o.id === contact.id;
+                //     });
+                //     var indRole = _.findIndex(vm.contacts[indRoleUser].roles, function (o) {
+                //       return o.id === roleData.role.id;
+                //     });
+                //     if(indRoleUser!==-1 && indRole === -1){
+                //       vm.contacts[indRoleUser].roles[indRole].unshift(roleData.role);
+                //     }
+                //   });
+                //
+                // }
+                // if(_.includes(roleData.message, "userRev")){
+                //   angular.forEach(roleData.roleUser, function (contact) {
+                //     var indRoleUser = _.findIndex(vm.contacts, function (o) {
+                //       return o.id === contact.id;
+                //     });
+                //     var indRole = _.findIndex(vm.contacts[indRoleUser].roles, function (o) {
+                //       return o.id === roleData.role.id;
+                //     });
+                //     if(indRoleUser!==-1 && indRole !== -1){
+                //       vm.contacts[indRoleUser].roles.splice(indRole, 1);
+                //     }
+                //   });
+                // }
+
+                if(_.includes(roleData.message, "permAdd")){
+
+                }
+                if(_.includes(roleData.message, "permRem")){
+
+                }
               }
+              // else if(roleData.message === 'contactUpdate'){
+              //     //vm.contacts = roleData.contacts;
+              //     parseUserList();
+              // }
             }
             vm.selectedRoles = [];
           });
@@ -415,8 +453,10 @@
           userService.delete(params).then(function(response){
             var ind = _.findIndex(vm.contacts, { username: contact.username });
             vm.contacts.splice(ind, 1);
+            utilCustom.toaster($filter('translate')('CONTACTS.deleteUserSuccess'));
           }, function(error){
             console.log(error);
+            utilCustom.toaster($filter('translate')('CONTACTS.deleteUserFailure'));
           });
 
         }
@@ -429,8 +469,10 @@
           userService.deleteRole(params).then(function(response){
             var ind = _.findIndex(vm.roles, { name: role.name });
             vm.roles.splice(ind, 1);
+            utilCustom.toaster($filter('translate')('CONTACTS.deleteRoleSuccess'));
           }, function(error){
             console.log(error);
+            utilCustom.toaster($filter('translate')('CONTACTS.deleteRoleFailure'));
           });
 
         }
@@ -456,7 +498,7 @@
                   params.push({id: contact.id});
 
                 });
-              var user = {ids: params}
+              var user = {ids: params};
                 userService.deleteMulti(user).then(function(response){
                   response.message.forEach(function(id){
                     var ind = _.findIndex(vm.contacts, { id: id });
@@ -481,7 +523,8 @@
             .ariaLabel('delete contacts')
             .targetEvent(ev)
             .ok($filter('translate')('generic.ok'))
-            .cancel($filter('translate')('generic.cancel'));
+            .cancel($filter('translate')('generic.cancel'))
+            .multiple(true);
 
           $mdDialog.show(confirm).then(function ()
           {

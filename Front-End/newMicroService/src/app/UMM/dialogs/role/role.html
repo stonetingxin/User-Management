@@ -1,6 +1,6 @@
 <md-dialog class="md-default-theme role-dialog" aria-label="New Role" flex="50">
   <form name="vm.roleForm">
-    <md-toolbar class="md-accent">
+    <md-toolbar class="md-accent md-tall">
       <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
         <span class="title">{{vm.title}}</span>
         <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
@@ -18,7 +18,7 @@
             <label for="" translate="generic.name"></label>
             <input name="role" ng-model="vm.role.name"
                    ng-model-options="{ debounce: 250 }" ng-pattern="/^[a-zA-Z0-9_.]{3,30}$/"
-                   ng-change="vm.roleExists(vm.role.name)" required>
+                   ng-change="vm.roleExists(vm.role.name)" md-autofocus required>
             <!--{{vm.roleForm.role.$error}}-->
             <div ng-messages="vm.roleForm.role.$error" ng-show="vm.roleForm.role.$dirty" role="alert">
               <div ng-message="required">
@@ -57,10 +57,10 @@
               <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
             </button>
             <md-menu-content class="labels-menu-content super-select" width="4">
-              <!--<md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>-->
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
               <!--&lt;!&ndash; SELECT LABEL &ndash;&gt;-->
-              <!--<md-tab>-->
-              <!--<md-tab-body>-->
+              <md-tab>
+              <md-tab-body>
               <md-tooltip><span translate="CONTACTS.permissions"></span></md-tooltip>
               <md-menu-item>
                 <md-input-container class="no-errors-spacer" md-no-float>
@@ -72,16 +72,16 @@
               </md-menu-item>
 
               <md-menu-item class="label"
-                            ng-repeat="label in vm.permissions | filter: vm.filterPermissions">
+                            ng-repeat="label in vm.permissions | filter: vm.filterPermissions | filter: {expression: '!default:*'}">
                 <md-button class="label-toggle-button" md-prevent-menu-close
-                           ng-click="vm.toggleInArrayPerm(label,  vm.role.permissions)"
+                           ng-click="vm.toggleInArrayPerm($event, label,  vm.role.permissions)"
                            aria-label="Toggle Label" translate
                            translate-attr-aria-label="SB.TOGGLE_LABEL">
 
                   <md-list-item class="md-2-line contact-item selected">
                     <!--<img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>-->
                     <div class="md-list-item-text compact">
-                      <h3>{{label.name}}({{label.expression}})
+                      <h3>{{label.name}}
                         <i ng-if="vm.exists(label, vm.role.permissions)"
                            class="icon-check s16"></i>
                       </h3>
@@ -92,10 +92,10 @@
                 </md-button>
               </md-menu-item>
 
-              <!--</md-tab-body>-->
-              <!--</md-tab>-->
+              </md-tab-body>
+              </md-tab>
               <!--&lt;!&ndash; / SELECT LABEL &ndash;&gt;-->
-              <!--</md-tabs>-->
+              </md-tabs>
             </md-menu-content>
           </md-menu>
         </div>
@@ -109,10 +109,10 @@
               <md-icon md-font-icon="icon-dots-vertical" aria-hidden="true"></md-icon>
             </button>
             <md-menu-content class="labels-menu-content super-select" width="4">
-              <!--<md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>-->
+              <md-tabs md-selected="vm.labelTabIndex" md-dynamic-height>
               <!--&lt;!&ndash; SELECT LABEL &ndash;&gt;-->
-              <!--<md-tab>-->
-              <!--<md-tab-body>-->
+              <md-tab>
+              <md-tab-body>
               <md-tooltip><span translate="user.users"></span></md-tooltip>
               <md-menu-item>
                 <md-input-container class="no-errors-spacer" md-no-float>
@@ -145,10 +145,10 @@
                 </md-button>
               </md-menu-item>
 
-              <!--</md-tab-body>-->
-              <!--</md-tab>-->
+              </md-tab-body>
+              </md-tab>
               <!--&lt;!&ndash; / SELECT LABEL &ndash;&gt;-->
-              <!--</md-tabs>-->
+              </md-tabs>
             </md-menu-content>
           </md-menu>
         </div>
@@ -157,9 +157,10 @@
 
         <div flex="50">
           <div class="scrollControl maxHeight" id="perms" ng-click="vm.scrollToBottom('perms')">
-            <md-chips disabled="true" name="permissions" class="label-chips" ng-model="vm.role.permissions"
+            <md-chips disabled="true" name="permissions" class="label-chips"
+                      ng-model="vm.role.permissions"
                       md-autocomplete-snap md-require-match="false"
-                      md-transform-chip="vm.addPermission(vm.role, $chip)"
+                      md-transform-chip="vm.addPermission($event, vm.role, $chip)"
                       md-removable="vm.removable(vm.role.name)"
                       placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}"
                       md-on-remove="vm.removePermission(vm.role, $chip)">
@@ -175,7 +176,7 @@
                 </md-not-found>
               </md-autocomplete>
 
-              <md-chip-template class="member-chip">
+              <md-chip-template class="member-chip" rem-def-perm chip={{$chip.expression}}>
                 <span>{{$chip.name}}</span>
               </md-chip-template>
               <button md-chip-remove class="md-primary">

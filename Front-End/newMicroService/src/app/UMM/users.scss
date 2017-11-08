@@ -320,3 +320,11 @@
 .listMenuHover .buttonDis {
   margin: 2px 0 0 4px;
 }
+
+button.autoFocus:focus {
+  background: rgba(255, 0, 0, 0.8); }
+
+.hidePerm{
+  visibility: hidden;
+  display: none !important;
+}

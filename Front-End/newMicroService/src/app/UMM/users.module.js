@@ -19,6 +19,17 @@
                     mdChip.addClass('remPadding');
                 }
             }
+        })
+        .directive('remDefPerm', function(){
+            return {
+                restrict: 'A',
+                link: function(scope, elem, attrs) {
+                    if(attrs.chip === "default:*"){
+                      var mdChip = elem.parent().parent();
+                      mdChip.addClass('hidePerm');
+                    }
+                }
+            }
         });
 
     /** @ngInject */
@@ -37,10 +48,10 @@
         });
 
         // Translation
-	
+
         // Navigation
-        msNavigationServiceProvider.saveItem('UMM.user', {
-           title : 'CONTACTS.users',
+        msNavigationServiceProvider.saveItem('user', {
+           title : 'UMM.umm',
            icon  : 'icon-account-circle',
            state : 'app.users',
            weight: 10,

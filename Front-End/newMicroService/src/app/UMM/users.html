@@ -227,7 +227,7 @@
 
                 <img ng-click="vm.openContactDialog($event, contact)" class="md-avatar" ng-if="contact.avatar"
                      alt="{{contact.username}}"
-                     http-src="{{contact.avatar}}"/>
+                     ng-src="{{contact.avatar}}"/>
 
                 <p class="maxWidth text-truncate font-weight-600" ng-click="vm.openContactDialog($event, contact)">
                   <span>{{contact.fullName? contact.fullName: contact.username}}
@@ -357,10 +357,12 @@
                 </p>
 
                 <p ng-click="vm.openRoleEditDialog($event, role)" class="maxWidthPerm">
-                  <span ng-if="role.permissions.length !== 0" ng-repeat="perm in role.permissions" class="chip">
+                  <span ng-if="role.permissions.length !== 0"
+                        ng-repeat="perm in role.permissions | filter: {expression: '!default:*'}" class="chip">
                     {{perm.name}}
                   </span>
-                  <span ng-if="role.permissions.length === 0 || !role.permissions"
+                  <span ng-if="role.permissions.length === 0 || !role.permissions
+                                || (role.permissions.length === 1 && role.permissions[0].expression==='default:*')"
                         translate="CONTACTS.noPermissions"></span>
                   <md-tooltip><span translate="CONTACTS.assignedPerms"></span></md-tooltip>
                 </p>
