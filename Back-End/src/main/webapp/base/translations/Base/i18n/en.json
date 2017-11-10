@@ -16,6 +16,7 @@
     "picDeleted": "Picture has been deleted",
     "picDeleteError": "Error while removing picture",
     "picFormat": "Select the .jpg file format",
+    "picSize": "Picture size greater than 2MB is not allowed",
     "updateProfilePic": "Update Profile Picture",
     "removePic": "Remove Current Picture"
   },
@@ -418,8 +419,8 @@
   },
   "login": {
     "loginAccount": "Log in to your account",
-    "incorrect": "Username and password incorrect",
-    "blockedUser": "Sorry, your access to the system has been deactivated. Please contact your system administrator to get it activated",
+    "incorrect": "Username and/or password is incorrect",
+    "blockedUser": "Please login again with correct credentials and login type",
     "username": "Username",
     "password": "Password",
     "rememberMe": "Remember Me",
@@ -678,7 +679,7 @@
     "ContactDeleteConfirm": "Are you sure want to delete the user?",
     "roleDeleteConfirm": "Are you sure want to delete the role?",
     "selectedDelete":"Are you sure want to delete the selected users?",
-    "assignPermsReqs":"This permission has following unassigned pre-requisite permissions. ",
+    "assignPermsReqs":"This permission has following unassigned pre-requisite permissions.",
     "assignPermsConfirm":"You need to add all these pre-requisite permissions manually, for this permission to work properly.",
     "preReqPermissions":"Per-requisite Permissions",
     "willBeDeleted":"{{user}} will be deleted.",
@@ -709,15 +710,23 @@
     "addRemPerms":"Add/Remove Permissions",
     "assignedPerms":"Assigned Permissions",
     "successCreatedRole":"Successfully created new Role",
+    "failedCreatedRole":"Failed to create new Role",
     "successUpdatedRole":"Successfully updated the Role",
+    "failedUpdatedRole":"Failed to update the Role",
     "showPass":"Show/Hide password",
     "active":"Active",
     "deleteUserSuccess": "Successfully deleted the user",
     "deleteUserFailure": "Failed to delete the user",
+    "deleteRoleSuccess": "Successfully deleted the role",
+    "deleteRoleFailure": "Failed to delete the role",
     "createUserSuccess": "Successfully created the user",
     "createUserFailure": "Failed to create the user",
     "updateUserSuccess": "Successfully updated the user",
-    "updateUserFailure": "Failed to update the user"
+    "updateUserFailure": "Failed to update the user",
+    "uploadProfile": "Upload profile pictures",
+    "changePassword": "Change Password",
+    "picFormat": "Only jpg file format is acceptable for profile picture",
+    "fileSize": "Picture size cannot be greater than 2MB"
   }
 
 }

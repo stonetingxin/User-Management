@@ -28,129 +28,132 @@ class BootStrap {
                          preReqs:["group:index",
                                   "skill:index",
                                   "team:index"]],
-                        [name: "Update Agents", expression: "agent:update"],
+                        [name: "Update Agents", expression: "agent:update", preReqs: ["agent:index"]],
                         [name: "Update Agent's Profile Pic", expression: "agent:updateProfilePic"],
 
 
-                        [name: "All queue Operations", expression: "queue:*",
+                        [name: "All Queue Operations", expression: "queue:*",
                          preReqs: ["group:index",
-                                   "skill:index"]],
+                                   "skill:index",
+                                   "agent:index"]],
                         //Requires group:index and skill:index
-                        [name: "List queues", expression: "queue:index",
+                        [name: "List Queues", expression: "queue:index",
                          preReqs: ["group:index",
-                                   "skill:index"]],
-                        [name: "Create new queue", expression: "queue:save"],
-                        [name: "Update queues", expression: "queue:update"],
-                        [name: "Delete queues", expression: "queue:delete"],
+                                   "skill:index",
+                                    "agent:index"]],
+                        [name: "Create new Queues", expression: "queue:save"],
+                        [name: "Update Queues", expression: "queue:update", preReqs: ["queue:index"]],
+                        [name: "Delete Queues", expression: "queue:delete"],
 
 
-                        [name: "All workspace Operations", expression: "team:*",
+                        [name: "All Workspace Operations", expression: "team:*",
                          preReqs: ["service:index",
                                    "agent:index",
                                    "queue:index",
                                    "application:index"]],
                         //Requires service:index, agent:index, queue:index and application:index
-                        [name: "List workspaces", expression: "team:index",
+                        [name: "List Workspace", expression: "team:index",
                          preReqs: ["service:index",
                                    "agent:index",
                                    "queue:index",
                                    "application:index"]],
-                        [name: "Get a workspace's details", expression: "team:getTeam"],
-                        [name: "Create new workspaces", expression: "team:save"],
+                        [name: "Show any Workspace's details", expression: "team:getTeam"],
+                        [name: "Create a new Workspace", expression: "team:save"],
                         //Requires agent:index
-                        [name: "Update workspaces", expression: "team:update",
-                         preReqs: "agent:index"],
-                        [name: "Delete workspaces", expression: "team:delete"],
+                        [name: "Update Workspace", expression: "team:update",
+                         preReqs: ["agent:index", "team:index"]],
+                        [name: "Delete Workspace", expression: "team:delete"],
 
 
                         [name: "All Application Operations", expression: "application:*",
-                        preReqs:["script:getAllPrompts",
-                                 "callControllGroup:index",
-                                 "trigger:index",
-                                 "script:getAllScripts",
-                                 "script:index",
-                                 "script:getScriptvariables"]],
+                         preReqs:["script:getAllPrompts",
+                                  "callControllGroup:index",
+                                  "trigger:index",
+                                  "script:getAllScripts",
+                                  "script:index",
+                                  "script:getScriptvariables"]],
                         //Requires script:getAllPrompts, callControllGroup:index, trigger:index, script:getAllScripts
-                        [name: "List Applications", expression: "application:index",
+                        [name: "List Application", expression: "application:index",
                          preReqs:["script:getAllPrompts",
                                   "callControllGroup:index",
                                   "trigger:index",
                                   "script:getAllScripts"]],
-                        [name: "Get an application's details", expression: "application:get"],
+                        [name: "Get an Application's Details", expression: "application:get"],
                         //Requires script:index, script:getAllPrompts, application:get, script:getScriptvariables
-                        [name: "Create new Application", expression: "application:save",
+                        [name: "Create a new Application", expression: "application:save",
                          preReqs:["script:getAllPrompts",
                                   "Application:get",
                                   "script:index",
                                   "script:getScriptvariables"]],
                         //Requires script:getAllPrompts, application:get and script:getScriptvariables
-                        [name: "Update Applications", expression: "application:update",
+                        [name: "Update Application", expression: "application:update",
                          preReqs: ["script:getAllPrompts",
                                    "application:get",
-                                   "script:getScriptvariables"]],
-                        [name: "Delete Applications", expression: "application:delete"],
+                                   "script:getScriptvariables",
+                                   "application:index"]],
+                        [name: "Delete Application", expression: "application:delete"],
 
 
                         //No cross domain prerequisite for scripts
-                        [name: "All script Operations", expression: "script:*"],
-                        [name: "List scripts", expression: "script:index"],
-                        [name: "Upload new script", expression: "script:save"],
-                        [name: "Update script's Name", expression: "script:update"],
-                        [name: "Update script's Variables", expression: "script:updateVariables"],
-                        [name: "Delete scripts or folders", expression: "script:delete"],
-                        [name: "Create script Folder", expression: "script:createFolder"],
+                        [name: "All Script Operations", expression: "script:*"],
+                        [name: "List Script", expression: "script:index"],
+                        [name: "Upload a new Script", expression: "script:save"],
+                        [name: "Update Script Name", expression: "script:update"],
+                        [name: "Update Script Variables", expression: "script:updateVariables"],
+                        [name: "Delete Script or Folder", expression: "script:delete"],
+                        [name: "Create Script Folder", expression: "script:createFolder"],
                         //Self prereqs
-                        [name: "Update Script's folder", expression: "script:updateFolder", preReqs:["script:getAllScripts"]],
-                        [name: "Get Scripts after folder update", expression: "script:getAllScripts"],
+                        [name: "Update Script Folder", expression: "script:updateFolder", preReqs:["script:getAllScripts", "script:index"]],
+                        [name: "Get all scripts", expression: "script:getAllScripts"],
 
-                        [name: "Get script's Variables", expression: "script:getScriptVariables"],
+                        [name: "Get Script's Variables", expression: "script:getScriptVariables"],
 
 
                         //No cross domain prerequisite for prompts
-                        [name: "All prompt Operations", expression: "prompt:*"],
-                        [name: "List prompts", expression: "prompt:index"],
-                        [name: "Upload new prompt", expression: "prompt:save"],
+                        [name: "All Prompt Operations", expression: "prompt:*"],
+                        [name: "List Prompts", expression: "prompt:index"],
+                        [name: "Upload a new Prompt", expression: "prompt:save"],
                         //Self prereqs
-                        [name: "Update a prompt", expression: "prompt:update", preReqs: ["script:getAllPrompts"]],
-                        [name: "Get Prompts after folder update", expression: "script:getAllPrompts"],
+                        [name: "Update a Prompt", expression: "prompt:update", preReqs: ["script:getAllPrompts", "prompt:index"]],
+                        [name: "Get all prompts", expression: "script:getAllPrompts"],
 
-                        [name: "Delete prompts or folders", expression: "prompt:delete"],
-                        [name: "Create prompt Folder", expression: "prompt:createFolder"],
-                        [name: "Download prompts", expression: "prompt:download"],
+                        [name: "Delete Prompts or Folders", expression: "prompt:delete"],
+                        [name: "Create Prompt Folder", expression: "prompt:createFolder"],
+                        [name: "Download Prompts", expression: "prompt:download"],
 
 
                         //No cross domain prerequisite for groups
-                        [name: "All group Operations", expression: "group:*"],
-                        [name: "List groups", expression: "group:index"],
-                        [name: "Get a group's details", expression: "group:show"],
-                        [name: "Create new group", expression: "group:save"],
-                        [name: "Update groups", expression: "group:update"],
-                        [name: "Delete groups", expression: "group:delete"],
+                        [name: "All Group Operations", expression: "group:*"],
+                        [name: "List Groups", expression: "group:index"],
+                        [name: "Get a Group's Details", expression: "group:show"],
+                        [name: "Create a new Group", expression: "group:save"],
+                        [name: "Update Group", expression: "group:update", preReqs: ["group:index"]],
+                        [name: "Delete Group", expression: "group:delete"],
 
 
                         //No cross domain prerequisite for skills
-                        [name: "All skill Operations", expression: "skill:*"],
-                        [name: "List skills", expression: "skill:index"],
-                        [name: "Get a skill's details", expression: "skill:show"],
-                        [name: "Create new skill", expression: "skill:save"],
-                        [name: "Update skills", expression: "skill:update"],
-                        [name: "Delete skills", expression: "skill:delete"],
+                        [name: "All Skill Operations", expression: "skill:*"],
+                        [name: "List Skills", expression: "skill:index"],
+                        [name: "Get a Skill's Details", expression: "skill:show"],
+                        [name: "Create a new Skill", expression: "skill:save"],
+                        [name: "Update Skill", expression: "skill:update", preReqs: ["skill:index"]],
+                        [name: "Delete Skill", expression: "skill:delete"],
 
                         //No cross domain prerequisite for directory numbers
                         [name: "All DN Operations", expression: "service:*"],
                         [name: "List DNs", expression: "service:index"],
-                        [name: "Get a DN's details", expression: "service:show"],
-                        [name: "Create new DN", expression: "service:save"],
-                        [name: "Update DNs", expression: "service:update"],
-                        [name: "Delete DNs", expression: "service:delete"],
+                        [name: "Get a DN's Details", expression: "service:show"],
+                        [name: "Create a new DN", expression: "service:save"],
+                        [name: "Update DN", expression: "service:update", preReqs: ["service:index"]],
+                        [name: "Delete DN", expression: "service:delete"],
 
                         //No cross domain prerequisite for triggers
-                        [name: "All trigger Operations", expression: "trigger:*"],
-                        [name: "List triggers", expression: "trigger:index"],
-                        [name: "Get a trigger's details", expression: "trigger:get"],
-                        [name: "Create new trigger", expression: "trigger:save"],
-                        [name: "Update triggers", expression: "trigger:update"],
-                        [name: "Delete triggers", expression: "trigger:delete"],
+                        [name: "All Trigger Operations", expression: "trigger:*"],
+                        [name: "List Triggers", expression: "trigger:index"],
+                        [name: "Get a Trigger's Details", expression: "trigger:get"],
+                        [name: "Create a new Trigger", expression: "trigger:save"],
+                        [name: "Update Trigger", expression: "trigger:update", preReqs: ["trigger:index"]],
+                        [name: "Delete Trigger", expression: "trigger:delete"],
 
                         //No cross domain prerequisite for callControllGroup
                         [name: "All call control group Operations", expression: "callControllGroup:*"],
@@ -158,10 +161,15 @@ class BootStrap {
 
                 ]
 
+
+                println(permTAM as JSON)
 //                /*Permissions for Admin Panel Supervisor*/
-                def permSupervisor = ["agent:*","application:*","queue:*","prompt:*","script:*",
+                def permSupervisor = ["agent:*","group:index",
+                                      "skill:index",
+                                      "application:*", "queue:*","group:index",
+                                      "prompt:*","script:*",
                                       "trigger:*", "callControllGroup:*"]
-                def permJunior = ["agent:*","queue:*"]
+                def permJunior = ["agent:*","queue:*","group:index", "skill:index"]
 
 
                 def admin
