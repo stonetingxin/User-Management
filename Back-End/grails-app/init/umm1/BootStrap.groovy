@@ -16,7 +16,7 @@ class BootStrap {
                 def permTAM = [
 
                         //All team administartion operations
-                        [name: "All Team Administration Operations", expression: "tam:*:*"],
+//                        [name: "All Team Administration Operations", expression: "tam:*:*"],
 
                         // Agent related permissions for TAM
                         [name: "All Agent Operations", expression: "agent:*",
