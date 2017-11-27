@@ -248,7 +248,7 @@
                 templateUrl        : 'app/UMM/dialogs/contact/contact-dialog.html',
                 parent             : angular.element($document.find('#content-container')),
                 targetEvent        : ev,
-              skipHide : true,
+                skipHide : true,
                 clickOutsideToClose: false,
                 locals             : {
                     Contact : contact,
@@ -268,7 +268,7 @@
                   else
                     vm.contacts[0].avatar = 'assets1/images/avatars/profile.jpg?timestamp=' + new Date().getTime();
                 } else if(userData.message === 'update' || userData.message === 'roleAssigned'){
-                  if (ind != -1) {
+                  if (ind !== -1) {
                     vm.contacts[ind] = userData.user;
                     if (vm.contacts[ind].profileExists){
                       vm.contacts[ind].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[ind].username) + '.jpg?timestamp=' + new Date().getTime();

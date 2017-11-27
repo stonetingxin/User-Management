@@ -12,7 +12,7 @@ class Role {
     static hasMany = [permissions:Permission]
 
     static constraints = {
-        authority(maxSize: 20, nullable: false, blank: false, unique: true)
+        authority(maxSize: 30, nullable: false, blank: false, unique: true)
         description(blank: true, maxSize: 1000, nullable: true)
     }
 

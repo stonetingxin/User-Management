@@ -2,7 +2,7 @@
 grails:
     profile: web
     codegen:
-        defaultPackage: umm1
+        defaultPackage: umm
     spring:
         transactionManagement:
             proxies: false
@@ -214,3 +214,4 @@ environments:
 ---
 names:
     adminPanel: "tam"
+    eabc: "eabc"

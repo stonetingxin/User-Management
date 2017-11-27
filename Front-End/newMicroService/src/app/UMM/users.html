@@ -245,7 +245,7 @@
                   <md-tooltip><span translate="CONTACTS.rolesAssigned"></span></md-tooltip>
                 </p>
 
-                <div ng-if="options" ng-hide="contact.username === 'admin'" class="listMenuHover">
+                <div ng-if="options" ng-hide="contact.username === 'admin' || contact.type === 'CC'" class="listMenuHover">
                   <!--<md-button ng-click="vm.openContactDialog($event, contact)" class="buttonDis md-icon-button " aria-label="Edit" translate translate-attr-aria-label="">-->
                   <!--<md-tooltip md-direction="top">{{'generic.edit' | translate}}</md-tooltip>-->
                   <!--<md-icon md-font-icon="icon-pencil s18" ng-click=""></md-icon>-->
@@ -367,7 +367,7 @@
                   <md-tooltip><span translate="CONTACTS.assignedPerms"></span></md-tooltip>
                 </p>
 
-                <div ng-if="options" ng-hide="role.name === 'admin'" class="listMenuHover">
+                <div ng-if="options" ng-hide="role.name === 'Administrator'" class="listMenuHover">
                   <!--<md-button ng-click="vm.openRoleEditDialog($event, role)" class="buttonDis md-icon-button " aria-label="Edit" translate translate-attr-aria-label="">-->
                   <!--<md-tooltip md-direction="top">{{'generic.edit' | translate}}</md-tooltip>-->
                   <!--<md-icon md-font-icon="icon-pencil s18" ng-click=""></md-icon>-->

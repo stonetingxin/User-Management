@@ -1,6 +1,6 @@
 <md-dialog class="md-default-theme role-dialog" aria-label="New Role" flex="50">
   <form name="vm.roleForm">
-    <md-toolbar class="md-accent md-tall">
+    <md-toolbar class="md-accent">
       <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
         <span class="title">{{vm.title}}</span>
         <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
@@ -48,8 +48,8 @@
       <!--<md-tab label="Permissions">-->
       <div layout="row" layout-padding ng-hide="vm.newRole">
         <span flex="40" translate="CONTACTS.permissions"></span>
-        <div flex="10" ng-show="vm.role.name === 'admin'"></div>
-        <div flex="10" ng-hide="vm.role.name === 'admin'">
+        <div flex="10" ng-show="vm.role.name === 'Administrator'"></div>
+        <div flex="10" ng-hide="vm.role.name === 'Administrator'">
 
           <md-menu class="labels">
             <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
@@ -99,7 +99,7 @@
             </md-menu-content>
           </md-menu>
         </div>
-
+        <md-divider style="padding: 0px"></md-divider>
         <span flex="40" translate="user.users"></span>
         <div flex="10">
 
@@ -168,6 +168,7 @@
               <md-autocomplete md-selected-item="vm.selectedPermission" md-search-text="vm.searchText"
                                md-items="item in vm.queryArraySearch(vm.searchText,vm.permissions)"
                                ng-hide="!vm.removable(vm.role.name)"
+                               md-no-cache="true"
                                md-item-text="item.name"
                                placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}">
                 <span md-highlight-text="vm.searchText">{{item.name}}</span>
@@ -190,7 +191,7 @@
         <!--</md-tab>-->
         <!--<md-tab label="Users">-->
         <!--<div layout="row" layout-padding>-->
-
+        <md-divider style="padding: 0px"></md-divider>
         <div flex="50" class="scrollControl maxHeight" id="users" ng-click="vm.scrollToBottom('users')">
           <md-chips disabled="true" name="permissions" class="label-chips" ng-model="vm.roleUser"
                     md-autocomplete-snap md-require-match="false"
@@ -201,6 +202,7 @@
             <md-autocomplete md-selected-item="vm.selectedUser" md-search-text="vm.searchUser"
                              md-items="item in vm.queryUserSearch(vm.searchUser,vm.contacts)"
                              md-item-text="item.fullName"
+                             md-no-cache="true"
                              placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.users} }}">
               <span md-highlight-text="vm.searchUser">{{item.fullName}}</span>
               <md-not-found>

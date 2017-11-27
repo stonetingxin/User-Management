@@ -176,7 +176,7 @@
     }*/
 
     function extractMicros(chip) {
-      var result = []
+      var result = [];
       for (var i = 0; i < chip.permissions.length; i++) {
         result.push({id: chip.permissions[i].microservice, roles: [{id: chip.id}]});
       }
@@ -218,6 +218,15 @@
      */
     function addNewContact(user, file) {
       var userCreated = $rootScope._user;
+      var profile;
+      if(file){
+        if((_.includes(file, "assets1/images/agents/profile.jpg"))){
+          profile = false;
+        } else
+          profile = true;
+      } else
+        profile = false;
+
       var params = {
         id: user.id,
         username: user.username,
@@ -225,7 +234,7 @@
         email: user.email,
         isActive: user.isActive,
         password: user.password,
-        profileExists: file ? true : false,
+        profileExists: profile,
         createdBy: {id: userCreated.id}
       };
 
@@ -282,7 +291,7 @@
       var parts = file.name.split('.');
       var ext = parts[parts.length - 1];
       var size = file.size / (1024 * 1024);
-      if (ext === "jpg") {
+      if (angular.lowercase(ext) === "jpg" || angular.lowercase(ext) === "jpeg") {
         if (size <= 2) {
           return {size: true, format: true}
         } else {
@@ -302,12 +311,21 @@
      */
     function saveContact(user, file) {
       var userUpdated = $rootScope._user;
+      var profile;
+      if(file){
+        if((_.includes(file, "assets1/images/avatars/profile.jpg"))){
+          profile = false;
+        } else
+          profile = true;
+      } else
+        profile = false;
+
       var params = {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
         isActive: user.isActive,
-        profileExists: file ? true : false,
+        profileExists: profile,
         updatedby: {id: userUpdated.id}
       };
 
@@ -361,7 +379,7 @@
       $mdDialog.show({
         controller: 'UserUploadPicController',
         controllerAs: 'vm',
-        templateUrl: 'app/adminPanel/user/upload.html',
+        templateUrl: 'app/UMM/user/upload.html',
         parent: angular.element($document.body),
         targetEvent: e,
         clickOutsideToClose: true,

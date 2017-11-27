@@ -6,7 +6,7 @@
     .controller('RoleController', RoleController);
 
   /** @ngInject */
-  function RoleController($rootScope, userService, utilCustom, contacts, Microservices, Permissions, $mdDialog, $filter, Role, Roles, msUtils) {
+  function RoleController($rootScope, userService, utilCustom, contacts, Microservices, Permissions, $mdDialog, $filter, Role, Roles, $document) {
     var message= [];
     var vm = this;
 
@@ -75,7 +75,7 @@
     }
 
     function removable(name) {
-      if (name === 'admin')
+      if (name === 'Administrator')
         return false;
       else
         return true;
@@ -174,75 +174,110 @@
       }
     }
 
+    function getPermFromExp(exp){
+      return _.find(vm.permissions, function(p){
+        return p.expression === exp;
+      });
+    }
+
+    function permNotAssigned(role, exp){
+      var ind, ind2;
+      ind = _.findIndex(role.permissions, function (o) {
+        return o.expression === exp;
+      });
+      if(ind ===-1){
+        var full = exp.split(":")[0]+ ":*";
+        ind2 = _.findIndex(role.permissions, function (o) {
+          return o.expression === full;
+        });
+      }
+      return ind2 ===-1;
+    }
+
+    function addSubReqs(role, chipPerm, requisites){
+      var subPreReqs = getPermFromExp(chipPerm).preReqs;
+      if(subPreReqs && subPreReqs.length !== 0){
+        angular.forEach(subPreReqs, function (subPerm) {
+          if(permNotAssigned(role, subPerm)&& !_.includes(requisites, subPerm)){
+            requisites.push(subPerm);
+            addSubReqs(role, subPerm, requisites);
+          } else
+              return;
+        });
+      }else
+        return;
+    }
     function addPermission(ev, role, chip) {
       var requisites = [];
-      var perms = "";
+      var perms = [];
+      var perm;
       if (chip.preReqs.length !== 0) {
         if(role.permissions.length!==0){
           angular.forEach(chip.preReqs, function (chipPerm) {
-            var ind = _.findIndex(role.permissions, function (o) {
-              return o.expression === chipPerm;
-            });
-            if(ind === -1){
-              var full = chipPerm.split(":")[0]+ ":*";
-              var ind2 = _.findIndex(role.permissions, function (o) {
-                return o.expression === full;
-              });
-              if(ind2===-1)
+            if(permNotAssigned(role, chipPerm)){
                 requisites.push(chipPerm);
+                addSubReqs(role, chipPerm, requisites);
             }
           });
 
           if(requisites.length!==0){
-            perms = mapPerms(requisites);
+            perms = mapPerms(_.uniq(requisites));
           }else {
-            return addPermissionAux(role, chip);
+            perm = [{id:chip.id}];
+            return addPermissionAux(role, chip, perm);
           }
         }else {
           perms = mapPerms(chip.preReqs);
         }
 
-        var title = $filter('translate')('CONTACTS.preReqPermissions');
-        var content = $filter('translate')('CONTACTS.assignPermsReqs') + "<br>" + perms + "<br>"
-          + $filter('translate')('CONTACTS.assignPermsConfirm');
-        var confirm = $mdDialog.confirm()
-          .title(title)
-          .htmlContent(content)
-          .ariaLabel('assign perms pre-requisites')
-          .targetEvent(ev)
-          .ok($filter('translate')('generic.ok'))
-          .cancel($filter('translate')('generic.cancel'))
-          .multiple(true);
-
-        $mdDialog.show(confirm)
-          .then(function () {
-            return addPermissionAux(role, chip);
-          }, function () {
-            return null;
+        $mdDialog.show({
+          controller         : 'preReqController',
+          controllerAs       : 'vm',
+          templateUrl        : 'app/UMM/dialogs/role/preReq-dialog.html',
+          parent             : angular.element($document.find('#content-container')),
+          targetEvent        : ev,
+          skipHide : true,
+          clickOutsideToClose: false,
+          multiple: true,
+          locals             : {
+            permission: chip,
+            permissions: vm.permissions,
+            preReqs: perms,
+            rolePerms: vm.role.permissions
+          }
+        })
+          .then(function(response) {
+            if(response.message === "add"){
+              return addPermissionAux(role, chip, response.perms);
+            } else{
+              return null;
+            }
           });
+
       } else {
-        return addPermissionAux(role, chip);
+        perm = [{id:chip.id}];
+        return addPermissionAux(role, chip, perm);
       }
 
     }
 
     function mapPerms(permsToMap){
-      var perms="";
+      var perms=[];
       angular.forEach(permsToMap, function (preReq) {
         var lowerPre = angular.lowercase(preReq);
         var ind = _.findIndex(vm.permissions, function (o) {
           return angular.lowercase(o.expression) === lowerPre;
         });
         if(ind!==-1){
-          perms += "&#9734; " +vm.permissions[ind].name +"<br>";
+          perms.push(vm.permissions[ind]);
         }
       });
       return perms;
     }
-    function addPermissionAux(role, chip) {
+    function addPermissionAux(role, chip, perm) {
       var params = {
         id: role.id,
-        permissions: [{id: chip.id}],
+        permissions: perm,
         addRevoke: "add"
       };
       userService.addRemPermissions(params).then(function (response) {
@@ -292,7 +327,7 @@
 
       }
 
-      var ind = _.findIndex(objectList, function (o) {
+      var ind = _.findIndex(results, function (o) {
         return o.expression === "default:*";
       });
       if (ind !== -1)
@@ -318,7 +353,7 @@
         }
 
       }
-      var ind = _.findIndex(objectList, function (o) {
+      var ind = _.findIndex(results, function (o) {
         return o.username === "admin";
       });
       if (ind !== -1)

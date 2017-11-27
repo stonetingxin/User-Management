@@ -259,6 +259,7 @@
 
             <md-autocomplete ng-hide="!vm.removable(vm.contact.username)" md-selected-item="vm.selectedRole"
                              md-search-text="vm.searchText"
+                             md-no-cache="true"
                              md-items="item in vm.queryArraySearch(vm.searchText,vm.roles)"
                              md-item-text="item.name"
                              placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.roles} }}">

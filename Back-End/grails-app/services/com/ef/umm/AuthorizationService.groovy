@@ -96,9 +96,9 @@ class AuthorizationService {
                 return response
             }
 
-            if(microName != "umm"){
-                resp = makeRestCall(params, request)
-            }
+//            if(microName != "umm"){
+//                resp = makeRestCall(params, request)
+//            }
 
 
             //Authorization Mechanism Based on permissions
@@ -112,6 +112,7 @@ class AuthorizationService {
             if(permSuper && hasPermission(user, micro, permSuper)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    resp = makeRestCall(params, request)
                     response.status = resp.responseEntity.statusCode.value
                     if(resp?.json){
                         log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
@@ -143,6 +144,7 @@ class AuthorizationService {
             if(permMicroFull && hasPermission(user, micro, permMicroFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    resp = makeRestCall(params, request)
                     response.status = resp.responseEntity.statusCode.value
                     if(resp?.json){
                         log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
@@ -163,6 +165,7 @@ class AuthorizationService {
             if(permFull && hasPermission(user, micro, permFull)){
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    resp = makeRestCall(params, request)
                     log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
@@ -183,6 +186,7 @@ class AuthorizationService {
             if(permAction && hasPermission(user, micro, permAction)) {
                 if(microName != "umm"){
                     log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    resp = makeRestCall(params, request)
                     log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
                     response.status = resp.responseEntity.statusCode.value
                     if(resp.json)
@@ -201,6 +205,10 @@ class AuthorizationService {
 
             log.info("Access forbidden. User is not authorized to request this resource.")
             response.status = 403
+            if(permAction){
+                resultSet.put("perm", "${permAction? permAction?.name: permFull?.name}")
+            }else
+                resultSet.put("perm", "${controller}")
             response.resultSet = resultSet
             response.auth = false
             return response

@@ -1,0 +1,52 @@
+<md-dialog class="md-default-theme role-dialog" aria-label="preReq permissions">
+    <md-toolbar class="md-accent">
+      <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
+        <span class="title">{{vm.title}}</span>
+        <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
+                   translate-attr-aria-label="CONTACTS.CLOSE_DIALOG">
+          <md-icon md-font-icon="icon-close"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content ms-no-scroll>
+          <span translate="CONTACTS.assignPermsReqs"></span>
+          <div class="scrollControl maxHeight" id="perms">
+            <md-chips disabled="true" name="permissions" class="label-chips"
+                      ng-model="vm.preReqs"
+                      md-autocomplete-snap md-require-match="false"
+                      md-transform-chip="vm.addPermission($chip)"
+                      md-removable="true"
+                      placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}"
+                      md-on-remove="vm.removePermission($chip)">
+
+              <md-autocomplete md-selected-item="vm.selectedPermission" md-search-text="vm.searchText"
+                               md-items="item in vm.queryArraySearch(vm.searchText,vm.preReqsCopy)"
+                               md-no-cache="true"
+                               md-item-text="item.name"
+                               placeholder="{{'generic.searchFiled'|translate:{name:vm.translationData.permissions} }}">
+                <span md-highlight-text="vm.searchText">{{item.name}}</span>
+                <md-not-found>
+                  <span translate="generic.notFound"></span>
+                </md-not-found>
+              </md-autocomplete>
+
+              <md-chip-template class="member-chip" rem-def-perm chip={{$chip.expression}}>
+                <span>{{$chip.name}}</span>
+              </md-chip-template>
+              <button md-chip-remove class="md-primary">
+                <md-icon md-font-icon="icon-close" class="s18"></md-icon>
+              </button>
+
+            </md-chips>
+          </div>
+
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row" layout-align="center">
+      <md-button ng-click="vm.addPermissions(vm.preReq)" class="save-button md-accent md-raised"
+                 aria-label="SAVE">
+        <span translate="generic.ok"></span>
+      </md-button>
+    </md-dialog-actions>
+</md-dialog>

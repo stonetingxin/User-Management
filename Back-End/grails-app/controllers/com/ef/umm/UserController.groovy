@@ -22,7 +22,7 @@ class UserController extends RestfulController<User> {
     def CCSettingsService
     GrailsApplication grailsApplication
 
-    def UserController(){
+    UserController(){
         super(User)
     }
 
