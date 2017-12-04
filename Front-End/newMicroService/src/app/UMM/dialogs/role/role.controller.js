@@ -7,7 +7,7 @@
 
   /** @ngInject */
   function RoleController($rootScope, userService, utilCustom, contacts, Microservices, Permissions, $mdDialog, $filter, Role, Roles, $document) {
-    var message= [];
+    var message = [];
     var vm = this;
 
     // Data
@@ -118,7 +118,8 @@
         message.push("userAss");
         vm.roleForm.$setDirty();
       }, function (error) {
-        utilCustom.toaster($filter('translate')('CONTACTS.roleAssignmentFailure'));
+        if (error.status !== 403)
+          utilCustom.toaster($filter('translate')('CONTACTS.roleAssignmentFailure'));
         console.log(error);
         return null;
       });
@@ -148,7 +149,8 @@
         message.push("userRev");
         vm.roleForm.$setDirty();
       }, function (error) {
-        utilCustom.toaster($filter('translate')('CONTACTS.roleRevokeFailure'));
+        if (error.status !== 403)
+          utilCustom.toaster($filter('translate')('CONTACTS.roleRevokeFailure'));
         console.log(error);
         return null;
       });
@@ -174,106 +176,104 @@
       }
     }
 
-    function getPermFromExp(exp){
-      return _.find(vm.permissions, function(p){
+    function getPermFromExp(exp) {
+      return _.find(vm.permissions, function (p) {
         return p.expression === exp;
       });
     }
 
-    function permNotAssigned(role, exp){
+    function permNotAssigned(role, exp) {
       var ind, ind2;
       ind = _.findIndex(role.permissions, function (o) {
         return o.expression === exp;
       });
-      if(ind ===-1){
-        var full = exp.split(":")[0]+ ":*";
+      if (ind === -1) {
+        var full = exp.split(":")[0] + ":*";
         ind2 = _.findIndex(role.permissions, function (o) {
           return o.expression === full;
         });
       }
-      return ind2 ===-1;
+      return ind2 === -1;
     }
 
-    function addSubReqs(role, chipPerm, requisites){
+    function addSubReqs(role, chipPerm, requisites) {
       var subPreReqs = getPermFromExp(chipPerm).preReqs;
-      if(subPreReqs && subPreReqs.length !== 0){
+      if (subPreReqs && subPreReqs.length !== 0) {
         angular.forEach(subPreReqs, function (subPerm) {
-          if(permNotAssigned(role, subPerm)&& !_.includes(requisites, subPerm)){
+          if (permNotAssigned(role, subPerm) && !_.includes(requisites, subPerm)) {
             requisites.push(subPerm);
             addSubReqs(role, subPerm, requisites);
           } else
-              return;
+            return;
         });
-      }else
+      } else
         return;
     }
+
     function addPermission(ev, role, chip) {
       var requisites = [];
       var perms = [];
       var perm;
       if (chip.preReqs.length !== 0) {
-        if(role.permissions.length!==0){
-          angular.forEach(chip.preReqs, function (chipPerm) {
-            if(permNotAssigned(role, chipPerm)){
-                requisites.push(chipPerm);
-                addSubReqs(role, chipPerm, requisites);
-            }
-          });
-
-          if(requisites.length!==0){
-            perms = mapPerms(_.uniq(requisites));
-          }else {
-            perm = [{id:chip.id}];
-            return addPermissionAux(role, chip, perm);
+        angular.forEach(chip.preReqs, function (chipPerm) {
+          if (permNotAssigned(role, chipPerm)) {
+            requisites.push(chipPerm);
+            addSubReqs(role, chipPerm, requisites);
           }
-        }else {
-          perms = mapPerms(chip.preReqs);
+        });
+
+        if (requisites.length !== 0) {
+          perms = mapPerms(_.uniq(requisites));
+        } else {
+          perm = [{id: chip.id}];
+          return addPermissionAux(role, chip, perm);
         }
 
         $mdDialog.show({
-          controller         : 'preReqController',
-          controllerAs       : 'vm',
-          templateUrl        : 'app/UMM/dialogs/role/preReq-dialog.html',
-          parent             : angular.element($document.find('#content-container')),
-          targetEvent        : ev,
-          skipHide : true,
+          controller: 'preReqController',
+          controllerAs: 'vm',
+          templateUrl: 'app/UMM/dialogs/role/preReq-dialog.html',
+          parent: angular.element($document.find('#content-container')),
+          targetEvent: ev,
+          skipHide: true,
           clickOutsideToClose: false,
           multiple: true,
-          locals             : {
+          locals: {
             permission: chip,
             permissions: vm.permissions,
             preReqs: perms,
             rolePerms: vm.role.permissions
           }
         })
-          .then(function(response) {
-            if(response.message === "add"){
+          .then(function (response) {
+            if (response.message === "add") {
               return addPermissionAux(role, chip, response.perms);
-            } else{
+            } else {
               return null;
             }
           });
 
       } else {
-        perm = [{id:chip.id}];
+        perm = [{id: chip.id}];
         return addPermissionAux(role, chip, perm);
       }
 
     }
 
-    function mapPerms(permsToMap){
-      var perms=[];
+    function mapPerms(permsToMap) {
+      var perms = [];
       angular.forEach(permsToMap, function (preReq) {
         var lowerPre = angular.lowercase(preReq);
         var ind = _.findIndex(vm.permissions, function (o) {
           return angular.lowercase(o.expression) === lowerPre;
         });
-        if(ind!==-1){
+        if (ind !== -1) {
           perms.push(vm.permissions[ind]);
         }
       });
       return perms;
     }
+
     function addPermissionAux(role, chip, perm) {
       var params = {
         id: role.id,
@@ -285,7 +285,8 @@
         message.push("permAdd");
         vm.roleForm.$setDirty();
       }, function (error) {
-        utilCustom.toaster($filter('translate')('CONTACTS.permAddFailure'));
+        if (error.status !== 403)
+          utilCustom.toaster($filter('translate')('CONTACTS.permAddFailure'));
         console.log(error);
       });
       return chip;
@@ -304,7 +305,8 @@
         message.push("permRem");
         vm.roleForm.$setDirty();
       }, function (error) {
-        utilCustom.toaster($filter('translate')('CONTACTS.permRemoveFailure'));
+        if (error.status !== 403)
+          utilCustom.toaster($filter('translate')('CONTACTS.permRemoveFailure'));
         console.log(error);
       });
       return chip;
@@ -404,7 +406,8 @@
         //$mdDialog.hide({role: vm.role, message: 'create'});
         closeDialog();
       }, function (error) {
-        console.log(error);
+        if (error.status !== 403)
+          console.log(error);
         utilCustom.toaster($filter('translate')('CONTACTS.failedCreatedRole'));
       });
 
@@ -430,7 +433,8 @@
         //$mdDialog.hide({role: vm.role, message: 'update'});
       }, function (error) {
         console.log(error);
-        utilCustom.toaster($filter('translate')('CONTACTS.failedUpdatedRole'));
+        if (error.status !== 403)
+          utilCustom.toaster($filter('translate')('CONTACTS.failedUpdatedRole'));
       });
 
 

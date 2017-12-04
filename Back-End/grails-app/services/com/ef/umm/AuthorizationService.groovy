@@ -103,6 +103,27 @@ class AuthorizationService {
 
             //Authorization Mechanism Based on permissions
 
+            //By passed APIs
+            if(action == "list" || action == "index"){
+                if(microName != "umm"){
+                    log.info("Successfully Authorized. Forwarding request to: ${micro?.ipAddress}${req}")
+                    resp = makeRestCall(params, request)
+                    response.status = resp.responseEntity.statusCode.value
+                    if(resp?.json){
+                        log.info("Response is: ${resp.responseEntity.statusCode.value}:${resp.json}")
+                        response.resultSetJSON= resp.json
+                    } else if(resp.responseEntity.body)
+                        response.resultSetBody = resp.responseEntity.body
+                    else
+                        response.resultSetZero = 0
+                    response.auth = false
+                    return response
+                }
+                log.info("Successfully Authorized. Forwarding request to: ${req}")
+                response.auth = true
+                return response
+            }
+
             def permSuper = Permission.findByExpression("*:*")
             def permMicroFull = Permission.findByExpression("${microName}:*:*")
             def permFull = Permission.findByExpression("${controller}:*")

@@ -78,14 +78,17 @@
                            aria-label="Toggle Label" translate
                            translate-attr-aria-label="SB.TOGGLE_LABEL">
 
-                  <md-list-item class="md-2-line contact-item selected">
+                  <md-list-item class="md-2-line contact-item selected" style="width: 275px;">
                     <!--<img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>-->
-                    <div class="md-list-item-text compact">
-                      <h3>{{label.name}}
+                    <div class="md-list-item-text compact" flex="90">
+                      <h3>{{label.name}}<md-tooltip>{{label.name}}</md-tooltip></h3>
+
+                    </div>
+                      <div class="md-list-item-text compact" flex="10">
                         <i ng-if="vm.exists(label, vm.role.permissions)"
                            class="icon-check s16"></i>
-                      </h3>
-                    </div>
+                      </div>
+
                   </md-list-item>
 
 
@@ -130,15 +133,16 @@
                            aria-label="Toggle Label" translate
                            translate-attr-aria-label="SB.TOGGLE_LABEL">
 
-                  <md-list-item class="md-2-line contact-item selected">
+                  <md-list-item class="md-2-line contact-item selected" style="width: 275px;">
                     <img ng-src="{{label.avatar}}" class="md-avatar"
                          alt="{{label.fullName}}"/>
-                    <div class="md-list-item-text compact">
-                      <h3>{{label.fullName}}
+                    <div class="md-list-item-text compact" style="width: 155px;">
+                      <h3>{{label.fullName}}</h3>
+                    </div>
+                      <div class="md-list-item-text compact" style="width: 10px;">
                         <i ng-if="vm.exists(label, vm.roleUser)"
                            class="icon-check s16"></i>
-                      </h3>
-                    </div>
+                      </div>
                   </md-list-item>
 
 
@@ -179,6 +183,7 @@
 
               <md-chip-template class="member-chip" rem-def-perm chip={{$chip.expression}}>
                 <span>{{$chip.name}}</span>
+                <!--<md-tooltip><span>{{$chip.expression}}</span></md-tooltip>-->
               </md-chip-template>
               <button md-chip-remove class="md-primary">
                 <md-icon md-font-icon="icon-close" class="s18"></md-icon>

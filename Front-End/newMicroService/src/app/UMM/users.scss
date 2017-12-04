@@ -328,3 +328,23 @@ button.autoFocus:focus {
   visibility: hidden;
   display: none !important;
 }
+
+.userDel .urdel {
+  position:absolute;
+  right:-35px;
+  top:7px;
+  -webkit-transition:all 0.5s ease;
+  -moz-transition:all 0.5s ease;
+  -o-transition:all 0.5s ease;
+  transition:all 0.5s ease;
+}
+
+.userDel:hover .urdel {
+  right:-4px;
+  -webkit-transition:all 0.5s ease;
+  -moz-transition:all 0.5s ease;
+  -o-transition:all 0.5s ease;
+  transition:all 0.5s ease;
+}
+
+.urdel:hover md-icon {color:rgb(244, 67, 54);}

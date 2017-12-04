@@ -228,12 +228,14 @@
                                      aria-label="Toggle Label" translate
                                      translate-attr-aria-label="SB.TOGGLE_LABEL">
 
-                            <md-list-item class="md-2-line contact-item selected">
-                              <div class="md-list-item-text compact">
-                                <h3><i ng-if="vm.exists(label, vm.contact.roles)"
-                                       class="icon-check s16"></i>{{label.name}}
-
-                                </h3>
+                            <md-list-item class="md-2-line contact-item selected" style="width: 275px;">
+                              <div class="md-list-item-text compact" flex="90">
+                                <h3>{{label.name}}</h3>
+                                <!--<md-tooltip>{{label.name}}</md-tooltip>-->
+                              </div>
+                              <div class="md-list-item-text compact" flex="10">
+                                <i ng-if="vm.exists(label, vm.contact.roles)"
+                                                     class="icon-check s16"></i>
                               </div>
                             </md-list-item>
 
