@@ -313,13 +313,18 @@ class RoleController {
                 return
             }
             def umr = UMR.findAllByRoles(roleInstance)
+//            if(umr){
+//                resultSet.put("status", NOT_ACCEPTABLE)
+//                resultSet.put("message", "Cannot delete the role. Role is assigned to following user(s):")
+//                resultSet.put("Users", umr*.toString())
+//                response.status = 406
+//                render resultSet as JSON
+//                return
+//            }
             if(umr){
-                resultSet.put("status", NOT_ACCEPTABLE)
-                resultSet.put("message", "Cannot delete the role. Role is assigned to following user(s):")
-                resultSet.put("Users", umr*.toString())
-                response.status = 406
-                render resultSet as JSON
-                return
+                umr.each {
+                    it.delete()
+                }
             }
 
             def auth = roleInstance?.authority

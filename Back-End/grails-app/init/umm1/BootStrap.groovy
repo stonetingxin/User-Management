@@ -181,7 +181,7 @@ class BootStrap {
                 def permSupervisor = ["agent:*",
                                       "application:*", "queue:*",
                                       "prompt:*","script:*",
-                                      "trigger:*", "callControlGroup:*", "team:getTeam", "team:update"]
+                                      "trigger:*", "callControlGroup:*", "team:*"]
 
                 def permJunior = ["agent:*","queue:*"]
 

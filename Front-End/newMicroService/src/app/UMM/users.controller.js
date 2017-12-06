@@ -7,7 +7,7 @@
         .controller('UsersController', UsersController);
 
     /** @ngInject */
-    function UsersController(userService, utilCustom, $scope, $filter, $mdSidenav, msUtils, $mdDialog, $document, $rootScope)
+    function UsersController(userService, utilCustom, AUTH_EVENTS, $scope, $filter, $mdSidenav, msUtils, $mdDialog, $document, $rootScope)
     {
 
         var vm = this;
@@ -101,7 +101,7 @@
         vm.newGroupName = '';
         vm.roleNames = [];
         vm.microservices = [];
-
+        vm.selectUser=true;
         // Methods
         vm.filterChange = filterChange;
         vm.openContactDialog = openContactDialog;
@@ -128,6 +128,15 @@
 		    vm.showAdvanced = showAdvanced;
         // vm.removeDefPerm = removeDefPerm;
         // vm.roleAssignment = roleAssignment;
+
+      $scope.$on(AUTH_EVENTS.agentUpdateProfile, function (event, data) {
+        var index = _.findIndex(vm.contacts, function (o) {
+          return o.username === data.agentId;
+        });
+        if(index!==-1){
+          uploadProfilePic(data, index);
+        }
+      });
 
         vm.init = init;
 
@@ -166,6 +175,15 @@
           });
         }
 
+        function uploadProfilePic(params2, index) {
+          userService.updateProfilePic(params2).then(function (response) {
+            vm.contacts[index].profileExists = true;
+            vm.contacts[index].avatar = window.appBaseUrl + '/base/assets1/images/agents/' + angular.lowercase(vm.contacts[index].username) + '.jpg?timestamp=' + new Date().getTime();
+            $rootScope.$broadcast("profilePicture",{username:vm.contacts[index].username, avatar: vm.contacts[index].avatar});
+          }, function (error) {
+            console.log(error);
+          });
+        }
         // function extractRoles(){
         //   angular.forEach(vm.roles, function(value, key){
         //     var tempArr=[];
@@ -425,23 +443,62 @@
          */
         function deleteRoleConfirm(role, ev)
         {
+            // var confirm = $mdDialog.confirm()
+
+          var index = vm.contacts.map(function (e) {
+            if(e.hasOwnProperty("roles")){
+              return e.roles.findIndex(function (x) {
+                return x.id === role.id
+              });
+            }else
+              return -1;
+
+          });
+          var val = _.findIndex(index, function (o) {
+            return o > -1;
+          });
+          // var index = _.findIndex(vm.contacts, function (o) {
+          //   return _.findIndex(o.roles, function (p) {
+          //     return p.id === role.id;
+          //   });
+          // });
+          if(val!==-1){
             var confirm = $mdDialog.confirm()
-          var confirm = $mdDialog.confirm()
-            .title($filter('translate')('CONTACTS.roleDeleteConfirm'))
-            .ariaLabel('delete role')
-            .targetEvent(ev)
-            .ok($filter('translate')('generic.ok'))
-            .cancel($filter('translate')('generic.cancel'));
+              .title($filter('translate')('CONTACTS.roleDeletion'))
+              .textContent($filter('translate')('CONTACTS.roleAlreadyAssigned'))
+              .ariaLabel('delete role')
+              .targetEvent(ev)
+              .ok($filter('translate')('generic.ok'))
+              .cancel($filter('translate')('generic.cancel'));
 
             $mdDialog.show(confirm).then(function ()
             {
-                deleteRole(role);
-                vm.selectedContacts = [];
+              deleteRole(role);
+              vm.selectedContacts = [];
 
             }, function (error)
             {
               console.log(error);
             });
+          }else{
+            var confirm = $mdDialog.confirm()
+              .title($filter('translate')('CONTACTS.roleDeleteConfirm'))
+              .ariaLabel('delete role')
+              .targetEvent(ev)
+              .ok($filter('translate')('generic.ok'))
+              .cancel($filter('translate')('generic.cancel'));
+
+            $mdDialog.show(confirm).then(function ()
+            {
+              deleteRole(role);
+              vm.selectedContacts = [];
+
+            }, function (error)
+            {
+              console.log(error);
+            });
+          }
+
         }
 
         /**

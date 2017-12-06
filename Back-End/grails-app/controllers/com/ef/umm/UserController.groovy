@@ -682,7 +682,11 @@ class UserController extends RestfulController<User> {
         def file = params.file
         def agentId = params.agentId
         def response = userService.updateProfilePic(agentId, file)
-
+        def user = User.findByUsername(agentId)
+        if(!user.profileExists){
+            user.profileExists = true
+            user.save(flush:true, failOnError:true)
+        }
         parseResponse(response)
     }
 

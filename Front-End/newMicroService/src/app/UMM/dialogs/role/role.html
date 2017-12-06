@@ -1,6 +1,6 @@
 <md-dialog class="md-default-theme role-dialog" aria-label="New Role" flex="50">
   <form name="vm.roleForm">
-    <md-toolbar class="md-accent">
+    <md-toolbar class="md-accent md-hue-2">
       <div class="md-toolbar-tools md-toolbar-tools-top" layout="row" layout-align="space-between center">
         <span class="title">{{vm.title}}</span>
         <md-button class="md-icon-button" ng-click="vm.closeDialog()" aria-label="Close dialog" translate
@@ -81,7 +81,7 @@
                   <md-list-item class="md-2-line contact-item selected" style="width: 275px;">
                     <!--<img ng-src="{{label.image}}" class="md-avatar" alt="{{label.name}}"/>-->
                     <div class="md-list-item-text compact" flex="90">
-                      <h3>{{label.name}}<md-tooltip>{{label.name}}</md-tooltip></h3>
+                      <h3>{{label.name}}</h3>
 
                     </div>
                       <div class="md-list-item-text compact" flex="10">
