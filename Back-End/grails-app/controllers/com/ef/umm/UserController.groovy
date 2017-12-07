@@ -697,6 +697,11 @@ class UserController extends RestfulController<User> {
         try {
             agentId = params.agentId
             response = userService.deleteProfilePic(agentId)
+            def user = User.findByUsername(agentId)
+            if(user.profileExists){
+                user.profileExists = false
+                user.save(flush:true, failOnError:true)
+            }
         } catch (Exception e) {
             log.error("Error occurred while deleting profile picture for agent ${agentId}")
             render status: 500
@@ -742,18 +747,6 @@ class UserController extends RestfulController<User> {
         parseResponse(response)
     }
 
-    def downloadScript(){
-        def http = new HTTPBuilder('https://192.168.1.100')
-        http.ignoreSSLIssues()
-        http.headers.Accept = 'application/json'
-        http.headers.Authorization = 'Basic YWRtaW5pc3RyYXRvcjpFeHBlcnRmbG93NDY0'
-        try{
-            def resp = http.get(path: '/adminapi/script/download//default/Agent1.aef')
-            println resp
-        }catch (Exception e){
-            println e.getMessage()
-        }
-    }
 
     def parseResponse(response) {
         if (response?.status)

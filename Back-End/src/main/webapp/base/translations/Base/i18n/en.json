@@ -15,7 +15,7 @@
     "uploadError": "Error while uploading file",
     "picDeleted": "Picture has been deleted",
     "picDeleteError": "Error while removing picture",
-    "picFormat": "Select the .jpg file format",
+    "picFormat": "Select the jpg/jpeg file format",
     "picSize": "Picture size greater than 2MB is not allowed",
     "updateProfilePic": "Update Profile Picture",
     "removePic": "Remove Current Picture"
@@ -25,6 +25,11 @@
   },
   "TAM":{
     "teamAdmin":"Team Administration"
+  },
+  "EABC":{
+    "ea":"Easy Announcements",
+    "bc":"Business Calendar",
+    "name":"Announcements and Calendars"
   },
   "UMM": {
     "umm": "User Management"
@@ -90,7 +95,8 @@
     "uploadFile": "Upload File",
     "list": "List",
     "upload": "Upload",
-    "samplecsv": "Sample Csv"
+    "samplecsv": "Sample Csv",
+    "ccNoWorkspace": "You're not supervisor of any workspace. Contact system admin to get assigned."
   },
   "data": {
     "updated": " has been updated",
@@ -103,6 +109,7 @@
     "updateError": "Error while updating",
     "addError": "Error while adding",
     "playError": "Error while playing",
+    "downloadError": "Error while downloading",
     "loadingError": "Error while loading",
     "deleteError": "Error while deleting",
     "createError": "Error while creating",
@@ -112,6 +119,8 @@
     "specialChar": "Special characters, spaces, characters less than 3 and greater than 30 are not allowed in {{field}}",
     "specialWithSpaceChar": "{{field}} cannot have special characters",
     "onlyNumber": "Enter only numbers",
+    "minNumber": "Value cannot be less than 1",
+    "maxNumber": "Value cannot be greater than 65535",
     "onlyNumberLength": "Enter only numbers with digits greater than {{min}} and less than {{max}}",
     "numberWithPlus": "Enter only numbers between 0-9999, optionally preceded with a plus sign + ",
     "fillAllField": "Please fill all fields",
@@ -160,6 +169,7 @@
   },
   "user": {
     "user": "User",
+    "role":"Role",
     "password": "Password",
     "users": "Users",
     "accessDenied": "Access Denied",
@@ -269,7 +279,9 @@
     "variables": "Variables",
     "browse": "Browse File",
     "browses": "Browse Files",
-    "browsefile": "Browse File"
+    "browsefile": "Browse File",
+    "scriptUpdate":"Cannot update script name because it is assigned to an application",
+    "folderUpdate":"Cannot update folder name because some script in this folder is assigned to an application"
 
   },
   "campaign": {
@@ -421,6 +433,7 @@
     "loginAccount": "Log in to your account",
     "incorrect": "Username and/or password is incorrect",
     "blockedUser": "Please login again with correct credentials and login type",
+    "isNotActive": "User is blocked. Please contact system Admin.",
     "username": "Username",
     "password": "Password",
     "rememberMe": "Remember Me",
@@ -450,7 +463,8 @@
     "primarySetting": "Primary UCCX settings*",
     "secondarySetting": "Secondary UCCX settings",
     "verify": "Verify",
-    "authFailure": "Contact admin to get permissions. You are not authorized to request "
+    "authFailure": "Contact admin to get permissions. You are not authorized to request ",
+    "noTeams":"You're not assigned any workspaces. Contact admin to get workspaces assigned."
   },
 
   "dnc": {
@@ -678,6 +692,8 @@
     "fullName":"Full Name",
     "ContactDeleteConfirm": "Are you sure want to delete the user?",
     "roleDeleteConfirm": "Are you sure want to delete the role?",
+    "roleDeletion":"Delete Role",
+    "roleAlreadyAssigned":"This role is already assigned to some users. Are you sure want to delete the role?",
     "selectedDelete":"Are you sure want to delete the selected users?",
     "assignPermsReqs":"This permission has following unassigned pre-requisite permissions.",
     "assignPermsConfirm":"You need to add all these pre-requisite permissions manually, for this permission to work properly.",
@@ -725,8 +741,9 @@
     "updateUserFailure": "Failed to update the user",
     "uploadProfile": "Upload profile pictures",
     "changePassword": "Change Password",
-    "picFormat": "Only jpg file format is acceptable for profile picture",
-    "fileSize": "Picture size cannot be greater than 2MB"
+    "picFormat": "Only jpg/jpeg file format is acceptable for profile picture",
+    "fileSize": "Picture size cannot be greater than 2MB",
+    "unauth":"You do not have permission to "
   }
 
 }

@@ -34,8 +34,7 @@ class BootStrap {
                         [name: "All Workspace Operations", expression: "team:*"],
                         [name: "Show Workspace details", expression: "team:getTeam"],
                         [name: "Create new Workspace", expression: "team:save"],
-                        //Requires agent:index
-                        [name: "Update Workspace", expression: "team:update"],
+                        [name: "Update Workspace", expression: "team:update", preReqs: ["team:getTeam"]],
                         [name: "Delete Workspace", expression: "team:delete"],
 
 
@@ -87,33 +86,33 @@ class BootStrap {
 
 
                         //No cross domain prerequisite for groups
-                        [name: "All Group Operations", expression: "group:*"],
-                        [name: "Get a Group's Details", expression: "group:show"],
-                        [name: "Create a new Group", expression: "group:save"],
-                        [name: "Update Group", expression: "group:update"],
-                        [name: "Delete Group", expression: "group:delete"],
+//                        [name: "All Group Operations", expression: "group:*"],
+//                        [name: "Get a Group's Details", expression: "group:show"],
+//                        [name: "Create a new Group", expression: "group:save"],
+//                        [name: "Update Group", expression: "group:update"],
+//                        [name: "Delete Group", expression: "group:delete"],
 
 
                         //No cross domain prerequisite for skills
-                        [name: "All Skill Operations", expression: "skill:*"],
-                        [name: "Get a Skill's Details", expression: "skill:show"],
-                        [name: "Create a new Skill", expression: "skill:save"],
-                        [name: "Update Skill", expression: "skill:update"],
-                        [name: "Delete Skill", expression: "skill:delete"],
+//                        [name: "All Skill Operations", expression: "skill:*"],
+//                        [name: "Get a Skill's Details", expression: "skill:show"],
+//                        [name: "Create a new Skill", expression: "skill:save"],
+//                        [name: "Update Skill", expression: "skill:update"],
+//                        [name: "Delete Skill", expression: "skill:delete"],
 
                         //No cross domain prerequisite for directory numbers
-                        [name: "All DN Operations", expression: "service:*"],
-                        [name: "Get a DN's Details", expression: "service:show"],
-                        [name: "Create a new DN", expression: "service:save"],
-                        [name: "Update DN", expression: "service:update"],
-                        [name: "Delete DN", expression: "service:delete"],
+//                        [name: "All DN Operations", expression: "service:*"],
+//                        [name: "Get a DN's Details", expression: "service:show"],
+//                        [name: "Create a new DN", expression: "service:save"],
+//                        [name: "Update DN", expression: "service:update"],
+//                        [name: "Delete DN", expression: "service:delete"],
 
                         //No cross domain prerequisite for triggers
                         [name: "All Trigger Operations", expression: "trigger:*"],
-                        [name: "Get a Trigger's Details", expression: "trigger:get"],
-                        [name: "Create a new Trigger", expression: "trigger:save"],
-                        [name: "Update Trigger", expression: "trigger:update"],
-                        [name: "Delete Trigger", expression: "trigger:delete"],
+//                        [name: "Get a Trigger's Details", expression: "trigger:get"],
+//                        [name: "Create a new Trigger", expression: "trigger:save"],
+//                        [name: "Update Trigger", expression: "trigger:update"],
+//                        [name: "Delete Trigger", expression: "trigger:delete"],
 
                         //No cross domain prerequisite for callControlGroup
                         [name: "All call control group Operations", expression: "callControlGroup:*"]

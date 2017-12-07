@@ -146,7 +146,7 @@ environments:
     test:
         dataSource:
             dbCreate: update
-            url: jdbc:jtds:sqlserver://192.168.1.81:1433/umm;instance=MSSQLSERVER16;
+            url: jdbc:jtds:sqlserver://192.168.1.76:1433/umm;
 #            dialect: org.hibernate.dialect.MySQL5Dialect
             properties:
                 jmxEnabled: true
@@ -169,7 +169,7 @@ environments:
     production:
         dataSource:
             dbCreate: update
-            url: jdbc:jtds:sqlserver://192.168.1.81:1433/umm;instance=MSSQLSERVER16;
+            url: jdbc:jtds:sqlserver://192.168.1.76:1433/umm;
 #            dialect: org.hibernate.dialect.MySQL5Dialect
             properties:
                 jmxEnabled: true

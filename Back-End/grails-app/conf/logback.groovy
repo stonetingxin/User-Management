@@ -10,7 +10,7 @@ import ch.qos.logback.classic.filter.LevelFilter
 
 
 
-def basePath = "C:\\UMM Backend Logs"
+def basePath = "C:\\EF\\UMM"
 
 
 //scan("30 seconds")

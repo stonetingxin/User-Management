@@ -6,7 +6,7 @@
     .controller('ContactDialogController', ContactDialogController);
 
   /** @ngInject */
-  function ContactDialogController($rootScope, utilCustom, userService, $mdDialog, $filter, Roles, Contact, Contacts, User, msUtils, $document, $scope) {
+  function ContactDialogController($rootScope, utilCustom, userService, AUTH_EVENTS,$mdDialog, $filter, Roles, Contact, Contacts, User, msUtils, $document, $scope) {
     var vm = this;
     var message;
     // Data
@@ -273,6 +273,8 @@
 
             var params2 = {file: file, agentId: angular.lowercase(user.username)};
             userService.updateProfilePic(params2).then(function (response) {
+              if(user.type === "CC")
+                $rootScope.$broadcast(AUTH_EVENTS.userUpdateProfile, params2);
               vm.contact.profileExists = true;
               utilCustom.toaster($filter('translate')('CONTACTS.createUserSuccess'));
               $mdDialog.hide({user: vm.contact, message: 'create'});
@@ -363,6 +365,8 @@
             vm.contact = response;
             var params2 = {file: file, agentId: angular.lowercase(Contact.username)};
             userService.updateProfilePic(params2).then(function (response) {
+              if(user.type == "CC")
+                $rootScope.$broadcast(AUTH_EVENTS.userUpdateProfile, params2);
               vm.contact.profileExists = true;
               utilCustom.toaster($filter('translate')('CONTACTS.updateUserSuccess'));
               $mdDialog.hide({user: vm.contact, message: 'update'});
