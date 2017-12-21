@@ -25,10 +25,10 @@ class BootStrap {
                         [name: "Update Agent's Profile Pic", expression: "agent:updateProfilePic"],
 
 
-                        [name: "All Queue Operations", expression: "queue:*"],
-                        [name: "Create new Queues", expression: "queue:save"],
-                        [name: "Update Queues", expression: "queue:update"],
-                        [name: "Delete Queues", expression: "queue:delete"],
+                        [name: "All Queue Operations", expression: "queue:*",  preReqs: ["agent:update", "team:getTeam"]],
+                        [name: "Create new Queues", expression: "queue:save", preReqs: ["team:getTeam"]],
+                        [name: "Update Queues", expression: "queue:update", preReqs: ["agent:update", "team:getTeam"]],
+                        [name: "Delete Queues", expression: "queue:delete",  preReqs: ["agent:update"]],
 
 
                         [name: "All Workspace Operations", expression: "team:*"],
@@ -41,21 +41,18 @@ class BootStrap {
                         [name: "All Application Operations", expression: "application:*",
                          preReqs:["script:getScriptVariables",
                                   "trigger:*",
-                                  "callControlGroup:*",
                                   "application:get",]],
-                        [name: "Get an Application's Details", expression: "application:get"],
+                        [name: "Get an Application's Details", expression: "application:get", preReqs: ["script:getScriptVariables"]],
                         //Requires script:index, prompt:getAllPrompts, application:get, script:getScriptVariables
                         [name: "Create a new Application", expression: "application:save",
                          preReqs:["application:get",
                                   "script:getScriptVariables",
-                                  "trigger:*",
-                                  "callControlGroup:*"]],
+                                  "trigger:*"]],
                         //Requires prompt:getAllPrompts, application:get and script:getScriptVariables
                         [name: "Update Application", expression: "application:update",
                          preReqs: ["application:get",
                                    "script:getScriptVariables",
-                                   "trigger:*",
-                                   "callControlGroup:*"]],
+                                   "trigger:*"]],
                         [name: "Delete Application", expression: "application:delete"],
 
 
@@ -108,14 +105,14 @@ class BootStrap {
 //                        [name: "Delete DN", expression: "service:delete"],
 
                         //No cross domain prerequisite for triggers
-                        [name: "All Trigger Operations", expression: "trigger:*"],
+                        [name: "All Trigger Operations", expression: "trigger:*"]
 //                        [name: "Get a Trigger's Details", expression: "trigger:get"],
 //                        [name: "Create a new Trigger", expression: "trigger:save"],
 //                        [name: "Update Trigger", expression: "trigger:update"],
 //                        [name: "Delete Trigger", expression: "trigger:delete"],
 
                         //No cross domain prerequisite for callControlGroup
-                        [name: "All call control group Operations", expression: "callControlGroup:*"]
+//                        [name: "All call control group Operations", expression: "callControlGroup:*"]
                 ]
 
                 def permEABC = [
@@ -180,7 +177,7 @@ class BootStrap {
                 def permSupervisor = ["agent:*",
                                       "application:*", "queue:*",
                                       "prompt:*","script:*",
-                                      "trigger:*", "callControlGroup:*", "team:*"]
+                                      "trigger:*", "team:*"]
 
                 def permJunior = ["agent:*","queue:*"]
 

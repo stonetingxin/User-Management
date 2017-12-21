@@ -29,6 +29,9 @@ grails.plugin.springsecurity.interceptUrlMap = [
         [pattern: '/base',              access: ['permitAll']],
         [pattern: '/',                  access: ['permitAll']],
 
+        [pattern: '/monitoring',        access: ['permitAll']],
+        [pattern: '/monitoring/**',     access: ['permitAll']],
+
         [pattern: '/console/**',        access: ["hasIpAddress(\'127.0.0.1\') || hasIpAddress(\'::1\')"]],
         [pattern: '/static/console/**', access: ["hasIpAddress(\'127.0.0.1\') || hasIpAddress(\'::1\')"]],
         [pattern: '/**',                access: ['ROLE_NO_ROLES']]
@@ -48,6 +51,9 @@ grails.plugin.springsecurity.filterChain.chainMap = [
         [pattern: '/base/**',       filters: 'none'],
         [pattern: '/base',          filters: 'none'],
         [pattern: '/',              filters: 'none'],
+
+        [pattern: '/monitoring',    filters: 'none'],
+        [pattern: '/monitoring/**', filters: 'none'],
 
         [pattern: '/static/console/**', filters: 'none'],
         [pattern: '/home/**',           filters: 'none'],

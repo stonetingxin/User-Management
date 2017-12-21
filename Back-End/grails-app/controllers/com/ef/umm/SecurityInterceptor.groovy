@@ -13,6 +13,8 @@ class SecurityInterceptor {
                 .excludes(uri: "/umm/console/**")
                 .excludes(uri: "/umm/static/console/**")
                 .excludes(uri: "/umm/base/**")
+                .excludes(uri: "/umm/monitoring/**")
+                .excludes(uri: "/umm/monitoring")
                 .excludes(uri: "/umm/")
 
     }

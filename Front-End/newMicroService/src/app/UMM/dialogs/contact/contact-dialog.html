@@ -199,7 +199,7 @@
             <div flex="90">
               <span translate="CONTACTS.roles"></span>
             </div>
-            <div ng-hide="vm.contact.username === 'admin'" flex="10">
+            <div ng-hide="vm.contact.username === 'admin' || vm.contact.username === vm.currentUser.username" flex="10">
               <md-menu class="labels">
                 <button class="md-icon-button md-button md-default-theme md-ink-ripple" type="button"
                         ng-click="vm.labelTabIndex = 0;$mdOpenMenu($event)">

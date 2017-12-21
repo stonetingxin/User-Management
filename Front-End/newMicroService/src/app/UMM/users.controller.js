@@ -102,6 +102,7 @@
         vm.roleNames = [];
         vm.microservices = [];
         vm.selectUser=true;
+        vm.currentUser = $rootScope._user;
         // Methods
         vm.filterChange = filterChange;
         vm.openContactDialog = openContactDialog;

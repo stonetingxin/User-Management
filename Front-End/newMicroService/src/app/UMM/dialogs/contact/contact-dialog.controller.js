@@ -17,6 +17,7 @@
     //vm.user = User;
     vm.newContact = false;
     vm.allFields = false;
+    vm.currentUser = $rootScope._user;
     vm.showPassword = "password";
     vm.translationData = {
       roles: $filter('translate')('CONTACTS.roles'),
@@ -84,7 +85,7 @@
     }
 
     function removable(username) {
-      if (username === 'admin')
+      if (username === 'admin' || username === $rootScope._user.username)
         return false;
       else
         return true;

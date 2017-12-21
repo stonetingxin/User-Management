@@ -228,7 +228,9 @@ class AuthorizationService {
             response.status = 403
             if(permAction){
                 resultSet.put("perm", "${permAction? permAction?.name: permFull?.name}")
-            }else
+            } else if(permFull){
+                resultSet.put("perm", "${permFull?.name}")
+            } else
                 resultSet.put("perm", "${controller}")
             response.resultSet = resultSet
             response.auth = false
