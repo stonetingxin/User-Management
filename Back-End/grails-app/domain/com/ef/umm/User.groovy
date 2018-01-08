@@ -27,6 +27,7 @@ class User implements Serializable {
     boolean accountLocked
     boolean passwordExpired
     boolean profileExists
+    boolean isLoggedIn
 
     User(String username, String password) {
         this()

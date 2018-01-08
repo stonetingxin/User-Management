@@ -1,18 +1,26 @@
 package umm1
 
+
 import com.ef.umm.*
 import grails.converters.JSON
 import grails.core.GrailsApplication
 import groovy.json.JsonBuilder
 
 class BootStrap {
+
     GrailsApplication grailsApplication
     def CCSettingsService
+    def licensingService
+
     def init = { servletContext ->
+        String path = "/home/saqib/dev/tripledes-dll/output/libTrippleDes.so"
+        Runtime.getRuntime().load0(groovy.lang.GroovyClassLoader.class, path)
+
         CCSettingsService.initialize()
+        licensingService.init()
+
         if (Role.count() == 0) {
             try {
-
                 def permTAM = [
 
                         //All team administartion operations
@@ -202,12 +210,10 @@ class BootStrap {
                 roleAdmin.addToPermissions(permAdmin)
                 umm.addToPermissions(permAdmin)
                 roleAdmin?.save(flush: true, failOnError: true)
-//                umm?.save(flush: true, failOnError: true)
 
 
                 permTAM.each{
                     def perm = new Permission(it)
-//                    roleSupervisor.addToPermissions(perm)
                     efadminpanel.addToPermissions(perm)
                     perm.save(flush:true, failOnError: true)
                 }
@@ -218,7 +224,6 @@ class BootStrap {
                     roleSupervisor.addToPermissions(perm)
                 }
                 roleSupervisor?.save(flush: true, failOnError: true)
-//                efadminpanel?.save(flush: true, failOnError: true)
 
                 def roleJunior = new Role(authority: "Junior_Supervisor", description: "Junior Supervisor Role")
                 permJunior.each{
@@ -232,19 +237,6 @@ class BootStrap {
                 def permDefault = new Permission(name: "Default Dummy permission", expression: "default:*")
                 umm.addToPermissions(permDefault)
                 permDefault.save(flush:true, failOnError: true)
-//                def roleDefaultAP = new Role(authority: "default", description: "Default role for admin panel")
-//                permDefaultAP.each{
-//                    def perm = Permission.findByExpression(it?.expression)
-//                    if(perm){
-//                        roleDefaultAP.addToPermissions(perm)
-//                        efadminpanel.addToPermissions(perm)
-//                    } else {
-//                        def perm2 = new Permission(it)
-//                        roleDefaultAP.addToPermissions(perm2)
-//                        efadminpanel.addToPermissions(perm2)
-//                    }
-//                }
-//                roleDefaultAP.save(flush: true, failOnError: true)
 
                 if (!User.findByUsername("admin")) {
                     admin = new User(username: "admin", fullName: "Administrator", password: "admiN123!", isActive: true, type: "DB",

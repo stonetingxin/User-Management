@@ -1,8 +1,11 @@
 package com.ef.umm
+
+import com.ef.apps.licensing.JniWrapper
 import grails.converters.JSON
 import grails.transaction.Transactional
 
 import org.grails.web.util.WebUtils
+import static org.springframework.http.HttpStatus.*
 
 class SecurityInterceptor {
     static transactional = false
@@ -15,15 +18,26 @@ class SecurityInterceptor {
                 .excludes(uri: "/umm/base/**")
                 .excludes(uri: "/umm/monitoring/**")
                 .excludes(uri: "/umm/monitoring")
+                .excludes(uri: "/umm/user/logout")
                 .excludes(uri: "/umm/")
 
     }
 
     @Transactional
     boolean before() {
-        def wu = new WebUtils()
-        def req = wu.retrieveGrailsWebRequest()
+
+        def validity = authorizationService.validateLicense()
+
+        if(validity == "expired"){
+            response.status = 404
+            def licExp = [status: NOT_FOUND, message: "licenseExpired"]
+            render licExp as JSON
+            return false
+        }
+
+
         def resp = authorizationService.authIntercept(request, params)
+
 
         // In case of exception, return status with termination of execution
         if(resp?.ex){

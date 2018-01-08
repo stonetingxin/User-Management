@@ -5,5 +5,13 @@ beans = {
         userService = ref('userService')
         bean.autowire = true
     }
+    accessTokenJsonRenderer(com.ef.umm.MyAccessTokenJsonRenderer){bean ->
+        licensingService = ref('licensingService')
+        bean.autowire = true
+    }
+    accessTokenJsonRenderer(com.ef.umm.MyAccessTokenJsonRenderer){bean ->
+        authorizationService = ref('authorizationService')
+        bean.autowire = true
+    }
 
 }

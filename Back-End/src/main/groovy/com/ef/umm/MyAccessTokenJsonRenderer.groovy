@@ -23,14 +23,18 @@ import grails.core.GrailsApplication
 class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     String usernamePropertyName = "username"
     String authoritiesPropertyName = "role"
-    def AuthorizationService
+    def authorizationService
     def userService
+    def licensingService
 
     String generateJson(AccessToken accessToken) {
         Assert.isInstanceOf(UserDetails, accessToken.principal, "A UserDetails implementation is required")
         UserDetails userDetails = accessToken.principal as UserDetails
         def result = [:]
         def user
+
+        result << populateLicense()
+
         user = User.findByUsername(userDetails.username)
         if(user){
             if(user?.type == "CC"){
@@ -45,12 +49,17 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
             if(!user?.isActive){
                 result.put("status" , "isNotActive")
             } else {
-                user.lastLogin = new Date()
-                user.save(flush:true)
+                if(result?.license != "agentLimitExceeded"
+                        || result?.license != "supportExpired_agentLimitExceeded")
+                {
+                    user.lastLogin = new Date()
+                    user.isLoggedIn = true
+                    user.save(flush:true)
+                }
             }
         } else {
             try{
-                def adUser = new User(username: userDetails.username, password: AuthorizationService.maskIt(), type: "AD",
+                def adUser = new User(username: userDetails.username, password: authorizationService.maskIt(), type: "AD",
                         isActive: true)
                 adUser.save(flush: true, failOnError: true)
             }catch (Exception ex){
@@ -81,14 +90,26 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
     }
 
     def getTeams(String user){
-//        def rest = new RestBuilder()
-//        def config = Holders.config
-//        def resp
-//        def adminPanel = config.getProperty('names.adminPanel')
-//        def serv = Microservice.findByName(adminPanel)
-//        if(serv)
-//            resp = rest.get("${serv?.ipAddress}/${serv.name}/agent/getAgentTeam?id=${user}")
+
         def resp = userService.getAgentTeams(user)
         return resp
+    }
+
+    def populateLicense(){
+
+        def validity = authorizationService.validateLicense()
+        def loggedInUsers = User.countByIsLoggedIn(true)
+
+        if(validity == "invalid"){
+            return ["license": "invalid"]
+        } else if(validity == "expired"){
+            return ["license": "licenseExpired"]
+        } else if(validity == "supportExpired" && loggedInUsers > licensingService.numberOfAgents){
+            return ["license": "supportExpired_agentLimitExceeded", "agentLimit":licensingService.numberOfAgents]
+        } else if(loggedInUsers > licensingService.numberOfAgents){
+            return ["license": "agentLimitExceeded", "agentLimit":licensingService.numberOfAgents]
+        } else if(validity == "validLicense"){
+            return ["license": "validLicense", "licensedTo" : licensingService.licensedTo]
+        }
     }
 }

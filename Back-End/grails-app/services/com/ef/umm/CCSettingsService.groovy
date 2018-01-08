@@ -105,7 +105,7 @@ class CCSettingsService {
     }
 
     def flushSettings(){
-        ccType = null
+        ccType = -1
         primaryIp = null
         primaryUsername = null
         primaryPassword = null

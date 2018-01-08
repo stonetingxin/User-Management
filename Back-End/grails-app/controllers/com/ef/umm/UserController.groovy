@@ -747,6 +747,33 @@ class UserController extends RestfulController<User> {
         parseResponse(response)
     }
 
+    def logout(){
+        def out = [:]
+        def id = params?.username
+        def user = User.findByUsername(id)
+        if(user){
+            if(!user.isLoggedIn){
+                response.status = 406
+                out = [status:NOT_ACCEPTABLE, message: "User already logged out"]
+            } else{
+                try{
+                    user.isLoggedIn = false
+                    user.save(flush:true, failOnError: true)
+                    response.status = 200
+                    out = [status:OK, message: "Successfully logged out"]
+                } catch (Exception ex){
+                    log.error(ex.getMessage())
+                    response.status = 500
+                    out = [status:INTERNAL_SERVER_ERROR, message: "Internal server error."]
+                }
+            }
+        }else {
+            response.status = 404
+            out = [status:NOT_FOUND, message: "user not found"]
+        }
+
+        render out as JSON
+    }
 
     def parseResponse(response) {
         if (response?.status)

@@ -10,12 +10,36 @@ class AuthorizationService {
 
     def springSecurityService
     def restService
+    def licensingService
+
+    def validateLicense(){
+        if(!licensingService.valid){
+            return "invalid"
+        } else {
+            def curDate = new Date()
+            def expiryDate = licensingService.expiryDate
+            def supportExpiryDate = licensingService.supportExpiryDate
+            if(curDate> expiryDate){
+                return "expired"
+            } else if(curDate>supportExpiryDate){
+                return "supportExpired"
+            } else{
+                return "validLicense"
+            }
+        }
+    }
 
     def authIntercept(def request, def params ){
         def resultSet = [:]
         def user, microName, controller
         def action, micro, resp
         def response = [:]
+        def validity = validateLicense()
+        if(validity == "invalid"){
+            resultSet.put("license", "invalid")
+        } else if(validity == "supportExpired"){
+            resultSet.put("license", "supportExpired")
+        }
         try{
             def req = request?.forwardURI - "/umm"
             resultSet.put("status", FORBIDDEN)
@@ -302,7 +326,10 @@ class AuthorizationService {
         def tokens = strippedURI.tokenize("/")
 
         if(tokens[0]== 'user' ||tokens[0]== 'microservice'
-                ||tokens[0]== 'role' ||tokens[0]== 'permission' ||tokens[0]== 'applicationSetting'){
+                ||tokens[0]== 'role' ||
+                tokens[0]== 'permission' ||
+                tokens[0]== 'license' ||
+                tokens[0]== 'applicationSetting'){
             microName = "umm"
             controller = tokens[0]
             action = tokens[1]

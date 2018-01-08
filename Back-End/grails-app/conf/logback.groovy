@@ -1,5 +1,9 @@
+import ch.qos.logback.classic.filter.ThresholdFilter
 import grails.util.Environment
 import org.springframework.boot.ApplicationPid
+import org.springframework.boot.logging.logback.ColorConverter
+import org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
+
 import java.nio.charset.Charset
 import ch.qos.logback.core.rolling.RollingFileAppender
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy
@@ -10,7 +14,14 @@ import ch.qos.logback.classic.filter.LevelFilter
 
 
 
-def basePath = "C:\\EF\\UMM"
+def basePath
+if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    basePath = "C:\\EF\\UMM"
+} else {
+    basePath = "/var/log/EF/"
+}
+
+
 
 
 //scan("30 seconds")
@@ -21,8 +32,8 @@ if (!System.getProperty("PID")) {
     System.setProperty("PID", (new ApplicationPid()).toString())
 }
 
-conversionRule 'clr', org.springframework.boot.logging.logback.ColorConverter
-conversionRule 'wex', org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter
+conversionRule 'clr', ColorConverter
+conversionRule 'wex', WhitespaceThrowableProxyConverter
 
 // See http://logback.qos.ch/manual/groovy.html for details on configuration
 appender('STDOUT', ConsoleAppender) {
@@ -57,7 +68,7 @@ if(!Environment.isDevelopmentMode()) {
             maxHistory = 30
             totalSizeCap = FileSize.valueOf("5MB")
         }
-        filter(ch.qos.logback.classic.filter.LevelFilter) {
+        filter(LevelFilter) {
             level = ERROR
             onMatch = DENY
             onMismatch = ACCEPT
@@ -101,7 +112,7 @@ if(!Environment.isDevelopmentMode()) {
             totalSizeCap = FileSize.valueOf("5MB")
         }
 
-        filter(ch.qos.logback.classic.filter.ThresholdFilter) {
+        filter(ThresholdFilter) {
             level = ERROR
         }
     }
