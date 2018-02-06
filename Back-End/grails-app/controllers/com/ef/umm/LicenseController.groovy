@@ -1,10 +1,6 @@
 package com.ef.umm
 
-import com.ef.apps.licensing.JniWrapper
 import grails.converters.JSON
-
-import java.text.SimpleDateFormat
-
 import static org.springframework.http.HttpStatus.*
 
 class LicenseController {
@@ -16,17 +12,14 @@ class LicenseController {
         if(lic){
             response.status = 200
             resultSet.put("status", OK)
-            resultSet.put("licenseKey", lic.lic)
-            resultSet.creationDate = licensingService.creationDate
-            resultSet.expiryDate = licensingService.expiryDate
-            resultSet.supportExpiryDate = licensingService.supportExpiryDate
-            resultSet.numberOfAgents = licensingService.numberOfAgents
-            resultSet.mac = licensingService.mac
-            resultSet.licensedTo = licensingService.licensedTo
-            resultSet.valid = licensingService.valid
+            resultSet.put("licenseKey", lic.licenseKey)
+            resultSet << licensingService.getAttribs()
+            resultSet << licensingService.validateLicense()
+            resultSet.curDate = licensingService?.getCurrentDate()
             render resultSet as JSON
             return
         } else {
+            licensingService.init()
             response.status = 404
             resultSet.put("status", NOT_FOUND)
             render resultSet as JSON
@@ -35,7 +28,7 @@ class LicenseController {
 
     def save(){
         def resultSet = [:]
-        if(!params?.lic){
+        if(!params?.licenseKey){
             response.status = 406
             resultSet.put("status", NOT_ACCEPTABLE)
             resultSet.put("message", "Please provide license key in parameters.")
@@ -49,7 +42,7 @@ class LicenseController {
                 instance.delete()
             }
 
-            def newInstance = new License(lic: params?.lic)
+            def newInstance = new License(licenseKey: params?.licenseKey)
             newInstance.validate()
             if(newInstance.hasErrors()){
                 resultSet.put("status", NOT_ACCEPTABLE)
@@ -67,7 +60,9 @@ class LicenseController {
                 resultSet.put("status", CREATED)
                 resultSet.put("message", "Successfully added the license key")
                 resultSet << licensingService.getAttribs()
-                resultSet << [licenseKey:params?.lic]
+                resultSet << licensingService.validateLicense()
+                resultSet << [licenseKey:params?.licenseKey]
+                resultSet.curDate = licensingService?.getCurrentDate()
                 response.status = 201
                 render resultSet as JSON
                 return
@@ -81,7 +76,7 @@ class LicenseController {
             }
 
         }catch (Exception ex){
-            log.error("Exception occured while creating/updating license: ", ex)
+            log.error("Exception occured while creating/updating license: ${ex.getMessage()}", ex)
             resultSet.put("status", INTERNAL_SERVER_ERROR)
             resultSet.put("message", ex.getMessage())
             response.status = 500
@@ -91,9 +86,8 @@ class LicenseController {
 
     def validate(){
         def resultSet = [:]
-        String pattern = "yyyy-MM-dd"
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern)
-        def licenseKey = params?.lic
+
+        def licenseKey = params?.licenseKey
         if(!licenseKey){
             response.status = 406
             resultSet.put("status", NOT_ACCEPTABLE)
@@ -103,35 +97,15 @@ class LicenseController {
         }
 
         try{
-            def keyString = licenseKey.toString()
-            def decrypted = JniWrapper.decrypt(keyString)
-            def tokenized = decrypted.tokenize("#")
-            resultSet.creationDate = simpleDateFormat.parse(tokenized[0])
-            resultSet.expiryDate = simpleDateFormat.parse(tokenized[1])
-            resultSet.supportExpiryDate = simpleDateFormat.parse(tokenized[2])
-            resultSet.numberOfAgents = tokenized[3].toInteger()
-            def fullMAC = tokenized[4]
-            resultSet.mac = fullMAC.tokenize(":")
-            resultSet.licensedTo = tokenized[5]
-            resultSet.TRIAL = tokenized[6] == "trial"
-            resultSet.valid = true
-            log.info("Successfully validated the license key.")
-            resultSet.message = "success"
+            resultSet << licensingService.validateKey(licenseKey)
+            resultSet.curDate = licensingService?.getCurrentDate()
             response.status = 200
             render resultSet as JSON
-            return
 
         } catch(Exception ex){
-            log.error("Exception occured while validating license: ", ex)
-            resultSet.creationDate = null
-            resultSet.expiryDate = null
-            resultSet.supportExpiryDate = null
-            resultSet.numberOfAgents = null
-            resultSet.mac = null
-            resultSet.licensedTo = null
-            resultSet.valid = false
+            log.error("Exception occured while validating license: ${ex.getMessage()}", ex)
             resultSet.message = "error"
-            response.status = 406
+            response.status = 500
             render resultSet as JSON
         }
     }

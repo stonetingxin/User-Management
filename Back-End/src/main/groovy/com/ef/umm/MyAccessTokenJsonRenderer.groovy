@@ -33,7 +33,8 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
         def result = [:]
         def user
 
-        result << populateLicense()
+        result << licensingService?.validateLicense()
+        result << licensingService?.getAttribs()
 
         user = User.findByUsername(userDetails.username)
         if(user){
@@ -93,23 +94,5 @@ class MyAccessTokenJsonRenderer implements AccessTokenJsonRenderer {
 
         def resp = userService.getAgentTeams(user)
         return resp
-    }
-
-    def populateLicense(){
-
-        def validity = authorizationService.validateLicense()
-        def loggedInUsers = User.countByIsLoggedIn(true)
-
-        if(validity == "invalid"){
-            return ["license": "invalid"]
-        } else if(validity == "expired"){
-            return ["license": "licenseExpired"]
-        } else if(validity == "supportExpired" && loggedInUsers > licensingService.numberOfAgents){
-            return ["license": "supportExpired_agentLimitExceeded", "agentLimit":licensingService.numberOfAgents]
-        } else if(loggedInUsers > licensingService.numberOfAgents){
-            return ["license": "agentLimitExceeded", "agentLimit":licensingService.numberOfAgents]
-        } else if(validity == "validLicense"){
-            return ["license": "validLicense", "licensedTo" : licensingService.licensedTo]
-        }
     }
 }

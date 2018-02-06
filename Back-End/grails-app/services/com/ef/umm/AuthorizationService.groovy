@@ -10,61 +10,31 @@ class AuthorizationService {
 
     def springSecurityService
     def restService
-    def licensingService
-
-    def validateLicense(){
-        if(!licensingService.valid){
-            return "invalid"
-        } else {
-            def curDate = new Date()
-            def expiryDate = licensingService.expiryDate
-            def supportExpiryDate = licensingService.supportExpiryDate
-            if(curDate> expiryDate){
-                return "expired"
-            } else if(curDate>supportExpiryDate){
-                return "supportExpired"
-            } else{
-                return "validLicense"
-            }
-        }
-    }
 
     def authIntercept(def request, def params ){
         def resultSet = [:]
         def user, microName, controller
         def action, micro, resp
         def response = [:]
-        def validity = validateLicense()
-        if(validity == "invalid"){
-            resultSet.put("license", "invalid")
-        } else if(validity == "supportExpired"){
-            resultSet.put("license", "supportExpired")
-        }
+
         try{
             def req = request?.forwardURI - "/umm"
             resultSet.put("status", FORBIDDEN)
             resultSet.put("message", "Access forbidden. User not authorized to request this resource.")
 
-            if(!getAuthToken(request)){
-                log.info("Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
-                resultSet.put("message", "Access denied. Token not provided in the header.")
-                response.status = 403
-                response.resultSet = resultSet
-                response.auth = false
-                return response
-            }
-
-            def userName= extractUsername(getAuthToken(request))
             (microName, controller, action) = extractURI(request.forwardURI)
 
             if(microName == "base" || (action == "isUserAuthentic" && microName == "umm")
                     || (action == "getAgentTeam" && microName == "umm")
-                    || (action == "list" && controller == "microservice")){
+                    || (action == "list" && controller == "microservice")
+                    || (microName == "umm" && controller == "license")){
                 response.status = 200
                 response.auth=true
                 return response
             }
-            
+
+            def userName= extractUsername(getAuthToken(request))
+
             log.info("Name of the microservice is: " + microName)
             log.info("Name of the controller is: " + controller)
             log.info("Name of the action is: " + action)
@@ -84,6 +54,15 @@ class AuthorizationService {
 //        log.info("...........................info.............................")
 //        log.debug("...........................debug.............................")
 //        log.trace("...........................trace.............................")
+
+            if(!getAuthToken(request)){
+                log.info("Access denied. Either token not provided in the header or header name is wrong. Header name should be 'Authorization' without quotes.")
+                resultSet.put("message", "Access denied. Token not provided in the header.")
+                response.status = 403
+                response.resultSet = resultSet
+                response.auth = false
+                return response
+            }
 
             micro = Microservice.findByName(microName)
 

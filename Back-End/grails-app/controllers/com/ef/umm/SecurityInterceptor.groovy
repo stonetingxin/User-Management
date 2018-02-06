@@ -11,6 +11,8 @@ class SecurityInterceptor {
     static transactional = false
     int order = HIGHEST_PRECEDENCE+100
     def authorizationService
+    def licensingService
+
     public SecurityInterceptor(){
         match(uri: "/**")
                 .excludes(uri: "/umm/console/**")
@@ -25,19 +27,32 @@ class SecurityInterceptor {
 
     @Transactional
     boolean before() {
+        def resp = [:]
 
-        def validity = authorizationService.validateLicense()
+        def validity = licensingService.validateLicense()
 
-        if(validity == "expired"){
-            response.status = 404
-            def licExp = [status: NOT_FOUND, message: "licenseExpired"]
-            render licExp as JSON
-            return false
+        if(     request.forwardURI != "/umm/license/index" &&
+                request.forwardURI != "/umm/license/save" &&
+                request.forwardURI != "/umm/license/validate"){
+
+            if(validity?.license == "valid"){
+                if (validity?.licStatus == "trial") {
+                    if(validity?.license == "expired"){
+                        response.status = 400
+                        render validity as JSON
+                        return false
+                    }
+                }
+            }else{
+                response.status = 400
+                render validity as JSON
+                return false
+            }
         }
 
-
-        def resp = authorizationService.authIntercept(request, params)
-
+        resp<< validity
+        resp<< licensingService?.getAttribs()
+        resp << authorizationService.authIntercept(request, params)
 
         // In case of exception, return status with termination of execution
         if(resp?.ex){

@@ -220,7 +220,7 @@
                    ng-src="{{$chip.avatar}}"/>
               <span>{{$chip.fullName}}</span>
             </md-chip-template>
-            <button ng-hide="$chip.username === 'admin'" md-chip-remove class="md-primary">
+            <button ng-hide="$chip.username === 'admin' || $chip.username === vm.currentUser" md-chip-remove class="md-primary">
               <md-icon md-font-icon="icon-close" class="s18"></md-icon>
             </button>
 

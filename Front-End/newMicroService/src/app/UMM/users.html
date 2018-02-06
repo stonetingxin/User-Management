@@ -15,7 +15,6 @@
       </md-button>
     </div>
   </div>
-
   <md-fab-speed-dial ng-hide="vm.hidden" md-direction="down" md-open="vm.isOpen" class="md-scale new-multiple"
                      ng-class="{ 'md-hover-full': vm.hover }" ng-mouseenter="vm.isOpen=true"
                      ng-mouseleave="vm.isOpen=false">
@@ -171,7 +170,7 @@
 
             <md-menu-item>
               <md-button ng-click="vm.listOrder = 'fullName';vm.listOrderAsc = false"
-                         ng-style="vm.listOrder === 'name' && vm.listOrderAsc=== false && {'font-weight':'500'}">
+                         ng-style="vm.listOrder === 'fullName' && vm.listOrderAsc=== false && {'font-weight':'500'}">
                 <span translate="CONTACTS.FIRST_NAME">First Name</span>
                 <small translate="CONTACTS.A_TO_Z">(A to Z)</small>
               </md-button>
@@ -179,7 +178,7 @@
 
             <md-menu-item>
               <md-button ng-click="vm.listOrder = 'fullName'; vm.listOrderAsc = true"
-                         ng-style="vm.listOrder === 'name' && vm.listOrderAsc=== true && {'font-weight':'500'}">
+                         ng-style="vm.listOrder === 'fullName' && vm.listOrderAsc=== true && {'font-weight':'500'}">
                 <span translate="CONTACTS.FIRST_NAME">First Name</span>
                 <small translate="CONTACTS.Z_TO_A">(Z to A)</small>
               </md-button>
@@ -376,6 +375,7 @@
 
 
 </div>
+
 <!-- / CONTENT -->
 <!-- Roles' Tab ends here-->
 

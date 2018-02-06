@@ -17,7 +17,6 @@ class RestService {
     def authorizationService
     GrailsApplication grailsApplication
     def CCSettingsService
-    def executorService
     UCCXServiceStatusBean uccxServiceStatusBean = new UCCXServiceStatusBean()
 
     def syncAgents() {
@@ -155,7 +154,7 @@ class RestService {
         def microName, controller, action
         def req = request?.forwardURI - "/umm"
 
-        def method = request?.method.toLowerCase()
+        def method = request?.method?.toLowerCase()
         def userName= extractUsername(request)
         (microName, controller, action) = extractUri(request)
         def micro = Microservice.findByName(microName)
@@ -195,22 +194,13 @@ class RestService {
             if(params?.keySet == jsonSlurped?.keySet){
                 jsonData = jsonData as JSON
                 resp = makeRestCall(1, method, micro, req, jsonData, null, null)
-//                resp = rest."${method}"("${micro?.ipAddress}${req}"){
-//                    json(jsonData)
-//                }
             } else{
                 if(validJson(params.values())){
                     resp =makeRestCall(2, method, micro, req, null, queryJson, null)
-//                    resp = rest."${method}"("${micro?.ipAddress}${req}") {
-//                        json(queryJson)
-//                    }
                 }
                 else{
                     jsonData = jsonData as JSON
                     resp =makeRestCall(3, method, micro, req, jsonData, null, queryString)
-//                    resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}"){
-//                        json(jsonData)
-//                    }
                 }
             }
 
@@ -219,9 +209,6 @@ class RestService {
             if(validJson(params.values())) {
                 log.info("Sending JSON in the body: " + queryJson)
                 resp =makeRestCall(4, method, micro, req, null, queryJson, null)
-//                resp = rest."${method}"("${micro?.ipAddress}${req}") {
-//                    json(queryJson)
-//                }
             } else{
                 if(action == "save" || action == "create"){
                     queryString = queryString + "&createdBy='${userName}'"
@@ -230,7 +217,6 @@ class RestService {
                 }
                 log.info("Sending parameters as Query String: " + queryString)
                 resp = makeRestCall(5, method, micro, req, null, null, queryString)
-//                resp = rest."${method}"("${micro?.ipAddress}${req}?${queryString}")
             }
         } else if(jsonData){
             if(action == "save" || action == "create"){
@@ -240,12 +226,8 @@ class RestService {
             }
             jsonData = jsonData as JSON
             resp =makeRestCall(6, method, micro, req, jsonData, null, null)
-//            resp = rest."${method}"("${micro?.ipAddress}${req}") {
-//                json(jsonData)
-//            }
         } else{
             resp = makeRestCall(7, method, micro, req, null, null, null)
-//            resp = rest."${method}"("${micro?.ipAddress}${req}")
         }
 
         return resp

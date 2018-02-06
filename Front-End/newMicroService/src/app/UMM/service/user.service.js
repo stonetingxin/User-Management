@@ -111,7 +111,7 @@
 
       },
       roleUser: {
-        method: 'PUT',
+        method: 'GET',
         url: window.appBaseUrl + '/role/roleUser/',
         //isArray: true,
         params: {

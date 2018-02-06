@@ -19,6 +19,7 @@
     vm.contacts = contacts;
     vm.roleUser = [];
     vm.roles = angular.copy(Roles);
+    vm.currentUser = $rootScope._user.username;
 
     //vm.user = User;
     vm.newRole = false;
@@ -360,6 +361,13 @@
       });
       if (ind !== -1)
         results.splice(ind, 1);
+
+      ind = _.findIndex(results, function (o) {
+        return o.username === $rootScope._user.username;
+      });
+      if (ind !== -1)
+        results.splice(ind, 1);
+
       return results;
 
     }
@@ -450,7 +458,7 @@
     }
 
     function filterUsers(label) {
-      if (label.username === 'admin')
+      if (label.username === 'admin' || label.username === vm.currentUser)
         return false;
 
       if (!vm.labelSearchUserText || vm.labelSearchUserText === '') {

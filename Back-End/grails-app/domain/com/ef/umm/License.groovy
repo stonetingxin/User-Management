@@ -2,8 +2,9 @@ package com.ef.umm
 
 class License {
 
-    String lic
+    String licenseKey
+
     static constraints = {
-        lic nullable: false
+        licenseKey nullable: false
     }
 }
