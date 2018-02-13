@@ -13,8 +13,8 @@ class BootStrap {
     def licensingService
 
     def init = { servletContext ->
-        String path = "/home/saqib/dev/tripledes-dll/output/libTrippleDes.so"
-        Runtime.getRuntime().load0(groovy.lang.GroovyClassLoader.class, path)
+//        String path = "/home/saqib/dev/tripledes-dll/output/libTrippleDes.so"
+//        Runtime.getRuntime().load0(groovy.lang.GroovyClassLoader.class, path)
 
         CCSettingsService.initialize()
         licensingService.init()

@@ -50,13 +50,13 @@
         // Translation
 
         // Navigation
-        msNavigationServiceProvider.saveItem('user', {
-           title : 'UMM.umm',
-           icon  : 'icon-account-circle',
-           state : 'app.users',
-           weight: 10,
-           backendController: 'user'
-        });
+        // msNavigationServiceProvider.saveItem('user', {
+        //    title : 'UMM.umm',
+        //    icon  : 'icon-account-circle',
+        //    state : 'app.users',
+        //    weight: 10,
+        //    backendController: 'user'
+        // });
 
     }
 angular.module('fuse').requires.push('app.users');

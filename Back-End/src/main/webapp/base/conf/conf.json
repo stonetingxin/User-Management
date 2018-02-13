@@ -2,7 +2,8 @@
 "environment" : "prod",
   "state" : "app.base",
   "extraSettings" : true,
-  "gatewayUrl" : "http://localhost:9091/umm",
-  "tamURL" : "http://192.168.1.76:8080/tam"
-
+  "gatewayUrl" : "http://192.168.1.202:9091/umm",
+  "tamURL" : "http://192.168.1.202:8080/tam",
+  "ecmURL" : "http://192.168.1.202:8080/ecm",
+  "applicationVersion":"12.x"
 }

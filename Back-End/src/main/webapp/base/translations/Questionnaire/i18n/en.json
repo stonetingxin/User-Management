@@ -1,0 +1,50 @@
+{
+  "formAppName":{
+    "name":"Form Builder",
+    "forms":"Forms",
+    "ruleDef":"Rule Definitions"
+  },
+  "question":{
+    "question" : "Question",
+    "questions" : "Questions",
+    "label_1" : "Label 1",
+    "label_2" : "Label 2",
+    "prompt"  :"Prompt",
+    "option" : "Option",
+    "item"  : "Item",
+    "deleted" : "deleted",
+    "added" : "added",
+    "range" : "Range",
+    "rating" : "Rating",
+    "boolean" : "Boolean",
+    "mcq" : "MCQ",
+    "text" : "Text",
+    "audio" : "Audio",
+    "answer" : "Answer",
+    "answerHere" : "Short answer text",
+    "addOptions" : "Add Option",
+    "questionnaire" : "EF Questionnaire",
+    "questionnaires" : "Questionnaires",
+    "saveForm" : "Save Form",
+    "formName" : "Form name",
+    "form" : "Form",
+    "dropDown" : "Dropdown",
+    "selectOption" : "Select Option",
+    "totalQuestions" : "Total Questions",
+    "responseSubmitted" : "Response Submitted Successfully",
+    "checkBox" : "Checkbox",
+    "config" : "Configure",
+    "questionType" : "Question type"
+
+  },
+  "rule" : {
+    "rule" : "Rule",
+    "form" : "Form",
+    "CV_NAME" : "Call Variable",
+    "CV_VALUE" : "Value",
+    "ADD" : "Add",
+    "rules" : "Rules",
+    "ruleOrder" : "Order of rules"
+
+  }
+}
