@@ -122,6 +122,7 @@
     "updateErrorMessage": "Update Error",
     "charSize": "{{field}} must be unique",
     "specialChar": "Special characters, spaces, characters less than 3 and greater than 30 are not allowed in {{field}}",
+    "specialCharSpace": "Special characters, characters less than 3 and greater than 30 are not allowed in {{field}}",
     "specialWithSpaceChar": "{{field}} cannot have special characters",
     "onlyNumber": "Enter only numbers",
     "minNumber": "Value cannot be less than 1",

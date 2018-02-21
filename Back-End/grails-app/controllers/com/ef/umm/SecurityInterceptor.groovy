@@ -35,7 +35,7 @@ class SecurityInterceptor {
                 request.forwardURI != "/umm/license/save" &&
                 request.forwardURI != "/umm/license/validate"){
 
-            if(validity?.license == "valid"){
+            if(validity?.license == "valid" || validity?.license == "supportExpired"){
                 if (validity?.licStatus == "trial") {
                     if(validity?.license == "expired"){
                         response.status = 400
